@@ -71,26 +71,6 @@ export function ChatInterface() {
       </ScrollArea>
       <div className="p-4 border-t border-gray-200">
         <div className="flex flex-col gap-2">
-          <div className="flex justify-end mb-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs flex items-center gap-1"
-              onClick={() => setUseGemini(!useGemini)}
-            >
-              {useGemini ? (
-                <>
-                  <span>Using Gemini</span>
-                  <ToggleRight className="h-4 w-4 text-green-500" />
-                </>
-              ) : (
-                <>
-                  <span>Using OpenAI</span>
-                  <ToggleLeft className="h-4 w-4 text-blue-500" />
-                </>
-              )}
-            </Button>
-          </div>
           <div className="flex gap-2">
             <Input
               value={input}
