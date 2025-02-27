@@ -1,78 +1,113 @@
-import React, { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+
 import { useTranslation } from "react-i18next";
-import { NewsItem } from "shared/types";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Carousel, 
+import { useQuery } from "@tanstack/react-query";
+import {
+  Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious
+  CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-import Autoplay from "embla-carousel-autoplay";
-import { Clock } from "lucide-react"; // Added from original code
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Clock } from "lucide-react";
 
+interface NewsItem {
+  id: number;
+  title: string;
+  content: string;
+  language: string;
+  timestamp: string;
+  category?: string; // Added category field
+}
 
-export default function NewsWidget() {
-  const { t, i18n } = useTranslation();
-  const [parent] = useAutoAnimate();
-  const { data: news, isLoading } = useQuery<NewsItem[]>({
+export function NewsWidget() {
+  const { i18n, t } = useTranslation();
+  const { data: newsItems, isLoading } = useQuery<NewsItem[]>({
     queryKey: ["/api/news"],
+    refetchInterval: 15000, // Refresh every 15 seconds
   });
 
-  // Custom Prayagraj Kumbh Mela news based on language
+  // Filter news by current language
+  const filteredNews = newsItems?.filter(
+    item => item.language === i18n.language || item.language === "all"
+  ) || [];
+
+  // Add Prayagraj Kumbh Mela news with categories
   const prayagrajNews = {
     en: [
       {
         id: 101,
-        title: "Grand Shahi Snan Schedule Announced",
-        content: "The schedule for five Shahi Snans (royal baths) in Prayagraj Kumbh Mela has been announced. The first Shahi Snan will be on Makar Sankranti.",
+        title: "Prayagraj Kumbh Mela 2025 Preparations Begin",
+        content: "Officials have started preparations for the grand Prayagraj Kumbh Mela 2025. New bathing ghats and improved infrastructure are being planned.",
         language: "en",
         timestamp: new Date().toISOString(),
         category: "Event"
       },
       {
         id: 102,
-        title: "New Pontoon Bridges Open for Devotees",
-        content: "Three new pontoon bridges have been opened to manage the increased flow of pilgrims between Sangam and the mela area.",
+        title: "Special Train Services for Prayagraj Kumbh",
+        content: "Indian Railways has announced special train services connecting major cities to Prayagraj for the upcoming Kumbh Mela in 2025.",
         language: "en",
         timestamp: new Date().toISOString(),
         category: "Transport"
       },
       {
         id: 103,
-        title: "Prime Minister to Visit Kumbh on February 12th",
-        content: "The Prime Minister will visit Prayagraj Kumbh on February 12th and will participate in a special Ganga Pujan ceremony.",
+        title: "Cultural Programs Planned for Prayagraj Kumbh",
+        content: "A series of cultural programs showcasing India's diverse heritage will be organized during the Prayagraj Kumbh Mela 2025.",
         language: "en",
         timestamp: new Date().toISOString(),
-        category: "Event"
+        category: "Culture"
+      },
+      {
+        id: 104,
+        title: "EMERGENCY: Crowd Management Alert at Sangam Area",
+        content: "Authorities have issued a crowd management alert for the Sangam area due to unexpected high turnout. Visitors are advised to follow official instructions.",
+        language: "en",
+        timestamp: new Date().toISOString(),
+        category: "Emergency"
       }
     ],
     hi: [
       {
-        id: 104,
-        title: "शाही स्नान कार्यक्रम की घोषणा",
-        content: "प्रयागराज कुंभ मेला में पांच शाही स्नान (रॉयल बाथ) के कार्यक्रम की घोषणा कर दी गई है। पहला शाही स्नान मकर संक्रांति पर होगा।",
+        id: 105,
+        title: "प्रयागराज कुंभ मेला 2025 की तैयारियां शुरू",
+        content: "अधिकारियों ने भव्य प्रयागराज कुंभ मेला 2025 की तैयारियां शुरू कर दी हैं। नए स्नान घाट और बेहतर बुनियादी ढांचे की योजना बनाई जा रही है।",
         language: "hi",
         timestamp: new Date().toISOString(),
         category: "Event"
       },
       {
-        id: 105,
-        title: "श्रद्धालुओं के लिए नए पोंटून पुल खुले",
-        content: "संगम और मेला क्षेत्र के बीच तीर्थयात्रियों के बढ़ते प्रवाह को प्रबंधित करने के लिए तीन नए पोंटून पुल खोले गए हैं।",
+        id: 106,
+        title: "प्रयागराज कुंभ के लिए विशेष ट्रेन सेवाएं",
+        content: "भारतीय रेलवे ने आगामी कुंभ मेले के लिए प्रमुख शहरों को प्रयागराज से जोड़ने वाली विशेष ट्रेन सेवाओं की घोषणा की है।",
         language: "hi",
         timestamp: new Date().toISOString(),
         category: "Transport"
+      },
+      {
+        id: 107,
+        title: "आपातकालीन: संगम क्षेत्र में भीड़ प्रबंधन अलर्ट",
+        content: "अप्रत्याशित अधिक भीड़ के कारण अधिकारियों ने संगम क्षेत्र के लिए भीड़ प्रबंधन अलर्ट जारी किया है। आगंतुकों को आधिकारिक निर्देशों का पालन करने की सलाह दी जाती है।",
+        language: "hi",
+        timestamp: new Date().toISOString(),
+        category: "Emergency"
       }
     ],
     mr: [
       {
-        id: 106,
-        title: "आपत्कालीन सूचना: गर्दी टाळण्यासाठी मार्गदर्शन",
-        content: "कुंभ मेळामध्ये अधिक गर्दी असल्याने, भाविकांना सुरक्षा सूचनांचे पालन करण्याचा सल्ला देण्यात आला आहे.",
+        id: 108,
+        title: "प्रयागराज कुंभ मेळा 2025 ची तयारी सुरू",
+        content: "अधिकाऱ्यांनी भव्य प्रयागराज कुंभ मेळा 2025 च्या तयारीला सुरुवात केली आहे. नवीन स्नान घाट आणि सुधारित पायाभूत सुविधांचे नियोजन केले जात आहे.",
+        language: "mr",
+        timestamp: new Date().toISOString(),
+        category: "Event"
+      },
+      {
+        id: 109,
+        title: "आपत्कालीन: संगम क्षेत्रात गर्दी व्यवस्थापन सतर्कता",
+        content: "अनपेक्षित अधिक गर्दीमुळे अधिकाऱ्यांनी संगम क्षेत्रासाठी गर्दी व्यवस्थापन सतर्कता जारी केली आहे. भेट देणाऱ्यांना अधिकृत सूचनांचे पालन करण्याचा सल्ला देण्यात आला आहे.",
         language: "mr",
         timestamp: new Date().toISOString(),
         category: "Emergency"
@@ -81,10 +116,6 @@ export default function NewsWidget() {
   };
 
   // Add news based on selected language
-  const filteredNews = news?.filter(item => 
-    item.language === i18n.language || item.language === "en"
-  ) || [];
-
   const allNews = [...filteredNews, ...(prayagrajNews[i18n.language as keyof typeof prayagrajNews] || [])];
 
   // Group news by category
@@ -114,15 +145,6 @@ export default function NewsWidget() {
     }
   };
 
-  // Create a flat list of all news for carousel
-  const allNewsFlat = categories.flatMap(category => 
-    groupedNews[category].map(news => ({...news, category}))
-  );
-
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  );
-
   return (
     <div className="w-full bg-white rounded-lg shadow-md p-4">
       <h2 className="text-xl font-semibold mb-4 text-[#FF7F00] flex items-center">
@@ -136,40 +158,44 @@ export default function NewsWidget() {
         </div>
       ) : (
         <div className="space-y-6">
-          <Carousel 
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            plugins={[plugin.current]}
-            className="w-full"
-          >
-            <CarouselContent>
-              {allNewsFlat.map(news => (
-                <CarouselItem key={news.id} className="md:basis-1/2">
-                  <div className="bg-gray-50 p-4 rounded-lg h-full">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium text-gray-900">{news.title}</h3>
-                      <Badge className={`${getBadgeColor(news.category)} text-white text-xs`}>
-                        {news.category}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{news.content}</p>
-                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                      <span className="relative">
-                        {new Date(news.timestamp).toLocaleTimeString()}
-                        <span className="absolute -left-2 top-1/2 transform -translate-y-1/2 h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
-                      </span>
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex justify-end space-x-2 mt-2">
-              <CarouselPrevious className="static transform-none" />
-              <CarouselNext className="static transform-none" />
+          {categories.map(category => (
+            <div key={category} className="mb-4">
+              <div className="flex items-center mb-2">
+                <Badge className={`${getBadgeColor(category)} text-white`}>
+                  {category}
+                </Badge>
+              </div>
+              
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {groupedNews[category].map((item) => (
+                    <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
+                      <Card>
+                        <CardContent className="p-4">
+                          <h3 className="font-bold mb-2">{item.title}</h3>
+                          <p className="text-sm text-gray-600 mb-3">{item.content}</p>
+                          <div className="flex items-center gap-1 text-xs text-gray-400">
+                            <Clock className="h-3 w-3" />
+                            <span>
+                              {new Date(item.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex" />
+                <CarouselNext className="hidden md:flex" />
+              </Carousel>
             </div>
-          </Carousel>
+          ))}
         </div>
       )}
     </div>
