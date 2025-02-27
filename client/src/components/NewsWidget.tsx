@@ -149,7 +149,7 @@ export function NewsWidget() {
     <div className="w-full bg-white rounded-lg shadow-md p-4">
       <h2 className="text-xl font-semibold mb-4 text-[#FF7F00] flex items-center">
         <span className="mr-2">📰</span>
-        {t("news_widget.latest_news")}
+        Live News
       </h2>
 
       {isLoading ? (
