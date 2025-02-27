@@ -185,6 +185,34 @@ export class MemStorage implements IStorage {
   }
 
   async getAllCrowdLevels(): Promise<CrowdLevel[]> {
+    // Randomly update crowd levels for more dynamic data
+    this.crowdLevels = this.crowdLevels.map(level => {
+      // Generate random fluctuation (-10% to +10% of capacity)
+      const fluctuation = Math.floor((Math.random() * 0.2 - 0.1) * level.capacity);
+      let newCount = level.currentCount + fluctuation;
+      
+      // Ensure count stays within reasonable bounds
+      newCount = Math.max(Math.min(newCount, level.capacity * 1.2), level.capacity * 0.1);
+      newCount = Math.floor(newCount);
+      
+      // Update status based on new count
+      let newStatus = "safe";
+      if (newCount > level.capacity * 0.9) {
+        newStatus = "overcrowded";
+      } else if (newCount > level.capacity * 0.7) {
+        newStatus = "crowded";
+      } else if (newCount > level.capacity * 0.5) {
+        newStatus = "moderate";
+      }
+      
+      return {
+        ...level,
+        currentCount: newCount,
+        status: newStatus,
+        lastUpdated: new Date().toISOString()
+      };
+    });
+    
     return this.crowdLevels;
   }
 }

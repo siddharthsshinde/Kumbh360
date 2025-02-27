@@ -29,7 +29,8 @@ export function CrowdLevelIndicator() {
   const { t } = useTranslation();
   const { data: crowdLevels, isLoading } = useQuery<CrowdLevel[]>({
     queryKey: ["/api/crowd-levels"],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchOnWindowFocus: true,
   });
 
   if (isLoading) {
@@ -78,7 +79,10 @@ export function CrowdLevelIndicator() {
 
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Clock className="h-3 w-3" />
-              <span>Last updated: {new Date(level.lastUpdated).toLocaleTimeString()}</span>
+              <span className="relative">
+                Last updated: {new Date(level.lastUpdated).toLocaleTimeString()}
+                <span className="absolute -left-2 top-1/2 transform -translate-y-1/2 h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+              </span>
             </div>
           </div>
         ))}
