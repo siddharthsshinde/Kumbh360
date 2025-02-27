@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
-import { getChatResponse } from "@/lib/openai";
+import { getChatResponse } from "@/lib/chatbot";
 
 export function ChatInterface() {
   const { t } = useTranslation();
@@ -28,13 +28,6 @@ export function ChatInterface() {
 
     try {
       const response = await getChatResponse([...messages, userMessage]);
-      if (response.includes("API configuration")) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "The chatbot is currently unavailable. Please try again later."
-        });
-      }
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Chat error:", error);
