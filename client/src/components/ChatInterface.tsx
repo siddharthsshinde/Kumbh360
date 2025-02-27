@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Send } from "lucide-react";
 import { Input } from "@/components/ui/input";

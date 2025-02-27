@@ -4,6 +4,7 @@ import { FacilityMap } from "@/components/FacilityMap";
 import { CrowdLevelIndicator } from "@/components/CrowdLevel";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion";
 
 export default function Home() {
   const { i18n } = useTranslation();
@@ -35,6 +36,9 @@ export default function Home() {
           </Button>
         </div>
 
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <RealTimeSafetySuggestion />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <ChatInterface />

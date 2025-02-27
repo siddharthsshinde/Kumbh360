@@ -53,6 +53,12 @@ export function CrowdLevelIndicator() {
                 {level.status.toUpperCase()}
               </span>
             </div>
+            {(level.location === "Tapovan" || level.location === "Ramkund") && level.status === "crowded" && (
+              <div className="mt-1 text-xs text-red-600 flex items-center">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Hold children's hands tightly in this area
+              </div>
+            )}
 
             <div className="space-y-1">
               <div className="flex justify-between text-sm text-gray-600">

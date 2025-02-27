@@ -26,7 +26,10 @@ const intents = {
     'schedule', 'time', 'when', 'date', 'program', 'कार्यक्रम', 'समय', 'कधी', 'shahi snan', 'holy dip', 'bath'
   ],
   crowd: [
-    'crowd', 'busy', 'rush', 'people', 'भीड़', 'गर्दी', 'overcrowded', 'safe', 'safety'
+    'crowd', 'busy', 'rush', 'people', 'भीड़', 'गर्दी', 'overcrowded', 'safe', 'safety', 'tapovan', 'children', 'kids', 'बच्चे', 'child'
+  ],
+  child_safety: [
+    'child', 'children', 'kid', 'kids', 'hold hand', 'lost child', 'बच्चे', 'बच्चा', 'हाथ पकड़े', 'safety'
   ],
   about: [
     'what', 'about', 'tell', 'explain', 'information', 'कुंभ', 'मेला', 'कुंभमेळा', 'meaning'
@@ -70,9 +73,14 @@ const responses: Record<string, string[]> = {
     "There are three main Shahi Snans (Royal Baths) during the Kumbh Mela. The next major snan is scheduled for [date]. Daily rituals begin at sunrise."
   ],
   crowd: [
-    "Current crowd levels are monitored in real-time. Ramkund area shows moderate crowding. You can check the crowd indicators on our map for different locations.",
-    "The crowd monitoring system shows live updates. Currently: Ramkund (Level 3/5), Kalaram Temple (Level 2/5), Tapovan (Level 1/5). Best to visit early morning for smaller crowds.",
-    "I can help you plan your visit based on crowd levels. Early mornings and late evenings typically have fewer people. Which area are you planning to visit?"
+    "⚠️ REAL-TIME UPDATE: Current crowd levels - Ramkund area shows moderate crowding. Tapovan is experiencing higher than usual crowds right now. Please hold children's hands at all times. Check our map for live crowd indicators.",
+    "⚠️ REAL-TIME ALERT: Our crowd monitoring system shows: Ramkund (Level 3/5), Kalaram Temple (Level 2/5), Tapovan (Level 4/5 - CROWDED). If visiting Tapovan, keep children close and maintain tight grip on their hands. Early mornings recommended for smaller crowds.",
+    "I'm monitoring crowd levels in real-time. Currently Tapovan area is showing high crowd density. If you're with children, please hold their hands firmly and consider using child identification wristbands available at information kiosks. Which area are you planning to visit?"
+  ],
+  child_safety: [
+    "⚠️ IMPORTANT SAFETY ALERT: Please hold children's hands tightly in all crowded areas, especially in Tapovan which is currently experiencing high crowd density. Child identification wristbands are available at all information kiosks.",
+    "For children's safety: 1) Always maintain hand contact with children 2) Consider using the special orange safety wristbands 3) Take a photo of your child each morning to record clothing 4) Teach children to approach police personnel if separated. Tapovan currently has HIGH crowd density.",
+    "Real-time safety update: Tapovan crowds are currently at LEVEL 4 (HIGH). Hold children's hands firmly and avoid the central pathways. The northern entrance to Tapovan is less crowded. Would you like directions to the child safety station?"
   ],
   about: [
     "Kumbh Mela is one of the largest spiritual gatherings in the world. In Nashik, it's celebrated along the holy Godavari River. The 2025 mela is especially significant as it marks [specific significance].",
@@ -115,11 +123,27 @@ function getRandomResponse(intent: string): string {
     "I can provide details about the Kumbh Mela's sacred sites, schedules, or facilities. What specific information are you looking for?"
   ];
 
-  return intentResponses[Math.floor(Math.random() * intentResponses.length)];
+  // Get a random response for the intent
+  let response = intentResponses[Math.floor(Math.random() * intentResponses.length)];
+  
+  // Add real-time safety tip for certain intents
+  if (intent === 'locations' || intent === 'about' || intent === 'facilities') {
+    // Add a safety tip about Tapovan and children for certain intents
+    if (Math.random() > 0.5) { // 50% chance to add the tip
+      response += "\n\n⚠️ SAFETY ALERT: Tapovan is currently experiencing high crowd levels. If visiting with children, please hold their hands at all times.";
+    }
+  }
+  
+  return response;
 }
 
 export async function getChatResponse(messages: ChatMessage[]): Promise<string> {
   try {
+    // Check for current crowd conditions at Tapovan - this would normally come from an API
+    // but we're hardcoding for demonstration
+    const isTapovanCrowded = true; 
+    const childSafetyTip = "⚠️ SAFETY ALERT: Tapovan is currently crowded. Please hold children's hands at all times.";
+    
     const userMessage = messages[messages.length - 1].content;
     const intent = findIntent(userMessage);
     const response = getRandomResponse(intent);
