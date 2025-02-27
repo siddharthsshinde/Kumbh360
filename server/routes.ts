@@ -21,6 +21,11 @@ export async function registerRoutes(app: Express) {
     res.json(levels);
   });
 
+  app.get("/api/news", async (_req, res) => {
+    const news = await storage.getAllNews();
+    res.json(news);
+  });
+
   app.get("/api/weather", async (_req, res) => {
     try {
       const API_KEY = process.env.OPENWEATHER_API_KEY;

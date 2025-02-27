@@ -37,8 +37,11 @@ const resources = {
       emergency: "आपत्कालीन सेवा",
       temperature: "तापमान",
       humidity: "आर्द्रता",
-      windSpeed: "वाऱ्याचा वेग",
+      windSpeed: "हवामान",
       searchPlaceholder: "आपला संदेश येथे टाइप करा...",
+      news: "ताजी बातम्या",
+      liveNews: "लाईव्ह",
+      loadingNews: "बातम्या लोड होत आहेत...",
     }
   }
 };

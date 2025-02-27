@@ -14,3 +14,11 @@ export interface Location {
   lat: number;
   lng: number;
 }
+
+export interface NewsItem {
+  id: number;
+  title: string;
+  content: string;
+  language: string;
+  timestamp: string;
+}

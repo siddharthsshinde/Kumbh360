@@ -4,6 +4,13 @@ export interface IStorage {
   getAllFacilities(): Promise<Facility[]>;
   getAllEmergencyContacts(): Promise<EmergencyContact[]>;
   getAllCrowdLevels(): Promise<CrowdLevel[]>;
+  getAllNews(): Promise<{
+    id: number;
+    title: string;
+    content: string;
+    language: string;
+    timestamp: string;
+  }[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -175,6 +182,69 @@ export class MemStorage implements IStorage {
       recommendations: "Extremely crowded. Please wait for 2-3 hours or choose alternative ghats"
     }
   ];
+  private newsItems: {
+    id: number;
+    title: string;
+    content: string;
+    language: string;
+    timestamp: string;
+  }[];
+
+  constructor() {
+    // Initialize with some sample data
+    this.initSampleData();
+    this.initNewsData();
+  }
+
+  private initNewsData() {
+    this.newsItems = [
+      {
+        id: 1,
+        title: "Special Ganga Aarti Tonight",
+        content: "A special Ganga Aarti will be performed at Ramkund at 7:00 PM today with 108 priests.",
+        language: "en",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: 2,
+        title: "आज रात विशेष गंगा आरती",
+        content: "आज शाम 7:00 बजे रामकुंड पर 108 पुजारियों के साथ विशेष गंगा आरती की जाएगी।",
+        language: "hi",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: 3,
+        title: "आज रात्री विशेष गंगा आरती",
+        content: "आज संध्याकाळी 7:00 वाजता रामकुंडावर 108 पुजारी विशेष गंगा आरती करतील.",
+        language: "mr",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: 4,
+        title: "Additional Drinking Water Stations",
+        content: "10 new drinking water stations have been installed near Tapovan area. Free water available 24/7.",
+        language: "en",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: 5,
+        title: "अतिरिक्त पेयजल स्टेशन",
+        content: "तपोवन क्षेत्र के पास 10 नए पेयजल स्टेशन स्थापित किए गए हैं। 24/7 मुफ्त पानी उपलब्ध है।",
+        language: "hi",
+        timestamp: new Date().toISOString()
+      },
+      {
+        id: 6,
+        title: "अतिरिक्त पिण्याच्या पाण्याचे स्टेशन",
+        content: "तपोवन क्षेत्राजवळ 10 नवीन पिण्याच्या पाण्याचे स्टेशन बसवले आहेत. 24/7 मोफत पाणी उपलब्ध.",
+        language: "mr",
+        timestamp: new Date().toISOString()
+      }
+    ];
+  }
+
+  private initSampleData() {
+  }
 
   async getAllFacilities(): Promise<Facility[]> {
     return this.facilities;
@@ -190,11 +260,11 @@ export class MemStorage implements IStorage {
       // Generate random fluctuation (-10% to +10% of capacity)
       const fluctuation = Math.floor((Math.random() * 0.2 - 0.1) * level.capacity);
       let newCount = level.currentCount + fluctuation;
-      
+
       // Ensure count stays within reasonable bounds
       newCount = Math.max(Math.min(newCount, level.capacity * 1.2), level.capacity * 0.1);
       newCount = Math.floor(newCount);
-      
+
       // Update status based on new count
       let newStatus = "safe";
       if (newCount > level.capacity * 0.9) {
@@ -204,7 +274,7 @@ export class MemStorage implements IStorage {
       } else if (newCount > level.capacity * 0.5) {
         newStatus = "moderate";
       }
-      
+
       return {
         ...level,
         currentCount: newCount,
@@ -212,8 +282,18 @@ export class MemStorage implements IStorage {
         lastUpdated: new Date().toISOString()
       };
     });
-    
+
     return this.crowdLevels;
+  }
+
+  async getAllNews(): Promise<{
+    id: number;
+    title: string;
+    content: string;
+    language: string;
+    timestamp: string;
+  }[]> {
+    return this.newsItems;
   }
 }
 
