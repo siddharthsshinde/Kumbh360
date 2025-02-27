@@ -5,8 +5,8 @@ import { CrowdLevelIndicator } from "@/components/CrowdLevel";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion";
-
 import { NewsWidget } from "@/components/NewsWidget";
+import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo"; // Added import
 
 
 export default function Home() {
@@ -55,6 +55,7 @@ export default function Home() {
           <NewsWidget />
         </div>
         <FacilityMap />
+        <KumbhLocationsInfo /> {/* Added KumbhLocationsInfo component */}
       </div>
     </div>
   );

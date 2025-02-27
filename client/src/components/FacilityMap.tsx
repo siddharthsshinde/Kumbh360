@@ -35,9 +35,11 @@ export function FacilityMap() {
   const mapRef = useRef<L.Map | null>(null);
   const [mapContainer, setMapContainer] = useState<HTMLElement | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
 
   const { data: facilities } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
+    refetchInterval: 60000, // Refresh every minute
   });
 
   // Initialize map when container is ready
@@ -46,7 +48,7 @@ export function FacilityMap() {
 
     if (!mapRef.current) {
       // Center on Ramkund, Nashik
-      mapRef.current = L.map(mapContainer).setView([20.0059, 73.7913], 15);
+      mapRef.current = L.map(mapContainer).setView([20.0059, 73.7913], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '© OpenStreetMap contributors'
       }).addTo(mapRef.current);
@@ -60,43 +62,109 @@ export function FacilityMap() {
     };
   }, [mapContainer]);
 
-  // Handle facilities data changes
+  // Add markers when facilities data is available
   useEffect(() => {
     if (!mapRef.current || !facilities) return;
 
     // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
     // Add new markers
     facilities.forEach((facility) => {
-      const location = facility.location as Location;
-      if (location && typeof location.lat === 'number' && typeof location.lng === 'number') {
-        const marker = L.marker(
-          [location.lat, location.lng],
-          { icon: createCustomIcon(facility.type) }
-        )
-          .bindPopup(`
-            <div class="p-2">
-              <h3 class="font-bold text-lg">${facility.name}</h3>
-              <p class="text-sm capitalize">${facility.type.replace('_', ' ')}</p>
-              <p class="text-sm">${facility.address}</p>
-              ${facility.contact ? `<p class="text-sm mt-2">📞 ${facility.contact}</p>` : ''}
-            </div>
-          `)
-          .addTo(mapRef.current!);
+      // Skip if filtering by type and this facility doesn't match
+      if (selectedType && facility.type !== selectedType) return;
 
-        markersRef.current.push(marker);
-      }
+      const marker = L.marker(
+        [facility.location.lat, facility.location.lng],
+        { icon: createCustomIcon(facility.type) }
+      )
+        .addTo(mapRef.current!)
+        .bindPopup(
+          `<b>${facility.name}</b><br>${facility.address}<br>${
+            facility.contact ? `Contact: ${facility.contact}` : ""
+          }`
+        );
+      markersRef.current.push(marker);
     });
-  }, [facilities]);
+  }, [facilities, selectedType]);
+
+  const facilityTypes = facilities ? 
+    Array.from(new Set(facilities.map(f => f.type))) : 
+    [];
+
+  const handleFilterClick = (type: string | null) => {
+    setSelectedType(type === selectedType ? null : type);
+  };
+
+  // Helper function to get human-readable type names
+  const getTypeName = (type: string) => {
+    const names: Record<string, string> = {
+      holy_site: "Holy Sites",
+      hospital: "Hospitals",
+      hotel: "Hotels",
+      temple: "Temples"
+    };
+    return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  // Helper function to get icon color for legend
+  const getTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      holy_site: "#FF7F00",
+      hospital: "#FF0000",
+      hotel: "#138808",
+      temple: "#FF7F00",
+    };
+    return colors[type] || "#000080";
+  };
 
   return (
-    <Card className="w-full h-[400px] overflow-hidden">
-      <div 
-        ref={(el) => setMapContainer(el)} 
-        className="w-full h-full" 
+    <div className="w-full bg-white rounded-lg shadow-md">
+      <h2 className="p-3 text-xl font-semibold border-b text-[#FF7F00]">
+        <span className="mr-2">🗺️</span>
+        Kumbh Mela Locations
+      </h2>
+
+      <div className="p-2 border-b flex flex-wrap gap-2">
+        <button 
+          className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+          onClick={() => handleFilterClick(null)}
+        >
+          All
+        </button>
+        {facilityTypes.map(type => (
+          <button 
+            key={type}
+            className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+            onClick={() => handleFilterClick(type)}
+          >
+            <span 
+              className="inline-block w-2 h-2 rounded-full mr-1"
+              style={{ backgroundColor: getTypeColor(type) }}
+            ></span>
+            {getTypeName(type)}
+          </button>
+        ))}
+      </div>
+
+      <div
+        ref={setMapContainer}
+        className="w-full h-[400px] rounded-b-lg z-0"
       />
-    </Card>
+
+      <div className="p-2 text-xs text-gray-600 flex flex-wrap gap-x-4">
+        <span className="font-semibold">Legend:</span>
+        {facilityTypes.map(type => (
+          <span key={type} className="flex items-center">
+            <span 
+              className="inline-block w-2 h-2 rounded-full mr-1"
+              style={{ backgroundColor: getTypeColor(type) }}
+            ></span>
+            {getTypeName(type)}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
