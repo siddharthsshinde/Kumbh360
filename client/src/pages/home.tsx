@@ -26,8 +26,15 @@ export default function Home() {
           >
             हिंदी
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => i18n.changeLanguage("mr")}
+            className={i18n.language === "mr" ? "bg-[#FF7F00] text-white" : ""}
+          >
+            मराठी
+          </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <ChatInterface />
@@ -37,7 +44,7 @@ export default function Home() {
             <CrowdLevelIndicator />
           </div>
         </div>
-        
+
         <FacilityMap />
       </div>
     </div>

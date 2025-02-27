@@ -27,6 +27,19 @@ const resources = {
       windSpeed: "हवा की गति",
       searchPlaceholder: "अपना संदेश यहां टाइप करें...",
     }
+  },
+  mr: {
+    translation: {
+      welcome: "नाशिक कुंभमेळा २०२५ मध्ये आपले स्वागत आहे! मी आपली कशी मदत करू शकतो?",
+      weather: "हवामान",
+      crowdLevel: "गर्दीची पातळी",
+      facilities: "सुविधा शोधा",
+      emergency: "आपत्कालीन सेवा",
+      temperature: "तापमान",
+      humidity: "आर्द्रता",
+      windSpeed: "वाऱ्याचा वेग",
+      searchPlaceholder: "आपला संदेश येथे टाइप करा...",
+    }
   }
 };
 
