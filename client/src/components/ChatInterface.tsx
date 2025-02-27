@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Send } from "lucide-react";
+import { Send, ToggleLeft, ToggleRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
 import { getChatResponse } from "@/lib/chatbot";
+import { getGeminiResponse } from "@/lib/gemini";
 
 export function ChatInterface() {
   const { t } = useTranslation();
@@ -17,6 +18,7 @@ export function ChatInterface() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [useGemini, setUseGemini] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -27,14 +29,19 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await getChatResponse([...messages, userMessage]);
+      let response;
+      if (useGemini) {
+        response = await getGeminiResponse([...messages, userMessage]);
+      } else {
+        response = await getChatResponse([...messages, userMessage]);
+      }
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Chat error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to get response from the chatbot. Please try again."
+        description: `Failed to get response from ${useGemini ? "Gemini" : "OpenAI"}. Please try again.`
       });
     } finally {
       setIsLoading(false);
@@ -63,22 +70,44 @@ export function ChatInterface() {
         </div>
       </ScrollArea>
       <div className="p-4 border-t border-gray-200">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            className="flex-1 bg-gray-50 border-gray-200"
-            disabled={isLoading}
-          />
-          <Button 
-            onClick={handleSend}
-            disabled={isLoading}
-            className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-end mb-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs flex items-center gap-1"
+              onClick={() => setUseGemini(!useGemini)}
+            >
+              {useGemini ? (
+                <>
+                  <span>Using Gemini</span>
+                  <ToggleRight className="h-4 w-4 text-green-500" />
+                </>
+              ) : (
+                <>
+                  <span>Using OpenAI</span>
+                  <ToggleLeft className="h-4 w-4 text-blue-500" />
+                </>
+              )}
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              className="flex-1 bg-gray-50 border-gray-200"
+              disabled={isLoading}
+            />
+            <Button 
+              onClick={handleSend}
+              disabled={isLoading}
+              className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </Card>
