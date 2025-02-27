@@ -90,19 +90,41 @@ export class MemStorage implements IStorage {
       id: 1,
       location: "Ramkund",
       level: 3,
-      timestamp: new Date().toISOString()
+      capacity: 10000,
+      currentCount: 6000,
+      status: "moderate",
+      lastUpdated: new Date().toISOString(),
+      recommendations: "Best time to visit: Early morning before 6 AM or evening after 7 PM"
     },
     {
       id: 2,
       location: "Kalaram Temple",
-      level: 2,
-      timestamp: new Date().toISOString()
+      level: 4,
+      capacity: 5000,
+      currentCount: 4200,
+      status: "crowded",
+      lastUpdated: new Date().toISOString(),
+      recommendations: "Expect 30-45 minutes waiting time. Consider visiting after 2 PM"
     },
     {
       id: 3,
       location: "Tapovan",
-      level: 1,
-      timestamp: new Date().toISOString()
+      level: 2,
+      capacity: 8000,
+      currentCount: 3000,
+      status: "safe",
+      lastUpdated: new Date().toISOString(),
+      recommendations: "Currently safe to visit with minimal waiting time"
+    },
+    {
+      id: 4,
+      location: "Godavari Ghat",
+      level: 5,
+      capacity: 15000,
+      currentCount: 14000,
+      status: "overcrowded",
+      lastUpdated: new Date().toISOString(),
+      recommendations: "Extremely crowded. Please wait for 2-3 hours or choose alternative ghats"
     }
   ];
 

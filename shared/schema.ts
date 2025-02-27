@@ -22,7 +22,11 @@ export const crowdLevels = pgTable("crowd_levels", {
   id: serial("id").primaryKey(),
   location: text("location").notNull(),
   level: integer("level").notNull(), // 1-5
-  timestamp: text("timestamp").notNull(),
+  capacity: integer("capacity").notNull(), // Max capacity for the location
+  currentCount: integer("current_count").notNull(), // Current number of people
+  status: text("status").notNull(), // "safe", "moderate", "crowded", "overcrowded"
+  lastUpdated: text("last_updated").notNull(),
+  recommendations: text("recommendations").notNull(),
 });
 
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true });
