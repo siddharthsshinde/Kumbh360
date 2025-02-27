@@ -30,6 +30,15 @@ const intents = {
   ],
   about: [
     'what', 'about', 'tell', 'explain', 'information', 'कुंभ', 'मेला', 'कुंभमेळा', 'meaning'
+  ],
+  missing_person: [
+    'missing', 'lost', 'cant find', 'disappeared', 'looking for', 'हरवलेला', 'गायब', 'खो गया'
+  ],
+  medical: [
+    'hospital', 'doctor', 'medical', 'emergency', 'ambulance', 'डॉक्टर', 'हॉस्पिटल', 'दवाखाना'
+  ],
+  police: [
+    'police', 'security', 'theft', 'stolen', 'पोलीस', 'सुरक्षा', 'पोलिस'
   ]
 };
 
@@ -69,6 +78,21 @@ const responses: Record<string, string[]> = {
     "Kumbh Mela is one of the largest spiritual gatherings in the world. In Nashik, it's celebrated along the holy Godavari River. The 2025 mela is especially significant as it marks [specific significance].",
     "The Nashik Kumbh Mela happens every 12 years when specific celestial alignments occur. It's centered around the holy Godavari River, also known as the Ganga of the South.",
     "This sacred gathering commemorates the mythological event where drops of amrit (divine nectar) fell in Nashik during the great churning of the ocean. Would you like to know more about its history?"
+  ],
+  missing_person: [
+    "For missing person reports:\n1. Call 1094 (24x7 Missing Person Help Desk)\n2. Visit the nearest police station\n3. Keep a recent photo ready\n4. Note down the person's last known location and clothing\nDo you need the contact details for the nearest police station?",
+    "If someone is missing, immediately contact:\n- Missing Person Help Desk: 1094\n- Panchavati Police Station: 0253-2512833\n- Nashik Police Control: 0253-2305200\nWould you like me to show the nearest police station on the map?",
+    "For a missing person case, our emergency response team is available 24/7. Please contact 1094 immediately. What was the last known location of the person?"
+  ],
+  medical: [
+    "Nearby hospitals in Nashik:\n- Civil Hospital: 0253-2572038 (Mumbai Naka)\n- KTHM Hospital: 0253-2580701 (Gangapur Road)\nFor immediate medical help, call Ambulance: 108\nWhich hospital would you like directions to?",
+    "Medical emergency? Call 108 for immediate ambulance service. Nearby hospitals:\n1. Civil Hospital (Mumbai Naka)\n2. KTHM Hospital (Gangapur Road)\nShould I show these hospitals on the map?",
+    "For medical emergencies:\n- Ambulance: 108\n- Civil Hospital: 0253-2572038\n- KTHM Hospital: 0253-2580701\nAll facilities are available 24/7. Need directions?"
+  ],
+  police: [
+    "Police emergency contacts:\n- Main Control Room: 0253-2305200\n- Panchavati Station: 0253-2512833\n- Emergency: 100\nAll stations are operating 24/7 during Kumbh Mela.",
+    "Nearest police stations:\n1. Panchavati Police Station (Near Kalaram Temple)\n2. Police Control Room (Sharanpur Road)\nWould you like to see their locations on the map?",
+    "For police assistance:\n- Dial 100 for emergencies\n- Control Room: 0253-2305200\n- Local Station: 0253-2512833\nAll police stations have special Kumbh Mela cells active 24/7."
   ]
 };
 

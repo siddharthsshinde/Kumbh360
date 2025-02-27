@@ -61,27 +61,75 @@ export class MemStorage implements IStorage {
   private emergencyContacts: EmergencyContact[] = [
     {
       id: 1,
-      name: "Police Control Room",
-      number: "100",
-      type: "police"
+      name: "Nashik Police Control Room",
+      number: "0253-2305200",
+      type: "police",
+      address: "Police Headquarters, Sharanpur Road, Nashik",
+      available24x7: true,
+      zone: "Central Nashik"
     },
     {
       id: 2,
-      name: "Ambulance Service",
-      number: "108",
-      type: "ambulance"
+      name: "Panchavati Police Station",
+      number: "0253-2512833",
+      type: "police",
+      address: "Panchavati, Near Kalaram Temple",
+      available24x7: true,
+      zone: "Panchavati"
     },
     {
       id: 3,
-      name: "Fire Brigade",
-      number: "101",
-      type: "fire"
+      name: "Civil Hospital Nashik",
+      number: "0253-2572038",
+      type: "hospital",
+      address: "Mumbai Naka, Nashik",
+      available24x7: true,
+      zone: "Mumbai Naka"
     },
     {
       id: 4,
+      name: "KTHM Hospital",
+      number: "0253-2580701",
+      type: "hospital",
+      address: "Gangapur Road, Nashik",
+      available24x7: true,
+      zone: "Gangapur Road"
+    },
+    {
+      id: 5,
+      name: "Missing Person Help Desk",
+      number: "1094",
+      type: "missing_person",
+      address: "Kumbh Mela Control Room, Panchavati",
+      available24x7: true,
+      zone: "Panchavati"
+    },
+    {
+      id: 6,
+      name: "Ambulance Service",
+      number: "108",
+      type: "ambulance",
+      address: "City-wide Service",
+      available24x7: true,
+      zone: "All Zones"
+    },
+    {
+      id: 7,
+      name: "Fire Brigade",
+      number: "101",
+      type: "fire",
+      address: "Nashik Municipal Corporation",
+      available24x7: true,
+      zone: "Central Nashik"
+    },
+    {
+      id: 8,
       name: "Disaster Management",
       number: "1078",
-      type: "emergency"
+      type: "emergency",
+      address: "District Collectorate, Nashik",
+      available24x7: true,
+      zone: "Central Nashik"
     }
   ];
 

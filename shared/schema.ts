@@ -15,7 +15,10 @@ export const emergencyContacts = pgTable("emergency_contacts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   number: text("number").notNull(),
-  type: text("type").notNull(), // police, ambulance, fire, etc.
+  type: text("type").notNull(), // police, ambulance, fire, missing_person, etc.
+  address: text("address"),
+  available24x7: boolean("available_24x7").default(true),
+  zone: text("zone"), // Area/zone of Nashik
 });
 
 export const crowdLevels = pgTable("crowd_levels", {
