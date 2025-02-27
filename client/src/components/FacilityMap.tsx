@@ -95,34 +95,6 @@ export function FacilityMap() {
 
   const handleFilterClick = (type: string | null) => {
     setSelectedType(type === selectedType ? null : type);
-
-    // If map is loaded, focus on selected type facilities
-    if (mapRef.current && markersRef.current.length > 0) {
-      const bounds = new L.LatLngBounds();
-      if (type === null) {
-        // Show all markers and fit bounds to include all
-        markersRef.current.forEach(marker => {
-          marker.setStyle({opacity:1}); //Show all markers
-          bounds.extend(marker.getLatLng());
-        });
-        mapRef.current.fitBounds(bounds, { padding: [50,50] });
-      } else {
-        // Show only markers of selected type and fit bounds
-        let hasMarkers = false;
-        markersRef.current.forEach(marker => {
-          if (marker.options.icon && (marker.options.icon as any)._icon.style.backgroundColor.includes(getTypeColor(type))) {
-            marker.setStyle({opacity:1}); //Show selected markers
-            bounds.extend(marker.getLatLng());
-            hasMarkers = true;
-          } else {
-            marker.setStyle({opacity:0}); //Hide unselected markers
-          }
-        });
-        if (hasMarkers) {
-          mapRef.current.fitBounds(bounds, { padding: [50,50] , maxZoom:15});
-        }
-      }
-    }
   };
 
   // Helper function to get human-readable type names
