@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
-import { getChatResponse } from "@/lib/chatbot";
 import { getGeminiResponse } from "@/lib/gemini";
 
 export function ChatInterface() {
@@ -18,7 +17,7 @@ export function ChatInterface() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [useGemini, setUseGemini] = useState(false);
+  //useGemini state removed as only Gemini is used now.
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -29,19 +28,15 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
-      let response;
-      if (useGemini) {
-        response = await getGeminiResponse([...messages, userMessage]);
-      } else {
-        response = await getChatResponse([...messages, userMessage]);
-      }
+      // Using enhanced Gemini with NLP capabilities
+      const response = await getGeminiResponse([...messages, userMessage]);
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Chat error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Failed to get response from ${useGemini ? "Gemini" : "OpenAI"}. Please try again.`
+        description: "Failed to get response. Please try again or check the API key configuration."
       });
     } finally {
       setIsLoading(false);
