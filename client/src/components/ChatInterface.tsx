@@ -49,7 +49,9 @@ export function ChatInterface() {
   };
 
   return (
-    <Card className="flex flex-col h-[600px] w-full max-w-2xl bg-white shadow-lg">
+    <div className="flex flex-col">
+      <h2 className="text-2xl font-bold mb-4 text-center text-[#FF7F00]">Kumbh Mela 2025 Nashik</h2>
+      <Card className="flex flex-col h-[600px] w-full max-w-2xl bg-white shadow-lg">
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((msg, i) => (
@@ -91,5 +93,6 @@ export function ChatInterface() {
         </div>
       </div>
     </Card>
+    </div>
   );
 }
