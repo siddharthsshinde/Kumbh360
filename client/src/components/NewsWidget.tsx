@@ -1,15 +1,11 @@
 
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+import { useRef, useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
 interface NewsItem {
@@ -18,7 +14,7 @@ interface NewsItem {
   content: string;
   language: string;
   timestamp: string;
-  category?: string; // Added category field
+  category?: string;
 }
 
 export function NewsWidget() {
@@ -30,7 +26,7 @@ export function NewsWidget() {
 
   // Filter news by current language
   const filteredNews = newsItems?.filter(
-    item => item.language === i18n.language || item.language === "all"
+    (item) => item.language === i18n.language || item.language === "all"
   ) || [];
 
   // Add Prayagraj Kumbh Mela news with categories
@@ -89,7 +85,7 @@ export function NewsWidget() {
       {
         id: 107,
         title: "आपातकालीन: संगम क्षेत्र में भीड़ प्रबंधन अलर्ट",
-        content: "अप्रत्याशित अधिक भीड़ के कारण अधिकारियों ने संगम क्षेत्र के लिए भीड़ प्रबंधन अलर्ट जारी किया है। आगंतुकों को आधिकारिक निर्देशों का पालन करने की सलाह दी जाती है।",
+        content: "अप्रत्याशित अधिक भीड़ के कारण अधिकारियों ने संगम क्षेत्र के लिए भीड़ प्रबंधन अलर्ट जारी किया है। आगंतुकों को आधिकारिक निर्देशों का पालन करने की सलाह दी गई है।",
         language: "hi",
         timestamp: new Date().toISOString(),
         category: "Emergency"
@@ -116,25 +112,19 @@ export function NewsWidget() {
   };
 
   // Add news based on selected language
-  const allNews = [...filteredNews, ...(prayagrajNews[i18n.language as keyof typeof prayagrajNews] || [])];
+  const allNews = [...filteredNews, ...(prayagrajNews[i18n.language as keyof typeof prayagrajNews] || [])].slice(0, 5);
 
-  // Group news by category
-  const groupedNews = allNews.reduce((acc, news) => {
-    const category = news.category || "General";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(news);
-    return acc;
-  }, {} as Record<string, NewsItem[]>);
+  // Configure autoplay for carousel
+  const autoplayOptions = {
+    delay: 4000,
+    stopOnInteraction: false,
+    rootNode: (emblaRoot: any) => emblaRoot.parentElement,
+  };
 
-  // Emergency news should always be first
-  const categories = Object.keys(groupedNews).sort((a, b) => {
-    if (a === "Emergency") return -1;
-    if (b === "Emergency") return 1;
-    return 0;
-  });
+  // Initialize carousel with autoplay
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay(autoplayOptions)]);
 
+  // Get badge color based on category
   const getBadgeColor = (category: string) => {
     switch (category) {
       case "Emergency": return "bg-red-500 hover:bg-red-600";
@@ -153,49 +143,39 @@ export function NewsWidget() {
       </h2>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7F00]"></div>
+        <div className="animate-pulse">
+          <div className="h-12 bg-gray-200 rounded mb-4"></div>
+          <div className="h-24 bg-gray-200 rounded"></div>
+        </div>
+      ) : allNews.length === 0 ? (
+        <div className="text-gray-500 text-center py-4">
+          No news available in your selected language.
         </div>
       ) : (
-        <div className="space-y-6">
-          {categories.map(category => (
-            <div key={category} className="mb-4">
-              <div className="flex items-center mb-2">
-                <Badge className={`${getBadgeColor(category)} text-white`}>
-                  {category}
-                </Badge>
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {allNews.map((news) => (
+              <div key={news.id} className="flex-[0_0_100%] min-w-0">
+                <Card className="border border-gray-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg">{news.title}</h3>
+                      {news.category && (
+                        <Badge className={`ml-2 ${getBadgeColor(news.category)}`}>
+                          {news.category}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-gray-600 mb-3 line-clamp-2">{news.content}</p>
+                    <div className="flex items-center text-gray-400 text-sm">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {new Date(news.timestamp).toLocaleDateString()}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                className="w-full"
-              >
-                <CarouselContent>
-                  {groupedNews[category].map((item) => (
-                    <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
-                      <Card>
-                        <CardContent className="p-4">
-                          <h3 className="font-bold mb-2">{item.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{item.content}</p>
-                          <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <Clock className="h-3 w-3" />
-                            <span>
-                              {new Date(item.timestamp).toLocaleTimeString()}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex" />
-                <CarouselNext className="hidden md:flex" />
-              </Carousel>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
