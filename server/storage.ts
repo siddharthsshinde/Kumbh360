@@ -10,6 +10,7 @@ export interface IStorage {
     content: string;
     language: string;
     timestamp: string;
+    category: string;
   }[]>;
 }
 
@@ -188,6 +189,7 @@ export class MemStorage implements IStorage {
     content: string;
     language: string;
     timestamp: string;
+    category: string;
   }[];
 
   constructor() {
@@ -201,44 +203,82 @@ export class MemStorage implements IStorage {
       {
         id: 1,
         title: "Special Ganga Aarti Tonight",
-        content: "A special Ganga Aarti will be performed at Ramkund at 7:00 PM today with 108 priests.",
+        content: "A special Ganga Aarti will be performed tonight at Ramkund at 7 PM. All devotees are welcome.",
         language: "en",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        category: "Event"
       },
       {
         id: 2,
-        title: "आज रात विशेष गंगा आरती",
-        content: "आज शाम 7:00 बजे रामकुंड पर 108 पुजारियों के साथ विशेष गंगा आरती की जाएगी।",
-        language: "hi",
-        timestamp: new Date().toISOString()
+        title: "Traffic Diversion on Main Road",
+        content: "Due to high footfall, traffic has been diverted from Godavari Bridge to Tapovan Road. Please use alternate routes.",
+        language: "en",
+        timestamp: new Date().toISOString(),
+        category: "Transport"
       },
       {
         id: 3,
-        title: "आज रात्री विशेष गंगा आरती",
-        content: "आज संध्याकाळी 7:00 वाजता रामकुंडावर 108 पुजारी विशेष गंगा आरती करतील.",
-        language: "mr",
-        timestamp: new Date().toISOString()
+        title: "Cultural Program at 5 PM",
+        content: "A cultural dance program showcasing traditional folk dances will be held near Kalaram Temple at 5 PM.",
+        language: "en",
+        timestamp: new Date().toISOString(),
+        category: "Culture"
       },
       {
         id: 4,
-        title: "Additional Drinking Water Stations",
-        content: "10 new drinking water stations have been installed near Tapovan area. Free water available 24/7.",
+        title: "EMERGENCY: Water Level Rising",
+        content: "Due to recent rainfall, the water level in Godavari river is rising. Authorities advise caution near the ghats. Please follow safety instructions.",
         language: "en",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        category: "Emergency"
       },
       {
         id: 5,
-        title: "अतिरिक्त पेयजल स्टेशन",
-        content: "तपोवन क्षेत्र के पास 10 नए पेयजल स्टेशन स्थापित किए गए हैं। 24/7 मुफ्त पानी उपलब्ध है।",
+        title: "आज रात विशेष गंगा आरती",
+        content: "आज शाम 7 बजे रामकुंड पर एक विशेष गंगा आरती का आयोजन किया जाएगा। सभी भक्तों का स्वागत है।",
         language: "hi",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        category: "Event"
       },
       {
         id: 6,
-        title: "अतिरिक्त पिण्याच्या पाण्याचे स्टेशन",
-        content: "तपोवन क्षेत्राजवळ 10 नवीन पिण्याच्या पाण्याचे स्टेशन बसवले आहेत. 24/7 मोफत पाणी उपलब्ध.",
+        title: "मुख्य सड़क पर यातायात मार्ग परिवर्तन",
+        content: "अधिक भीड़ के कारण, गोदावरी ब्रिज से तपोवन रोड तक यातायात को डायवर्ट कर दिया गया है। कृपया वैकल्पिक मार्गों का उपयोग करें।",
+        language: "hi",
+        timestamp: new Date().toISOString(),
+        category: "Transport"
+      },
+      {
+        id: 7,
+        title: "आपातकालीन: जल स्तर बढ़ रहा है",
+        content: "हाल की बारिश के कारण, गोदावरी नदी का जल स्तर बढ़ रहा है। अधिकारियों ने घाटों के पास सावधानी बरतने की सलाह दी है। कृपया सुरक्षा निर्देशों का पालन करें।",
+        language: "hi",
+        timestamp: new Date().toISOString(),
+        category: "Emergency"
+      },
+      {
+        id: 8,
+        title: "आज रात्री विशेष गंगा आरती",
+        content: "आज संध्याकाळी 7 वाजता रामकुंड येथे एक विशेष गंगा आरती केली जाईल. सर्व भक्तांचे स्वागत आहे.",
         language: "mr",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        category: "Event"
+      },
+      {
+        id: 9,
+        title: "मुख्य रस्त्यावर वाहतूक वळवणे",
+        content: "जास्त गर्दीमुळे, गोदावरी पुलावरून तपोवन रस्त्यापर्यंत वाहतूक वळवली गेली आहे. कृपया पर्यायी मार्गांचा वापर करा.",
+        language: "mr",
+        timestamp: new Date().toISOString(),
+        category: "Transport"
+      },
+      {
+        id: 10,
+        title: "आपत्कालीन: पाणी पातळी वाढत आहे",
+        content: "अलीकडील पावसामुळे, गोदावरी नदीची पाणी पातळी वाढत आहे. अधिकाऱ्यांनी घाटांजवळ सावधगिरी बाळगण्याचा सल्ला दिला आहे. कृपया सुरक्षा निर्देशांचे पालन करा.",
+        language: "mr",
+        timestamp: new Date().toISOString(),
+        category: "Emergency"
       }
     ];
   }
@@ -292,6 +332,7 @@ export class MemStorage implements IStorage {
     content: string;
     language: string;
     timestamp: string;
+    category: string;
   }[]> {
     return this.newsItems;
   }

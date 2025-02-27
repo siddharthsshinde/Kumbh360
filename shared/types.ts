@@ -21,4 +21,5 @@ export interface NewsItem {
   content: string;
   language: string;
   timestamp: string;
+  category?: string;
 }
