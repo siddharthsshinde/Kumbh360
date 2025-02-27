@@ -7,7 +7,8 @@ import { useTranslation } from "react-i18next";
 import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion";
 import { NewsWidget } from "@/components/NewsWidget";
 import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo";
-import { AccommodationFinder } from "@/components/AccommodationFinder"; // Added import
+import { AccommodationFinder } from "@/components/AccommodationFinder";
+import { TransportationGuide } from "@/components/TransportationGuide"; // Added import
 
 
 export default function Home() {
@@ -57,7 +58,8 @@ export default function Home() {
         </div>
         <FacilityMap />
         <KumbhLocationsInfo />
-        <AccommodationFinder/> {/* Added AccommodationFinder component */}
+        <AccommodationFinder/>
+        <TransportationGuide /> {/* Added TransportationGuide component */}
       </div>
     </div>
   );
