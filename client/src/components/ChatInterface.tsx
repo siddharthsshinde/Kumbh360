@@ -14,49 +14,62 @@ export function ChatInterface() {
     { role: "assistant", content: t("welcome") }
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: ChatMessage = { role: "user", content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
 
-    const response = await getChatResponse([...messages, userMessage]);
-    setMessages(prev => [...prev, { role: "assistant", content: response }]);
+    try {
+      const response = await getChatResponse([...messages, userMessage]);
+      setMessages(prev => [...prev, { role: "assistant", content: response }]);
+    } catch (error) {
+      console.error("Chat error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Card className="flex flex-col h-[600px] w-full max-w-2xl">
+    <Card className="flex flex-col h-[600px] w-full max-w-2xl bg-white shadow-lg">
       <ScrollArea className="flex-1 p-4">
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`mb-4 ${
-              msg.role === "user" ? "ml-auto text-right" : ""
-            }`}
-          >
+        <div className="space-y-4">
+          {messages.map((msg, i) => (
             <div
-              className={`inline-block p-3 rounded-lg ${
-                msg.role === "user"
-                  ? "bg-[#FF7F00] text-white"
-                  : "bg-gray-100 text-gray-800"
+              key={i}
+              className={`chat-bubble ${
+                msg.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"
               }`}
             >
               {msg.content}
             </div>
-          </div>
-        ))}
+          ))}
+          {isLoading && (
+            <div className="chat-bubble chat-bubble-assistant animate-pulse">
+              <span className="text-gray-500">Typing...</span>
+            </div>
+          )}
+        </div>
       </ScrollArea>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-gray-200">
         <div className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={t("searchPlaceholder")}
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
+            className="flex-1 bg-gray-50 border-gray-200"
+            disabled={isLoading}
           />
-          <Button onClick={handleSend}>
+          <Button 
+            onClick={handleSend}
+            disabled={isLoading}
+            className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>

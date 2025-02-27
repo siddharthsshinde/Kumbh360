@@ -1,6 +1,6 @@
 {
   "variant": "professional",
-  "primary": "hsl(39, 100%, 50%)",
+  "primary": "hsl(39, 100%, 50%)", // #FF7F00 (Saffron)
   "appearance": "light",
-  "radius": 0.5
+  "radius": 0.75 // Slightly increased radius for modern look
 }
