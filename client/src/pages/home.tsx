@@ -6,15 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion";
 
-// Placeholder NewsWidget component
-const NewsWidget = () => {
-  return (
-    <div className="border border-gray-300 p-4 rounded-lg">
-      <h3>News (Placeholder)</h3>
-      <p>This section will display real-time news in multiple languages.</p>
-    </div>
-  );
-};
+import { NewsWidget } from "@/components/NewsWidget";
 
 
 export default function Home() {
