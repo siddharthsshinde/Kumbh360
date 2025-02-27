@@ -6,9 +6,11 @@ import type { Facility } from "@shared/schema";
 import type { Location } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 
+type FacilityType = "holy_site" | "hospital" | "hotel" | "temple";
+
 // Custom icon function
 const createCustomIcon = (type: string) => {
-  const iconColors = {
+  const iconColors: Record<FacilityType, string> = {
     holy_site: "#FF7F00", // Saffron for temples and holy sites
     hospital: "#FF0000", // Red for hospitals
     hotel: "#138808", // Green for hotels
@@ -17,7 +19,7 @@ const createCustomIcon = (type: string) => {
 
   return L.divIcon({
     className: 'custom-div-icon',
-    html: `<div style="background-color: ${iconColors[type] || '#000080'}; 
+    html: `<div style="background-color: ${iconColors[type as FacilityType] || '#000080'}; 
                       width: 12px; 
                       height: 12px; 
                       border-radius: 50%; 
