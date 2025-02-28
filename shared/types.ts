@@ -23,3 +23,18 @@ export interface NewsItem {
   timestamp: string;
   category?: string;
 }
+
+export interface KumbhFAQItem {
+  question: string;
+  answer: string;
+  category?: string;
+  tags?: string[];
+}
+
+export interface ChatResponse {
+  content: string;
+  source?: {
+    type: 'faq' | 'realtime' | 'generated';
+    category?: string;
+  };
+}
