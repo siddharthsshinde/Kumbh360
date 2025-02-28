@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Users, AlertTriangle, Clock, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CrowdLevel } from "@shared/schema";
+import { CrowdReportModal } from "./CrowdReportModal";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -40,11 +41,16 @@ export function CrowdLevelIndicator() {
 
   if (!crowdLevels) return null;
 
+  const locations = crowdLevels.map(level => level.location);
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between py-2">
-        <Users className="h-5 w-5 text-[#138808]" />
-        <span className="font-medium">{t("crowdLevel")}</span>
+        <div className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-[#138808]" />
+          <span className="font-medium">{t("crowdLevel")}</span>
+        </div>
+        <CrowdReportModal locations={locations} />
       </CardHeader>
       <CardContent className="space-y-6">
         {crowdLevels.map((level) => (
