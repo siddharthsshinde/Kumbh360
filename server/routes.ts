@@ -1,40 +1,10 @@
 import type { Express } from "express";
 import { createServer } from "http";
-import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import type { WeatherData } from "@shared/types";
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
-
-  // Initialize WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-
-  // Store connected clients
-  const clients = new Set<WebSocket>();
-
-  wss.on('connection', (ws) => {
-    clients.add(ws);
-
-    ws.on('close', () => {
-      clients.delete(ws);
-    });
-  });
-
-  // Function to broadcast crowd levels to all connected clients
-  const broadcastCrowdLevels = async () => {
-    const levels = await storage.getAllCrowdLevels();
-    const message = JSON.stringify({ type: 'crowdUpdate', data: levels });
-
-    clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
-    });
-  };
-
-  // Broadcast crowd levels every 5 seconds
-  setInterval(broadcastCrowdLevels, 5000);
 
   app.get("/api/facilities", async (_req, res) => {
     const facilities = await storage.getAllFacilities();

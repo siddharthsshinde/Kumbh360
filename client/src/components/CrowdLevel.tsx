@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Users, AlertTriangle, Clock, Info, TrendingUp, TrendingDown } from "lucide-react";
+import { Users, AlertTriangle, Clock, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CrowdLevel } from "@shared/schema";
 
@@ -28,68 +28,23 @@ const getStatusIcon = (status: string) => {
 
 export function CrowdLevelIndicator() {
   const { t } = useTranslation();
-  const [crowdLevels, setCrowdLevels] = useState<CrowdLevel[]>([]);
-  const [wsConnected, setWsConnected] = useState(false);
-
-  // Initial data fetch
-  const { data: initialData } = useQuery<CrowdLevel[]>({
+  const { data: crowdLevels, isLoading } = useQuery<CrowdLevel[]>({
     queryKey: ["/api/crowd-levels"],
+    refetchInterval: 10000, // Refresh every 10 seconds
     refetchOnWindowFocus: true,
   });
 
-  // WebSocket connection for real-time updates
-  useEffect(() => {
-    // Set initial data
-    if (initialData) {
-      setCrowdLevels(initialData);
-    }
-
-    // Setup WebSocket connection
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-      setWsConnected(true);
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'crowdUpdate') {
-          setCrowdLevels(message.data);
-        }
-      } catch (error) {
-        console.error("WebSocket message error:", error);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
-      setWsConnected(false);
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, [initialData]);
-
-  if (!crowdLevels.length) {
+  if (isLoading) {
     return <Card className="w-full h-48 animate-pulse" />;
   }
+
+  if (!crowdLevels) return null;
 
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between py-2">
         <Users className="h-5 w-5 text-[#138808]" />
         <span className="font-medium">{t("crowdLevel")}</span>
-        {wsConnected && (
-          <span className="flex items-center text-xs text-green-500">
-            <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse mr-1" />
-            Live
-          </span>
-        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {crowdLevels.map((level) => (
@@ -100,15 +55,12 @@ export function CrowdLevelIndicator() {
                 {level.status.toUpperCase()}
               </span>
             </div>
-
-            {(level.location === "Tapovan" || level.location === "Ramkund") && 
-             (level.status === "crowded" || level.status === "overcrowded") && (
+            {(level.location === "Tapovan" || level.location === "Ramkund") && level.status === "crowded" && (
               <div className="mt-1 text-xs text-red-600 flex items-center">
                 <AlertTriangle className="h-3 w-3 mr-1" />
                 Hold children's hands tightly in this area
               </div>
             )}
-
             <div className="space-y-1">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Current: {level.currentCount.toLocaleString()}</span>
@@ -119,16 +71,15 @@ export function CrowdLevelIndicator() {
                 className={getStatusColor(level.status)}
               />
             </div>
-
             <div className="flex items-start gap-2 mt-2 text-sm text-gray-600">
               {getStatusIcon(level.status)}
               <p>{level.recommendations}</p>
             </div>
-
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Clock className="h-3 w-3" />
               <span className="relative">
                 Last updated: {new Date(level.lastUpdated).toLocaleTimeString()}
+                <span className="absolute -left-2 top-1/2 transform -translate-y-1/2 h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
               </span>
             </div>
           </div>
