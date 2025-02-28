@@ -1,0 +1,91 @@
+{
+    "crowdUpdates": [
+      {
+        "status": "moderate",
+        "lastUpdated": "2025-03-01T08:00:00Z",
+        "recommendations": "Best time to visit: Early morning before 6 AM or evening after 7 PM"
+      },
+      {
+        "status": "high",
+        "lastUpdated": "2025-03-01T09:30:00Z",
+        "recommendations": "Heavy crowd detected. Avoid visiting between 9 AM to 12 PM."
+      },
+      {
+        "status": "low",
+        "lastUpdated": "2025-03-01T11:00:00Z",
+        "recommendations": "Best time to visit: Now, as crowd levels are minimal."
+      },
+      {
+        "status": "critical",
+        "lastUpdated": "2025-03-01T12:45:00Z",
+        "recommendations": "Overcrowding alert! Avoid visiting until further notice."
+      },
+      {
+        "status": "moderate",
+        "lastUpdated": "2025-03-01T14:30:00Z",
+        "recommendations": "Peak hours approaching. Visit before 4 PM for a smoother experience."
+      },
+      {
+        "status": "high",
+        "lastUpdated": "2025-03-01T16:15:00Z",
+        "recommendations": "Heavy crowd expected between 5 PM and 8 PM. Avoid peak time."
+      },
+      {
+        "status": "low",
+        "lastUpdated": "2025-03-01T19:00:00Z",
+        "recommendations": "Great time to visit! Crowd levels are significantly lower now."
+      },
+      {
+        "status": "moderate",
+        "lastUpdated": "2025-03-01T21:30:00Z",
+        "recommendations": "Visit after 10 PM for a peaceful experience."
+      },
+      {
+        "status": "critical",
+        "lastUpdated": "2025-03-02T06:30:00Z",
+        "recommendations": "Heavy congestion detected. Authorities recommend avoiding entry."
+      },
+      {
+        "status": "low",
+        "lastUpdated": "2025-03-02T07:15:00Z",
+        "recommendations": "Perfect time to visit before the morning rush."
+      },
+      {
+        "status": "high",
+        "lastUpdated": "2025-03-02T10:00:00Z",
+        "recommendations": "Large crowds expected from 10 AM to 1 PM. Plan accordingly."
+      },
+      {
+        "status": "moderate",
+        "lastUpdated": "2025-03-02T13:45:00Z",
+        "recommendations": "Crowd levels stabilizing. Ideal for afternoon visits."
+      },
+      {
+        "status": "low",
+        "lastUpdated": "2025-03-02T15:00:00Z",
+        "recommendations": "Less crowded now. Evening hours may see an increase in visitors."
+      },
+      {
+        "status": "critical",
+        "lastUpdated": "2025-03-02T18:30:00Z",
+        "recommendations": "Maximum crowd levels reached. Avoid visiting at this time."
+      },
+      {
+        "status": "moderate",
+        "lastUpdated": "2025-03-02T21:00:00Z",
+        "recommendations": "Visit after midnight for a more peaceful experience."
+      },
+      {
+        "status": "low",
+        "lastUpdated": "2025-03-03T02:00:00Z",
+        "recommendations": "Early morning hours are the best for a quiet visit."
+      },
+      {
+        "status": "high",
+        "lastUpdated": "2025-03-03T05:30:00Z",
+        "recommendations": "Large pilgrim groups arriving. Expect congestion from 6 AM to 10 AM."
+      }
+      
+    ]
+  }
+  
