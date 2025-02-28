@@ -1,4 +1,4 @@
-import type { Facility, EmergencyContact, CrowdLevel, CrowdReport } from "@shared/schema";
+import type { Facility, EmergencyContact, CrowdLevel } from "@shared/schema";
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
 export interface IStorage {
@@ -13,24 +13,9 @@ export interface IStorage {
     timestamp: string;
     category?: string;
   }[]>;
-  addCrowdReport(report: Omit<CrowdReport, "id" | "timestamp" | "verified">): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
-  private crowdLevels: CrowdLevel[] = [];
-  private crowdUpdates = kumbhData.crowdUpdates;
-  private currentUpdateIndex = 0;
-  private crowdReports: CrowdReport[] = [];
-
-  private newsItems: {
-    id: number;
-    title: string;
-    content: string;
-    language: string;
-    timestamp: string;
-    category?: string;
-  }[] = [];
-
   private facilities: Facility[] = [
     {
       id: 1,
@@ -104,6 +89,18 @@ export class MemStorage implements IStorage {
     }
   ];
 
+  private crowdLevels: CrowdLevel[] = [];
+  private crowdUpdates = kumbhData.crowdUpdates;
+  private currentUpdateIndex = 0;
+
+  private newsItems: {
+    id: number;
+    title: string;
+    content: string;
+    language: string;
+    timestamp: string;
+    category?: string;
+  }[] = [];
 
   constructor() {
     this.initCrowdLevels();
@@ -120,7 +117,7 @@ export class MemStorage implements IStorage {
         currentCount: 8000,
         status: "crowded",
         lastUpdated: new Date().toISOString(),
-        recommendations: "Peak hours approaching. Best to visit early morning."
+        recommendations: "Peak hours approaching. Plan your visit during early morning (4 AM - 6 AM) for peaceful darshan."
       },
       {
         id: 2,
@@ -130,7 +127,7 @@ export class MemStorage implements IStorage {
         currentCount: 2000,
         status: "safe",
         lastUpdated: new Date().toISOString(),
-        recommendations: "Good time for darshan. Temple aarti at 5:30 AM and 7 PM."
+        recommendations: "Good time for darshan. Temple aarti starts at 5:30 AM and 7:00 PM."
       },
       {
         id: 3,
@@ -140,7 +137,7 @@ export class MemStorage implements IStorage {
         currentCount: 7500,
         status: "overcrowded",
         lastUpdated: new Date().toISOString(),
-        recommendations: "Heavy congestion. Consider visiting after sunset."
+        recommendations: "Area experiencing heavy congestion. Consider visiting after sunset or early morning tomorrow."
       },
       {
         id: 4,
@@ -150,7 +147,7 @@ export class MemStorage implements IStorage {
         currentCount: 9000,
         status: "moderate",
         lastUpdated: new Date().toISOString(),
-        recommendations: "Regular flow. All ghats accessible."
+        recommendations: "Moderate crowds expected. Best time to visit would be in the next 2 hours."
       }
     ];
   }
@@ -160,27 +157,23 @@ export class MemStorage implements IStorage {
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
     // Different base utilization for each location
-    const locationBaseUtilization: Record<string, number> = {
-      "Ramkund": 0.7,
-      "Kalaram Temple": 0.4,
-      "Tapovan": 0.85,
-      "Godavari Ghat": 0.3
+    const locationBaseUtilization = {
+      "Ramkund": 0.7, // Typically more crowded
+      "Kalaram Temple": 0.4, // Moderate crowds
+      "Tapovan": 0.85, // Most crowded
+      "Godavari Ghat": 0.3 // Least crowded
     };
 
     // Location-specific patterns and recommendations
-    const locationPatterns: Record<string, {
-      peakHours: number[];
-      capacity: number;
-      recommendations: Record<string, string>;
-    }> = {
+    const locationPatterns = {
       "Ramkund": {
         peakHours: [6, 7, 8, 17, 18, 19],
         capacity: 12000,
         recommendations: {
-          safe: "Perfect time for holy dip. Water level is suitable.",
+          safe: "Perfect time for holy dip. Water level is suitable and crowd is manageable.",
           moderate: "Moderate crowds at the ghat. Best to visit in next hour.",
-          crowded: "Heavy rush due to ongoing aarti. Wait 2 hours.",
-          overcrowded: "Maximum capacity reached. Use alternative ghats."
+          crowded: "Heavy rush due to ongoing aarti. Consider visiting after 2 hours.",
+          overcrowded: "Maximum capacity reached. Please use alternative ghats."
         }
       },
       "Kalaram Temple": {
@@ -217,7 +210,7 @@ export class MemStorage implements IStorage {
 
     // Calculate different statuses for each location
     const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
-      const baseUtilization = locationBaseUtilization[location] || 0.5;
+      const baseUtilization = locationBaseUtilization[location];
       const currentHour = new Date().getHours();
       const isPeakHour = pattern.peakHours.includes(currentHour);
 
@@ -273,46 +266,6 @@ export class MemStorage implements IStorage {
   }[]> {
     return this.newsItems;
   }
-
-  async addCrowdReport(report: Omit<CrowdReport, "id" | "timestamp" | "verified">): Promise<void> {
-    const newReport = {
-      id: this.crowdReports.length + 1,
-      timestamp: new Date(),
-      verified: false,
-      ...report
-    };
-
-    this.crowdReports.push(newReport);
-
-    // Update crowd levels based on reports
-    const recentReports = this.crowdReports
-      .filter(r => r.location === report.location)
-      .slice(-5);
-
-    if (recentReports.length > 0) {
-      const level = this.crowdLevels.find(l => l.location === report.location);
-      if (level) {
-        // Adjust crowd levels based on recent reports
-        const reportImpact = {
-          'light': 0.3,
-          'moderate': 0.5,
-          'heavy': 0.8,
-          'critical': 1.0
-        };
-
-        const avgImpact = recentReports.reduce((sum, r) =>
-          sum + reportImpact[r.reportedStatus as keyof typeof reportImpact], 0
-        ) / recentReports.length;
-
-        level.currentCount = Math.floor(level.capacity * avgImpact);
-        level.status = report.reportedStatus === 'light' ? 'safe' :
-                      report.reportedStatus === 'moderate' ? 'moderate' :
-                      report.reportedStatus === 'heavy' ? 'crowded' : 'overcrowded';
-        level.lastUpdated = new Date().toISOString();
-      }
-    }
-  }
-
   private initNewsData() {
     this.newsItems = [
       {

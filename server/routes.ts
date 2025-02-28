@@ -2,61 +2,28 @@ import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
 import type { WeatherData } from "@shared/types";
-import { insertCrowdReportSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
 
   app.get("/api/facilities", async (_req, res) => {
-    try {
-      const facilities = await storage.getAllFacilities();
-      res.json(facilities);
-    } catch (error) {
-      console.error("Error fetching facilities:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    const facilities = await storage.getAllFacilities();
+    res.json(facilities);
   });
 
   app.get("/api/emergency-contacts", async (_req, res) => {
-    try {
-      const contacts = await storage.getAllEmergencyContacts();
-      res.json(contacts);
-    } catch (error) {
-      console.error("Error fetching emergency contacts:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    const contacts = await storage.getAllEmergencyContacts();
+    res.json(contacts);
   });
 
   app.get("/api/crowd-levels", async (_req, res) => {
-    try {
-      const levels = await storage.getAllCrowdLevels();
-      res.json(levels);
-    } catch (error) {
-      console.error("Error fetching crowd levels:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
-  // New endpoint for crowd reports
-  app.post("/api/crowd-reports", async (req, res) => {
-    try {
-      const reportData = insertCrowdReportSchema.parse(req.body);
-      await storage.addCrowdReport(reportData);
-      res.status(201).json({ message: "Report submitted successfully" });
-    } catch (error) {
-      console.error("Crowd report submission error:", error);
-      res.status(400).json({ error: "Invalid report data" });
-    }
+    const levels = await storage.getAllCrowdLevels();
+    res.json(levels);
   });
 
   app.get("/api/news", async (_req, res) => {
-    try {
-      const news = await storage.getAllNews();
-      res.json(news);
-    } catch (error) {
-      console.error("Error fetching news:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    const news = await storage.getAllNews();
+    res.json(news);
   });
 
   app.get("/api/weather", async (_req, res) => {
