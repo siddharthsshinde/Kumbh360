@@ -112,42 +112,42 @@ export class MemStorage implements IStorage {
       {
         id: 1,
         location: "Ramkund",
-        level: 3,
-        capacity: 10000,
-        currentCount: 6000,
-        status: "moderate",
+        level: 4,
+        capacity: 12000,
+        currentCount: 8000,
+        status: "crowded",
         lastUpdated: new Date().toISOString(),
-        recommendations: ""
+        recommendations: "Peak hours approaching. Plan your visit during early morning (4 AM - 6 AM) for peaceful darshan."
       },
       {
         id: 2,
         location: "Kalaram Temple",
-        level: 4,
+        level: 2,
         capacity: 5000,
-        currentCount: 4200,
-        status: "moderate",
+        currentCount: 2000,
+        status: "safe",
         lastUpdated: new Date().toISOString(),
-        recommendations: ""
+        recommendations: "Good time for darshan. Temple aarti starts at 5:30 AM and 7:00 PM."
       },
       {
         id: 3,
         location: "Tapovan",
-        level: 2,
+        level: 5,
         capacity: 8000,
-        currentCount: 3000,
-        status: "moderate",
+        currentCount: 7500,
+        status: "overcrowded",
         lastUpdated: new Date().toISOString(),
-        recommendations: ""
+        recommendations: "Area experiencing heavy congestion. Consider visiting after sunset or early morning tomorrow."
       },
       {
         id: 4,
         location: "Godavari Ghat",
-        level: 5,
+        level: 3,
         capacity: 15000,
-        currentCount: 14000,
-        status: "high",
+        currentCount: 9000,
+        status: "moderate",
         lastUpdated: new Date().toISOString(),
-        recommendations: ""
+        recommendations: "Moderate crowds expected. Best time to visit would be in the next 2 hours."
       }
     ];
   }
@@ -156,45 +156,80 @@ export class MemStorage implements IStorage {
     const update = this.crowdUpdates[this.currentUpdateIndex];
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
+    // Location-specific crowd patterns and recommendations
+    const locationPatterns = {
+      "Ramkund": {
+        peakHours: [6, 7, 8, 17, 18, 19], // Morning and evening aarti times
+        recommendations: {
+          safe: "Ideal time for holy dip. Water level is suitable and crowd is manageable.",
+          moderate: "Moderate crowds observed. Expect 15-20 minutes waiting time for ghat access.",
+          crowded: "Heavy rush due to aarti preparations. Consider visiting after 2 hours.",
+          overcrowded: "Extremely high footfall. Please wait or visit Godavari Ghat as an alternative."
+        }
+      },
+      "Kalaram Temple": {
+        peakHours: [8, 9, 10, 16, 17, 18],
+        recommendations: {
+          safe: "Perfect time for darshan. Temple is peaceful with minimal waiting.",
+          moderate: "Regular devotee flow. Darshan queue is moving smoothly.",
+          crowded: "High devotee turnout. Expected waiting time 45 minutes.",
+          overcrowded: "Maximum capacity reached. Please plan visit during early morning hours."
+        }
+      },
+      "Tapovan": {
+        peakHours: [7, 8, 9, 16, 17, 18],
+        recommendations: {
+          safe: "Ideal time to explore the spiritual sites of Tapovan.",
+          moderate: "Comfortable crowd levels. All areas accessible.",
+          crowded: "High footfall near main meditation spots. Some areas restricted.",
+          overcrowded: "Area at maximum capacity. Entry regulated for safety."
+        }
+      },
+      "Godavari Ghat": {
+        peakHours: [5, 6, 7, 17, 18, 19],
+        recommendations: {
+          safe: "Peaceful atmosphere for holy dip and meditation.",
+          moderate: "Regular flow of devotees. All ghats accessible.",
+          crowded: "Heavy rush at main ghat. Consider using adjacent ghats.",
+          overcrowded: "Critical crowd density. Please wait for crowd dispersal."
+        }
+      }
+    };
+
     this.crowdLevels = this.crowdLevels.map(level => {
-      let currentStatus = update.status;
-      let currentRecommendations = update.recommendations;
+      const locationPattern = locationPatterns[level.location];
+      const currentHour = new Date().getHours();
+      const isPeakHour = locationPattern.peakHours.includes(currentHour);
 
-      let utilizationPercentage;
-      switch (currentStatus) {
-        case "low":
-          utilizationPercentage = 0.3 + (Math.random() * 0.2); 
-          break;
-        case "moderate":
-          utilizationPercentage = 0.5 + (Math.random() * 0.2); 
-          break;
-        case "high":
-          utilizationPercentage = 0.7 + (Math.random() * 0.2); 
-          break;
-        case "critical":
-          utilizationPercentage = 0.9 + (Math.random() * 0.1); 
-          break;
-        default:
-          utilizationPercentage = 0.5; 
+      // Calculate utilization based on location-specific patterns
+      let baseUtilization;
+      switch (update.status) {
+        case "low": baseUtilization = 0.2 + (Math.random() * 0.2); break;
+        case "moderate": baseUtilization = 0.4 + (Math.random() * 0.2); break;
+        case "high": baseUtilization = 0.6 + (Math.random() * 0.2); break;
+        case "critical": baseUtilization = 0.8 + (Math.random() * 0.2); break;
+        default: baseUtilization = 0.4;
       }
 
-      const newCount = Math.floor(level.capacity * utilizationPercentage);
+      // Adjust for peak hours
+      const utilization = isPeakHour ? 
+        Math.min(baseUtilization * 1.5, 1) : baseUtilization;
 
-      let mappedStatus;
-      switch (currentStatus) {
-        case "low": mappedStatus = "safe"; break;
-        case "moderate": mappedStatus = "moderate"; break;
-        case "high": mappedStatus = "crowded"; break;
-        case "critical": mappedStatus = "overcrowded"; break;
-        default: mappedStatus = "moderate";
-      }
+      const newCount = Math.floor(level.capacity * utilization);
+
+      // Determine status based on utilization
+      let newStatus;
+      if (utilization > 0.8) newStatus = "overcrowded";
+      else if (utilization > 0.6) newStatus = "crowded";
+      else if (utilization > 0.4) newStatus = "moderate";
+      else newStatus = "safe";
 
       return {
         ...level,
         currentCount: newCount,
-        status: mappedStatus,
+        status: newStatus,
         lastUpdated: update.lastUpdated,
-        recommendations: currentRecommendations
+        recommendations: locationPattern.recommendations[newStatus]
       };
     });
 
