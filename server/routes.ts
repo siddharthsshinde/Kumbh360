@@ -1,10 +1,40 @@
 import type { Express } from "express";
 import { createServer } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import type { WeatherData } from "@shared/types";
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
+
+  // Initialize WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+
+  // Store connected clients
+  const clients = new Set<WebSocket>();
+
+  wss.on('connection', (ws) => {
+    clients.add(ws);
+
+    ws.on('close', () => {
+      clients.delete(ws);
+    });
+  });
+
+  // Function to broadcast crowd levels to all connected clients
+  const broadcastCrowdLevels = async () => {
+    const levels = await storage.getAllCrowdLevels();
+    const message = JSON.stringify({ type: 'crowdUpdate', data: levels });
+
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  };
+
+  // Broadcast crowd levels every 5 seconds
+  setInterval(broadcastCrowdLevels, 5000);
 
   app.get("/api/facilities", async (_req, res) => {
     const facilities = await storage.getAllFacilities();
@@ -29,36 +59,36 @@ export async function registerRoutes(app: Express) {
   app.get("/api/weather", async (_req, res) => {
     try {
       const API_KEY = process.env.OPENWEATHER_API_KEY;
-      
+
       if (!API_KEY) {
         throw new Error("OpenWeather API key not found");
       }
-      
+
       // Coordinates for Nashik, India (where Kumbh Mela is held)
       const lat = 19.9975;
       const lon = 73.7898;
-      
+
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
       );
-      
+
       if (!response.ok) {
         throw new Error(`OpenWeather API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       const weatherData: WeatherData = {
         temperature: Math.round(data.main.temp),
         condition: data.weather[0].description,
         humidity: data.main.humidity,
         windSpeed: data.wind.speed
       };
-      
+
       res.json(weatherData);
     } catch (error) {
       console.error("Weather API error:", error);
-      
+
       // Fallback to mock data if the API fails
       const mockWeather: WeatherData = {
         temperature: 23,
@@ -66,7 +96,7 @@ export async function registerRoutes(app: Express) {
         humidity: 39,
         windSpeed: 4.7
       };
-      
+
       res.json(mockWeather);
     }
   });
