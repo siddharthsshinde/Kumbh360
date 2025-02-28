@@ -294,21 +294,50 @@ export class MemStorage implements IStorage {
     };
   }
 
+  private getTimeBasedRecommendation(location: string, status: string, hour: number): string {
+    let baseRecommendation = "Best time to visit: ";
+
+    // Early morning recommendation (4 AM - 8 AM)
+    if (hour >= 11 && hour < 16) {
+      baseRecommendation += "Early morning before 6 AM or evening after 7 PM. ";
+    } else if (hour >= 16 && hour < 20) {
+      baseRecommendation += "Consider waiting until after 8 PM for lower crowds. ";
+    } else if (hour >= 20 || hour < 4) {
+      baseRecommendation += "Current time is good, crowd levels are typically low. ";
+    } else {
+      baseRecommendation += "Early morning before 6 AM or evening after 7 PM. ";
+    }
+
+    // Add status-based recommendations
+    switch (status) {
+      case "overcrowded":
+        return baseRecommendation + "Currently OVERCROWDED. Please expect 1+ hour waiting times.";
+      case "crowded":
+        return baseRecommendation + "Currently CROWDED. Consider alternative locations or waiting times.";
+      case "moderate":
+        return baseRecommendation + "Moderate crowds, manageable waiting times.";
+      case "safe":
+        return baseRecommendation + "Currently safe to visit with minimal waiting time.";
+      default:
+        return baseRecommendation;
+    }
+  }
+
   private updateCrowdRecommendations(level: CrowdLevel, trend: { trend: string, rate: number }) {
-    const baseRecommendation = `Current status: ${level.status}. `;
+    const hour = new Date().getHours();
+    const baseRecommendation = this.getTimeBasedRecommendation(level.location, level.status, hour);
+
     const trendInfo = trend.trend !== 'stable'
       ? `Crowd is ${trend.trend} (${Math.abs(trend.rate * 100).toFixed(1)}% ${trend.trend === 'increasing' ? 'up' : 'down'}). `
       : 'Crowd levels are stable. ';
 
-    let timeRecommendation = '';
-    const hour = new Date().getHours();
-    if (hour >= 11 && hour < 16) {
-      timeRecommendation = 'Consider visiting during early morning or evening for lower crowds. ';
-    } else if (hour >= 16 && hour < 20) {
-      timeRecommendation = 'Evening rush expected. Best to wait until after 8 PM. ';
+    // Special warnings for high-risk times
+    let specialWarning = '';
+    if ((hour >= 16 && hour < 20) && (level.status === "crowded" || level.status === "overcrowded")) {
+      specialWarning = "⚠️ Evening peak time. Extended waiting times expected. ";
     }
 
-    level.recommendations = baseRecommendation + trendInfo + timeRecommendation;
+    level.recommendations = `${baseRecommendation} ${trendInfo} ${specialWarning}`.trim();
   }
 
   async getAllCrowdLevels(): Promise<CrowdLevel[]> {
@@ -316,16 +345,17 @@ export class MemStorage implements IStorage {
       // Get current trend
       const trend = this.analyzeRecentTrend(level.location);
 
-      // Calculate new crowd count based on multiple factors
+      // Calculate dynamic factors
       const timeFactor = this.getTimeBasedCrowdFactor(level.location);
       const eventImpact = this.getEventImpact(level.location);
+      const weatherImpact = 1.0; // Could be enhanced with real weather data
 
       // Add some randomness (-5% to +5%)
       const randomFactor = 1 + (Math.random() * 0.1 - 0.05);
 
-      // Calculate new count
+      // Calculate new count with all factors
       let newCount = Math.floor(
-        level.currentCount * timeFactor * eventImpact * randomFactor
+        level.currentCount * timeFactor * eventImpact * weatherImpact * randomFactor
       );
 
       // Ensure count stays within reasonable bounds
@@ -341,19 +371,21 @@ export class MemStorage implements IStorage {
         newStatus = "moderate";
       }
 
-      // Store in history
+      // Store in history for trend analysis
       const history = this.crowdHistory.get(level.location) || [];
       history.push({ timestamp: Date.now(), count: newCount });
       if (history.length > 100) history.shift(); // Keep last 100 readings
       this.crowdHistory.set(level.location, history);
 
-      // Update recommendations based on new data
+      // Create updated level with new data
       const updatedLevel = {
         ...level,
         currentCount: newCount,
         status: newStatus,
         lastUpdated: new Date().toISOString()
       };
+
+      // Update recommendations based on all factors
       this.updateCrowdRecommendations(updatedLevel, trend);
 
       return updatedLevel;
