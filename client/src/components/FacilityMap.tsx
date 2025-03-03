@@ -152,19 +152,6 @@ export function FacilityMap() {
         ref={setMapContainer}
         className="w-full h-[400px] rounded-b-lg z-0"
       />
-
-      <div className="p-2 text-xs text-gray-600 flex flex-wrap gap-x-4">
-        <span className="font-semibold">Legend:</span>
-        {facilityTypes.map(type => (
-          <span key={type} className="flex items-center">
-            <span 
-              className="inline-block w-2 h-2 rounded-full mr-1"
-              style={{ backgroundColor: getTypeColor(type) }}
-            ></span>
-            {getTypeName(type)}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
