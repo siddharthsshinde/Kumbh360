@@ -110,7 +110,7 @@ export function ChatInterface() {
           </div>
         </ScrollArea>
         <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-2 relative"> {/* Added items-center and removed mb-2 */}
+          <div className="flex flex-col gap-2 relative">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -137,13 +137,15 @@ export function ChatInterface() {
                 ))}
               </div>
             )}
-            <Button 
-              onClick={handleSend}
-              disabled={isLoading}
-              className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleSend}
+                disabled={isLoading}
+                className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
