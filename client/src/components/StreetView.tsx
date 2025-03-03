@@ -17,17 +17,17 @@ const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Ramkund",
     imageId: "2299343675291665",
-    description: "Sacred bathing ghat on the Godavari River"
+    description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela."
   },
   {
     name: "Kalaram Temple",
     imageId: "3398041944606843",
-    description: "Historic temple in Panchavati area"
+    description: "Historic black stone temple dedicated to Lord Rama in Panchavati area. Notable for its architectural beauty and religious importance."
   },
   {
     name: "Tapovan",
     imageId: "523157116754870",
-    description: "Sacred area where Lord Rama stayed during exile"
+    description: "Sacred area where Lord Rama stayed during exile. Features ancient caves and meditation spots surrounded by natural beauty."
   }
 ];
 
@@ -63,6 +63,12 @@ export function StreetView() {
 
   const checkAuthAndInitialize = async () => {
     try {
+      if (!MAPILLARY_ACCESS_TOKEN) {
+        console.error('Mapillary access token not found');
+        handleAuthError();
+        return;
+      }
+
       const mly = new (window as any).Mapillary.Viewer({
         apiClient: MAPILLARY_ACCESS_TOKEN,
         container: 'street-view-container',
@@ -72,12 +78,23 @@ export function StreetView() {
       mly.on('load', () => {
         setIsLoading(false);
         setIsAuthenticated(true);
+        toast({
+          title: "Street View Loaded",
+          description: `Now viewing ${selectedLocation.name}`,
+          variant: "default",
+        });
       });
 
       mly.on('error', (error: any) => {
         console.error('Mapillary error:', error);
         if (error.toString().includes('authentication')) {
           handleAuthError();
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load street view. Please try again.",
+            variant: "destructive",
+          });
         }
       });
 
@@ -99,6 +116,11 @@ export function StreetView() {
 
   const handleAuth = () => {
     window.open(MAPILLARY_AUTH_URL, '_blank');
+    toast({
+      title: "Authentication Started",
+      description: "Please complete the authentication in the new window.",
+      variant: "default",
+    });
   };
 
   const changeLocation = (location: Location) => {
@@ -112,6 +134,11 @@ export function StreetView() {
     if (viewer) {
       viewer.moveTo(location.imageId).then(() => {
         setIsLoading(false);
+        toast({
+          title: "Location Changed",
+          description: `Now viewing ${location.name}`,
+          variant: "default",
+        });
       }).catch((error: any) => {
         console.error('Error changing location:', error);
         toast({
