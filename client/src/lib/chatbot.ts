@@ -1,5 +1,6 @@
 import type { ChatMessage, KumbhFAQItem, ChatResponse } from "@shared/types";
 import kumbhData from "../../../attached_assets/kumbh_mela_advanced_dataset.json";
+import { TFIDF, tokenize, removeStopwords } from "./nlp";
 
 // Enhanced intents and patterns
 const intents = {
@@ -25,6 +26,9 @@ const intents = {
 
 // Initialize FAQ data
 const faqData: KumbhFAQItem[] = kumbhData.kumbh_mela.faq;
+
+// Initialize TFIDF with FAQ questions
+const tfidf = new TFIDF(faqData.map(item => item.question));
 
 // Common questions for suggestions
 const commonQuestions = [
@@ -53,15 +57,13 @@ export function getSuggestions(input: string): string[] {
     )
   );
 
-  // Add matching FAQ questions
-  suggestions.push(
-    ...faqData
-      .filter(item => 
-        item.question.toLowerCase().includes(normalizedInput) ||
-        item.tags?.some(tag => tag.toLowerCase().includes(normalizedInput))
-      )
-      .map(item => item.question)
-  );
+  // Use TFIDF to find similar questions from FAQ
+  if (input.length > 2) {
+    const similarIndices = tfidf.findSimilarDocuments(input, 3);
+    suggestions.push(
+      ...similarIndices.map(idx => faqData[idx].question)
+    );
+  }
 
   // Remove duplicates and limit to 5 suggestions
   return Array.from(new Set(suggestions))
@@ -71,43 +73,37 @@ export function getSuggestions(input: string): string[] {
 
 function findIntent(message: string): string {
   const lowercaseMsg = message.toLowerCase();
+  const messageTokens = new Set(removeStopwords(tokenize(message)));
+
+  let bestIntent = 'general';
+  let maxOverlap = 0;
 
   for (const [intent, patterns] of Object.entries(intents)) {
-    if (patterns.some(pattern => lowercaseMsg.includes(pattern))) {
-      return intent;
+    const patternTokens = new Set(patterns.flatMap(p => removeStopwords(tokenize(p))));
+    const overlap = [...messageTokens].filter(token => patternTokens.has(token)).length;
+
+    if (overlap > maxOverlap) {
+      maxOverlap = overlap;
+      bestIntent = intent;
     }
   }
 
-  return 'general';
+  return bestIntent;
 }
 
 function findRelevantFAQ(query: string): KumbhFAQItem | null {
-  const lowercaseQuery = query.toLowerCase();
-  const words = lowercaseQuery.split(/\s+/);
+  // Use TFIDF to find the most relevant FAQ
+  const similarIndices = tfidf.findSimilarDocuments(query, 1);
+  if (similarIndices.length === 0) return null;
 
-  // Score-based matching
-  const matchingFAQs = faqData.map(item => {
-    let score = 0;
+  const bestMatchIndex = similarIndices[0];
+  const similarity = tfidf.cosineSimilarity(
+    tfidf.queryVector(query),
+    tfidf.documentVectors[bestMatchIndex]
+  );
 
-    // Check question match
-    const questionWords = item.question.toLowerCase().split(/\s+/);
-    words.forEach(word => {
-      if (questionWords.includes(word)) score += 2;
-    });
-
-    // Check tag match
-    if (item.tags) {
-      words.forEach(word => {
-        if (item.tags!.some(tag => tag.toLowerCase().includes(word))) score += 1;
-      });
-    }
-
-    return { item, score };
-  });
-
-  // Sort by score and get the best match
-  const bestMatch = matchingFAQs.sort((a, b) => b.score - a.score)[0];
-  return bestMatch.score > 0 ? bestMatch.item : null;
+  // Only return if similarity is above threshold
+  return similarity > 0.2 ? faqData[bestMatchIndex] : null;
 }
 
 function getRealTimeUpdate(intent: string): string | null {
@@ -127,7 +123,7 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     const userMessage = messages[messages.length - 1].content;
     const intent = findIntent(userMessage);
 
-    // First, try to find a relevant FAQ
+    // First, try to find a relevant FAQ using vector search
     const faqMatch = findRelevantFAQ(userMessage);
     if (faqMatch) {
       let response = faqMatch.answer;
