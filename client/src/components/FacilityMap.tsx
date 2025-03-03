@@ -3,10 +3,9 @@ import { Card } from "@/components/ui/card";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Facility } from "@shared/schema";
-import type { Location } from "@shared/types";
 import { useQuery } from "@tanstack/react-query";
 
-type FacilityType = "holy_site" | "hospital" | "hotel" | "temple";
+type FacilityType = "holy_site" | "hospital" | "hotel" | "temple" | "shuttle_stop" | "restroom";
 
 // Custom icon function
 const createCustomIcon = (type: string) => {
@@ -15,6 +14,8 @@ const createCustomIcon = (type: string) => {
     hospital: "#FF0000", // Red for hospitals
     hotel: "#138808", // Green for hotels
     temple: "#FF7F00", // Saffron for temples
+    shuttle_stop: "#0000FF", // Blue for shuttle stops
+    restroom: "#800080", // Purple for restrooms
   };
 
   return L.divIcon({
@@ -42,6 +43,16 @@ export function FacilityMap() {
     refetchInterval: 60000, // Refresh every minute
   });
 
+  const { data: shuttles } = useQuery({
+    queryKey: ["/api/shuttle-locations"],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const { data: restrooms } = useQuery({
+    queryKey: ["/api/restrooms"],
+    refetchInterval: 300000, // Refresh every 5 minutes
+  });
+
   // Initialize map when container is ready
   useEffect(() => {
     if (!mapContainer) return;
@@ -62,7 +73,7 @@ export function FacilityMap() {
     };
   }, [mapContainer]);
 
-  // Add markers when facilities data is available
+  // Add markers when data is available
   useEffect(() => {
     if (!mapRef.current || !facilities) return;
 
@@ -70,9 +81,8 @@ export function FacilityMap() {
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
-    // Add new markers
+    // Add facility markers
     facilities.forEach((facility) => {
-      // Skip if filtering by type and this facility doesn't match
       if (selectedType && facility.type !== selectedType) return;
 
       const marker = L.marker(
@@ -87,11 +97,54 @@ export function FacilityMap() {
         );
       markersRef.current.push(marker);
     });
-  }, [facilities, selectedType]);
 
-  const facilityTypes = facilities ? 
-    Array.from(new Set(facilities.map(f => f.type))) : 
-    [];
+    // Add shuttle markers
+    shuttles?.forEach((shuttle) => {
+      if (selectedType && selectedType !== 'shuttle_stop') return;
+
+      const marker = L.marker(
+        [20.0059, 73.7913], // You'll need to update these coordinates based on actual shuttle locations
+        { icon: createCustomIcon('shuttle_stop') }
+      )
+        .addTo(mapRef.current!)
+        .bindPopup(
+          `<b>${shuttle.routeName}</b><br>
+          Current Location: ${shuttle.currentLocation}<br>
+          Next Stop: ${shuttle.nextStop}<br>
+          Arrival: ${shuttle.estimatedArrival}<br>
+          Capacity: ${shuttle.capacity}<br>
+          Status: ${shuttle.status}`
+        );
+      markersRef.current.push(marker);
+    });
+
+    // Add restroom markers
+    restrooms?.forEach((restroom) => {
+      if (selectedType && selectedType !== 'restroom') return;
+
+      const marker = L.marker(
+        [20.0059, 73.7913], // You'll need to update these coordinates based on actual restroom locations
+        { icon: createCustomIcon('restroom') }
+      )
+        .addTo(mapRef.current!)
+        .bindPopup(
+          `<b>Public Restroom</b><br>
+          Location: ${restroom.location}<br>
+          Nearest Stop: ${restroom.nearestStop}<br>
+          Status: ${restroom.status}<br>
+          ${restroom.accessibility ? '♿ Wheelchair Accessible' : ''}`
+        );
+      markersRef.current.push(marker);
+    });
+  }, [facilities, shuttles, restrooms, selectedType]);
+
+  const facilityTypes = [
+    ...new Set([
+      ...(facilities?.map(f => f.type) || []),
+      'shuttle_stop',
+      'restroom'
+    ])
+  ];
 
   const handleFilterClick = (type: string | null) => {
     setSelectedType(type === selectedType ? null : type);
@@ -103,7 +156,9 @@ export function FacilityMap() {
       holy_site: "Holy Sites",
       hospital: "Hospitals",
       hotel: "Hotels",
-      temple: "Temples"
+      temple: "Temples",
+      shuttle_stop: "Shuttle Stops",
+      restroom: "Restrooms"
     };
     return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
   };
@@ -115,6 +170,8 @@ export function FacilityMap() {
       hospital: "#FF0000",
       hotel: "#138808",
       temple: "#FF7F00",
+      shuttle_stop: "#0000FF",
+      restroom: "#800080"
     };
     return colors[type] || "#000080";
   };

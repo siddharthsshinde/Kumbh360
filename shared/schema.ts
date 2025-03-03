@@ -5,7 +5,7 @@ import { z } from "zod";
 export const facilities = pgTable("facilities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  type: text("type").notNull(), // hotel, restaurant, hospital
+  type: text("type").notNull(), // hotel, restaurant, hospital, shuttle_stop, restroom
   location: jsonb("location").notNull(), // {lat: number, lng: number}
   address: text("address").notNull(),
   contact: text("contact"),
@@ -31,6 +31,14 @@ export const crowdLevels = pgTable("crowd_levels", {
   lastUpdated: text("last_updated").notNull(),
   recommendations: text("recommendations").notNull(),
 });
+
+// Define the location type
+export const locationSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+});
+
+export type Location = z.infer<typeof locationSchema>;
 
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true });
 export const insertEmergencyContactSchema = createInsertSchema(emergencyContacts).omit({ id: true });
