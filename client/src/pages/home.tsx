@@ -9,6 +9,7 @@ import { NewsWidget } from "@/components/NewsWidget";
 import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo";
 import { AccommodationFinder } from "@/components/AccommodationFinder";
 import { TransportationGuide } from "@/components/TransportationGuide";
+import { EmergencyTransport } from "@/components/EmergencyTransport";
 import { StreetView } from "@/components/StreetView";
 import { MapPin, AlertCircle, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -137,7 +138,10 @@ export default function Home() {
         <FacilityMap />
         <KumbhLocationsInfo />
         <AccommodationFinder/>
-        <TransportationGuide />
+        <div className="grid grid-cols-1 gap-4">
+          <EmergencyTransport />
+          <TransportationGuide />
+        </div>
       </div>
     </div>
   );

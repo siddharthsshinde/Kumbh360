@@ -26,6 +26,22 @@ export interface IStorage {
     currentStatus: string;
     lastUpdated: string;
   }[]>;
+  getShuttleLocations(): Promise<{
+    id: string;
+    routeName: string;
+    currentLocation: string;
+    nextStop: string;
+    estimatedArrival: string;
+    capacity: string;
+    status: "on-time" | "delayed" | "crowded";
+  }[]>;
+  getRestrooms(): Promise<{
+    id: string;
+    location: string;
+    nearestStop: string;
+    status: "operational" | "maintenance" | "closed";
+    accessibility: boolean;
+  }[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -167,6 +183,67 @@ export class MemStorage implements IStorage {
       },
       currentStatus: "Open for darshan",
       lastUpdated: new Date().toISOString()
+    }
+  ];
+
+  private shuttleLocations = [
+    {
+      id: "S1",
+      routeName: "Nashik Road → Ramkund",
+      currentLocation: "Mumbai Naka",
+      nextStop: "Panchavati",
+      estimatedArrival: "5 mins",
+      capacity: "50%",
+      status: "on-time" as const
+    },
+    {
+      id: "S2",
+      routeName: "CBS → Tapovan",
+      currentLocation: "Gangapur Road",
+      nextStop: "Tapovan",
+      estimatedArrival: "10 mins",
+      capacity: "75%",
+      status: "crowded" as const
+    },
+    {
+      id: "S3",
+      routeName: "Municipal Corp → Trimbakeshwar",
+      currentLocation: "Cidco",
+      nextStop: "Trimbakeshwar",
+      estimatedArrival: "15 mins",
+      capacity: "30%",
+      status: "delayed" as const
+    }
+  ];
+
+  private restrooms = [
+    {
+      id: "R1",
+      location: "Ramkund Complex",
+      nearestStop: "Ramkund Bus Stop",
+      status: "operational" as const,
+      accessibility: true
+    },
+    {
+      id: "R2",
+      location: "Panchavati Market",
+      nearestStop: "Panchavati Circle",
+      status: "operational" as const,
+      accessibility: true
+    },
+    {
+      id: "R3",
+      location: "Tapovan Area",
+      nearestStop: "Tapovan Bus Stand",
+      status: "maintenance" as const,
+      accessibility: true
+    },
+    {
+      id: "R4",
+      location: "CBS Complex",
+      nearestStop: "Central Bus Station",
+      status: "operational" as const,
+      accessibility: true
     }
   ];
 
@@ -367,6 +444,35 @@ export class MemStorage implements IStorage {
 
       location.lastUpdated = new Date().toISOString();
       return location;
+    });
+  }
+  async getShuttleLocations() {
+    // Simulate real-time updates by randomly updating some values
+    return this.shuttleLocations.map(shuttle => {
+      const randomDelay = Math.random() > 0.7;
+      const randomCrowd = Math.random() > 0.6;
+
+      return {
+        ...shuttle,
+        estimatedArrival: randomDelay ? `${Math.floor(Math.random() * 10 + 5)} mins` : shuttle.estimatedArrival,
+        capacity: randomCrowd ? `${Math.floor(Math.random() * 50 + 50)}%` : shuttle.capacity,
+        status: randomDelay ? "delayed" as const :
+               randomCrowd ? "crowded" as const :
+               "on-time" as const
+      };
+    });
+  }
+
+  async getRestrooms() {
+    // Randomly update some restroom statuses to simulate real-time updates
+    return this.restrooms.map(restroom => {
+      const random = Math.random();
+      return {
+        ...restroom,
+        status: random > 0.8 ? "maintenance" as const :
+                random > 0.95 ? "closed" as const :
+                "operational" as const
+      };
     });
   }
 }

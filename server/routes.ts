@@ -31,6 +31,17 @@ export async function registerRoutes(app: Express) {
     res.json(locations);
   });
 
+  // New endpoints for emergency transportation
+  app.get("/api/shuttle-locations", async (_req, res) => {
+    const shuttles = await storage.getShuttleLocations();
+    res.json(shuttles);
+  });
+
+  app.get("/api/restrooms", async (_req, res) => {
+    const restrooms = await storage.getRestrooms();
+    res.json(restrooms);
+  });
+
   app.get("/api/weather", async (_req, res) => {
     try {
       const API_KEY = process.env.OPENWEATHER_API_KEY;
@@ -39,7 +50,6 @@ export async function registerRoutes(app: Express) {
         throw new Error("OpenWeather API key not found");
       }
 
-      // Coordinates for Nashik, India (where Kumbh Mela is held)
       const lat = 19.9975;
       const lon = 73.7898;
 
@@ -64,7 +74,6 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Weather API error:", error);
 
-      // Fallback to mock data if the API fails
       const mockWeather: WeatherData = {
         temperature: 23,
         condition: "Clear Sky",
