@@ -18,6 +18,15 @@ export default {
         saffron: "#FF7F00",
         'india-green': "#138808",
         'navy-blue': "#000080",
+        // Additional India-themed colors
+        'deep-saffron': "#FF5500",
+        'light-saffron': "#FFAA33",
+        'ashoka-chakra': "#0000FF",
+        'peacock-blue': "#0047AB",
+        'marigold': "#EAA221",
+        'kumkum-red': "#E71D36",
+        'turmeric': "#E3A018",
+        'sacred-lotus': "#F88379",
         // Semantic colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

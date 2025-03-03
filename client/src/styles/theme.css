@@ -1,0 +1,66 @@
+
+:root {
+  /* Base colors from theme.json */
+  --primary-color: hsl(39, 100%, 50%);
+  --radius: 0.75rem;
+  
+  /* Color palette based on India's flag and cultural elements */
+  --saffron: #FF7F00;
+  --india-green: #138808;
+  --navy-blue: #000080;
+  --deep-saffron: #FF5500;
+  --light-saffron: #FFAA33;
+  --ashoka-chakra: #0000FF;
+  --peacock-blue: #0047AB;
+  --marigold: #EAA221;
+  --kumkum-red: #E71D36;
+  --turmeric: #E3A018;
+  --sacred-lotus: #F88379;
+  
+  /* Semantic color assignments - Light mode */
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
+  --card: #F8F9FA;
+  --card-foreground: #1A1A1A;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: var(--primary-color);
+}
+
+.dark {
+  /* Semantic color assignments - Dark mode */
+  --background: #121212;
+  --foreground: #FAFAFA;
+  --card: #1E1E1E;
+  --card-foreground: #FAFAFA;
+  --border: #2D2D2D;
+  --input: #2D2D2D;
+}
+
+/* Festival-specific theme classes */
+.theme-kumbh {
+  --primary-color: hsl(39, 100%, 50%);
+  --secondary-color: var(--india-green);
+  --accent-color: var(--navy-blue);
+}
+
+.theme-diwali {
+  --primary-color: #FFD700; /* Gold */
+  --secondary-color: #FF5733; /* Warm orange */
+  --accent-color: #900C3F; /* Deep maroon */
+  --background: #FFF5E1; /* Warm cream */
+}
+
+.theme-holi {
+  --primary-color: #FF1493; /* Deep pink */
+  --secondary-color: #00FFFF; /* Cyan */
+  --accent-color: #ADFF2F; /* Green yellow */
+  --background: #9370DB; /* Medium purple */
+}
+
+.theme-navratri {
+  --primary-color: #FF073A; /* Bright red */
+  --secondary-color: #FF7F00; /* Orange */
+  --accent-color: #FFD700; /* Gold */
+  --background: #FAF0E6; /* Linen */
+}
