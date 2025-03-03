@@ -34,6 +34,7 @@ export interface IStorage {
     estimatedArrival: string;
     capacity: string;
     status: "on-time" | "delayed" | "crowded";
+    coordinates: { lat: number; lng: number };
   }[]>;
   getRestrooms(): Promise<{
     id: string;
@@ -41,6 +42,8 @@ export interface IStorage {
     nearestStop: string;
     status: "operational" | "maintenance" | "closed";
     accessibility: boolean;
+    coordinates: { lat: number; lng: number };
+    facilities?: string[];
   }[]>;
 }
 
@@ -52,7 +55,7 @@ export class MemStorage implements IStorage {
       type: "holy_site",
       location: { lat: 20.0059, lng: 73.7913 },
       address: "Panchavati, Nashik, Maharashtra",
-      contact: "",
+      contact: "+91 253-2590835",
     },
     {
       id: 2,
@@ -76,7 +79,7 @@ export class MemStorage implements IStorage {
       type: "holy_site",
       location: { lat: 20.0116, lng: 73.7938 },
       address: "Tapovan, Nashik, Maharashtra",
-      contact: "",
+      contact: "+91 253-2591567",
     },
     {
       id: 5,
@@ -84,7 +87,47 @@ export class MemStorage implements IStorage {
       type: "temple",
       location: { lat: 20.0064, lng: 73.7904 },
       address: "Panchavati, Nashik, Maharashtra",
-      contact: "",
+      contact: "+91 253-2590127",
+    },
+    {
+      id: 6,
+      name: "Trimbakeshwar Temple",
+      type: "temple",
+      location: { lat: 19.9322, lng: 73.5309 },
+      address: "Trimbak, Nashik, Maharashtra",
+      contact: "+91 253-2345678",
+    },
+    {
+      id: 7,
+      name: "Nashik Road Station Medical Center",
+      type: "hospital",
+      location: { lat: 19.9889, lng: 73.7828 },
+      address: "Nashik Road, Maharashtra",
+      contact: "0253-2465789",
+    },
+    {
+      id: 8,
+      name: "Hotel Ginger Nashik",
+      type: "hotel",
+      location: { lat: 19.9978, lng: 73.7890 },
+      address: "Satpur, Nashik, Maharashtra",
+      contact: "0253-6612000",
+    },
+    {
+      id: 9,
+      name: "Someshwar Temple",
+      type: "temple",
+      location: { lat: 20.0073, lng: 73.7884 },
+      address: "Panchavati, Nashik, Maharashtra",
+      contact: "+91 253-2591234",
+    },
+    {
+      id: 10,
+      name: "Emergency Response Center",
+      type: "hospital",
+      location: { lat: 20.0012, lng: 73.7899 },
+      address: "Central Nashik, Maharashtra",
+      contact: "0253-2345098",
     }
   ];
 
@@ -194,7 +237,8 @@ export class MemStorage implements IStorage {
       nextStop: "Panchavati",
       estimatedArrival: "5 mins",
       capacity: "50%",
-      status: "on-time" as const
+      status: "on-time" as const,
+      coordinates: { lat: 19.9889, lng: 73.7828 }
     },
     {
       id: "S2",
@@ -203,7 +247,8 @@ export class MemStorage implements IStorage {
       nextStop: "Tapovan",
       estimatedArrival: "10 mins",
       capacity: "75%",
-      status: "crowded" as const
+      status: "crowded" as const,
+      coordinates: { lat: 20.0116, lng: 73.7938 }
     },
     {
       id: "S3",
@@ -212,7 +257,38 @@ export class MemStorage implements IStorage {
       nextStop: "Trimbakeshwar",
       estimatedArrival: "15 mins",
       capacity: "30%",
-      status: "delayed" as const
+      status: "delayed" as const,
+      coordinates: { lat: 19.9322, lng: 73.5309 }
+    },
+    {
+      id: "S4",
+      routeName: "Panchavati Circuit",
+      currentLocation: "Kalaram Temple",
+      nextStop: "Someshwar Temple",
+      estimatedArrival: "7 mins",
+      capacity: "40%",
+      status: "on-time" as const,
+      coordinates: { lat: 20.0064, lng: 73.7904 }
+    },
+    {
+      id: "S5",
+      routeName: "Nashik City Special",
+      currentLocation: "Civil Hospital",
+      nextStop: "CBS",
+      estimatedArrival: "12 mins",
+      capacity: "60%",
+      status: "on-time" as const,
+      coordinates: { lat: 19.9975, lng: 73.7765 }
+    },
+    {
+      id: "S6",
+      routeName: "Holy Sites Express",
+      currentLocation: "Someshwar",
+      nextStop: "Ramkund",
+      estimatedArrival: "8 mins",
+      capacity: "85%",
+      status: "crowded" as const,
+      coordinates: { lat: 20.0073, lng: 73.7884 }
     }
   ];
 
@@ -222,28 +298,72 @@ export class MemStorage implements IStorage {
       location: "Ramkund Complex",
       nearestStop: "Ramkund Bus Stop",
       status: "operational" as const,
-      accessibility: true
+      accessibility: true,
+      coordinates: { lat: 20.0059, lng: 73.7913 },
+      facilities: ["Baby Change", "Wheelchair Access", "24/7"]
     },
     {
       id: "R2",
       location: "Panchavati Market",
       nearestStop: "Panchavati Circle",
       status: "operational" as const,
-      accessibility: true
+      accessibility: true,
+      coordinates: { lat: 20.0064, lng: 73.7904 },
+      facilities: ["Wheelchair Access"]
     },
     {
       id: "R3",
       location: "Tapovan Area",
       nearestStop: "Tapovan Bus Stand",
       status: "maintenance" as const,
-      accessibility: true
+      accessibility: true,
+      coordinates: { lat: 20.0116, lng: 73.7938 },
+      facilities: ["Baby Change", "Wheelchair Access"]
     },
     {
       id: "R4",
       location: "CBS Complex",
       nearestStop: "Central Bus Station",
       status: "operational" as const,
-      accessibility: true
+      accessibility: true,
+      coordinates: { lat: 19.9985, lng: 73.7885 },
+      facilities: ["Baby Change", "Wheelchair Access", "24/7"]
+    },
+    {
+      id: "R5",
+      location: "Trimbakeshwar Temple",
+      nearestStop: "Trimbak Bus Stand",
+      status: "operational" as const,
+      accessibility: true,
+      coordinates: { lat: 19.9322, lng: 73.5309 },
+      facilities: ["Wheelchair Access", "24/7"]
+    },
+    {
+      id: "R6",
+      location: "Nashik Road Station",
+      nearestStop: "Railway Station",
+      status: "operational" as const,
+      accessibility: true,
+      coordinates: { lat: 19.9889, lng: 73.7828 },
+      facilities: ["Baby Change", "Wheelchair Access", "24/7"]
+    },
+    {
+      id: "R7",
+      location: "Someshwar Temple Complex",
+      nearestStop: "Someshwar Stop",
+      status: "operational" as const,
+      accessibility: true,
+      coordinates: { lat: 20.0073, lng: 73.7884 },
+      facilities: ["Wheelchair Access"]
+    },
+    {
+      id: "R8",
+      location: "Civil Hospital Area",
+      nearestStop: "Hospital Gate",
+      status: "operational" as const,
+      accessibility: true,
+      coordinates: { lat: 19.9975, lng: 73.7765 },
+      facilities: ["Baby Change", "Wheelchair Access", "24/7", "Medical Aid"]
     }
   ];
 

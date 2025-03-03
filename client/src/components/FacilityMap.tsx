@@ -98,44 +98,61 @@ export function FacilityMap() {
       markersRef.current.push(marker);
     });
 
-    // Add shuttle markers
-    shuttles?.forEach((shuttle) => {
-      if (selectedType && selectedType !== 'shuttle_stop') return;
+  // Add shuttle markers
+  shuttles?.forEach((shuttle) => {
+    if (selectedType && selectedType !== 'shuttle_stop') return;
 
-      const marker = L.marker(
-        [20.0059, 73.7913], // You'll need to update these coordinates based on actual shuttle locations
-        { icon: createCustomIcon('shuttle_stop') }
-      )
-        .addTo(mapRef.current!)
-        .bindPopup(
-          `<b>${shuttle.routeName}</b><br>
-          Current Location: ${shuttle.currentLocation}<br>
-          Next Stop: ${shuttle.nextStop}<br>
-          Arrival: ${shuttle.estimatedArrival}<br>
-          Capacity: ${shuttle.capacity}<br>
-          Status: ${shuttle.status}`
-        );
-      markersRef.current.push(marker);
-    });
+    const marker = L.marker(
+      [shuttle.coordinates.lat, shuttle.coordinates.lng],
+      { icon: createCustomIcon('shuttle_stop') }
+    )
+      .addTo(mapRef.current!)
+      .bindPopup(
+        `<div class="text-sm">
+          <h3 class="font-bold text-blue-600">${shuttle.routeName}</h3>
+          <p><b>Current:</b> ${shuttle.currentLocation}</p>
+          <p><b>Next:</b> ${shuttle.nextStop}</p>
+          <p><b>Arrival:</b> ${shuttle.estimatedArrival}</p>
+          <p><b>Capacity:</b> ${shuttle.capacity}</p>
+          <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
+            shuttle.status === 'on-time' ? 'bg-green-100 text-green-700' :
+            shuttle.status === 'delayed' ? 'bg-red-100 text-red-700' :
+            'bg-yellow-100 text-yellow-700'
+          }">${shuttle.status}</span></p>
+        </div>`
+      );
+    markersRef.current.push(marker);
+  });
 
-    // Add restroom markers
-    restrooms?.forEach((restroom) => {
-      if (selectedType && selectedType !== 'restroom') return;
+  // Add restroom markers
+  restrooms?.forEach((restroom) => {
+    if (selectedType && selectedType !== 'restroom') return;
 
-      const marker = L.marker(
-        [20.0059, 73.7913], // You'll need to update these coordinates based on actual restroom locations
-        { icon: createCustomIcon('restroom') }
-      )
-        .addTo(mapRef.current!)
-        .bindPopup(
-          `<b>Public Restroom</b><br>
-          Location: ${restroom.location}<br>
-          Nearest Stop: ${restroom.nearestStop}<br>
-          Status: ${restroom.status}<br>
-          ${restroom.accessibility ? '♿ Wheelchair Accessible' : ''}`
-        );
-      markersRef.current.push(marker);
-    });
+    const marker = L.marker(
+      [restroom.coordinates.lat, restroom.coordinates.lng],
+      { icon: createCustomIcon('restroom') }
+    )
+      .addTo(mapRef.current!)
+      .bindPopup(
+        `<div class="text-sm">
+          <h3 class="font-bold text-purple-600">Public Restroom</h3>
+          <p><b>Location:</b> ${restroom.location}</p>
+          <p><b>Nearest Stop:</b> ${restroom.nearestStop}</p>
+          <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
+            restroom.status === 'operational' ? 'bg-green-100 text-green-700' :
+            restroom.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-red-100 text-red-700'
+          }">${restroom.status}</span></p>
+          <div class="mt-2">
+            ${restroom.facilities.map(f => 
+              `<span class="inline-block px-2 py-1 bg-gray-100 rounded-full text-xs mr-1 mb-1">${f}</span>`
+            ).join('')}
+          </div>
+        </div>`
+      );
+    markersRef.current.push(marker);
+  });
+
   }, [facilities, shuttles, restrooms, selectedType]);
 
   const facilityTypes = [
