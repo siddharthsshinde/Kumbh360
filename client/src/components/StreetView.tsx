@@ -16,7 +16,7 @@ interface Location {
 const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Ramkund",
-    imageId: "2299343675291665",
+    imageId: "801058740795351",
     description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela."
   },
   {
