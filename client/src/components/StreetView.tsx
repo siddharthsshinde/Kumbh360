@@ -11,23 +11,39 @@ interface Location {
   name: string;
   imageId: string;
   description: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
 }
 
 const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Ramkund",
-    imageId: "801058740795351",
-    description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela."
+    imageId: "757434881633089",
+    description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela.",
+    location: {
+      lat: 20.0074901,
+      lng: 73.79205090000005
+    }
   },
   {
     name: "Kalaram Temple",
     imageId: "3398041944606843",
-    description: "Historic black stone temple dedicated to Lord Rama in Panchavati area. Notable for its architectural beauty and religious importance."
+    description: "Historic black stone temple dedicated to Lord Rama in Panchavati area. Notable for its architectural beauty and religious importance.",
+    location: {
+      lat: 20.0064,
+      lng: 73.7904
+    }
   },
   {
     name: "Tapovan",
     imageId: "523157116754870",
-    description: "Sacred area where Lord Rama stayed during exile. Features ancient caves and meditation spots surrounded by natural beauty."
+    description: "Sacred area where Lord Rama stayed during exile. Features ancient caves and meditation spots surrounded by natural beauty.",
+    location: {
+      lat: 20.0116,
+      lng: 73.7938
+    }
   }
 ];
 
