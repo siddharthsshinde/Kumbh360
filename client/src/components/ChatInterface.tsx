@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
 import { getChatResponse } from "@/lib/chatbot";
+import { getSuggestions } from "@/lib/chatbot";
+import { Badge } from "@/components/ui/badge";
 
 export function ChatInterface() {
   const { t } = useTranslation();
@@ -17,11 +19,22 @@ export function ChatInterface() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([
+    "When is the next Shahi Snan?",
+    "Show me nearby facilities",
+    "Emergency contacts",
+    "Current crowd levels"
+  ]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+    handleSend(suggestion);
+  };
 
-    const userMessage: ChatMessage = { role: "user", content: input };
+  const handleSend = async (messageText: string = input) => {
+    if (!messageText.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = { role: "user", content: messageText };
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -29,6 +42,10 @@ export function ChatInterface() {
     try {
       const response = await getChatResponse([...messages, userMessage]);
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
+
+      // Get new suggestions based on the context
+      const newSuggestions = await getSuggestions([...messages, userMessage]);
+      setSuggestions(newSuggestions);
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -64,6 +81,23 @@ export function ChatInterface() {
             )}
           </div>
         </ScrollArea>
+
+        {/* Quick Suggestions */}
+        <div className="px-4 py-2 border-t border-gray-100">
+          <div className="flex flex-wrap gap-2 mb-2">
+            {suggestions.map((suggestion, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className="cursor-pointer hover:bg-orange-50 transition-colors"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
         <div className="p-4 border-t border-gray-200">
           <div className="flex gap-2">
             <Input
@@ -75,7 +109,7 @@ export function ChatInterface() {
               disabled={isLoading}
             />
             <Button 
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={isLoading}
               className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
             >
