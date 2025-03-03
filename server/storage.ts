@@ -559,7 +559,8 @@ export class MemStorage implements IStorage {
       const crowdInfo = crowdLevels.find(cl => cl.location === location.name);
 
       if (crowdInfo) {
-        location.currentStatus = `${location.currentStatus} - ${crowdInfo.status.toUpperCase()}`;
+        // Replace the current status instead of appending
+        location.currentStatus = `Open for devotees - ${crowdInfo.status.toUpperCase()}`;
       }
 
       location.lastUpdated = new Date().toISOString();
