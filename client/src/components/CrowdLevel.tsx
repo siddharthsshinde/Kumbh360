@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Users, AlertTriangle, Clock, Info, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Users, AlertTriangle, Clock, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CrowdLevel } from "@shared/schema";
 
@@ -13,16 +13,6 @@ const getStatusColor = (status: string) => {
     case "crowded": return "bg-orange-500";
     case "overcrowded": return "bg-red-500";
     default: return "bg-gray-500";
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "safe": return <ShieldCheck className="h-4 w-4 text-green-500" />;
-    case "moderate": return <Info className="h-4 w-4 text-yellow-500" />;
-    case "crowded": return <AlertTriangle className="h-4 w-4 text-orange-500" />;
-    case "overcrowded": return <ShieldAlert className="h-4 w-4 text-red-500" />;
-    default: return <Info className="h-4 w-4 text-gray-500" />;
   }
 };
 
@@ -60,15 +50,12 @@ export function CrowdLevelIndicator() {
         {crowdLevels.map((level) => (
           <div key={level.id} className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="font-medium flex items-center">
-                {getStatusIcon(level.status)} 
-                <span className="ml-2">{level.location}</span>
-              </span>
+              <span className="font-medium">{level.location}</span>
               <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(level.status)} text-white`}>
                 {level.status.toUpperCase()}
               </span>
             </div>
-            {(level.location === "Tapovan" || level.location === "Ramkund") && level.status === "overcrowded" && (
+            {(level.location === "Tapovan" || level.location === "Ramkund") && level.status === "crowded" && (
               <div className="mt-1 text-xs text-red-600 flex items-center">
                 <AlertTriangle className="h-3 w-3 mr-1" />
                 Hold children's hands tightly in this area
@@ -83,7 +70,6 @@ export function CrowdLevelIndicator() {
                 value={(level.currentCount / level.capacity) * 100} 
                 className={getStatusColor(level.status)}
               />
-              <p className="text-xs text-gray-600 mt-1">{level.recommendations}</p>
             </div>
             <div className="flex items-start gap-2 mt-2 text-sm text-gray-600">
               {getStatusIcon(level.status)}
