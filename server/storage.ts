@@ -13,6 +13,19 @@ export interface IStorage {
     timestamp: string;
     category?: string;
   }[]>;
+  getKumbhLocations(): Promise<{
+    id: number;
+    name: string;
+    description: string;
+    history: string;
+    timings: {
+      opening: string;
+      closing: string;
+      specialEvents?: string[];
+    };
+    currentStatus: string;
+    lastUpdated: string;
+  }[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -101,6 +114,61 @@ export class MemStorage implements IStorage {
     timestamp: string;
     category?: string;
   }[] = [];
+
+  private kumbhLocations = [
+    {
+      id: 1,
+      name: "Ramkund",
+      description: "The most sacred bathing spot in Nashik where Lord Rama and Sita bathed during their exile.",
+      history: "According to mythology, Lord Rama stayed here during his exile. The kund (reservoir) is believed to have special spiritual significance.",
+      timings: {
+        opening: "4:00 AM",
+        closing: "10:00 PM",
+        specialEvents: ["Morning Aarti at 5:30 AM", "Evening Aarti at 7:00 PM"]
+      },
+      currentStatus: "Open for devotees",
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 2,
+      name: "Tapovan",
+      description: "Ancient meditation site where Lord Rama, Sita and Lakshmana stayed during their exile.",
+      history: "Tapovan is where sages have meditated for centuries. The serene environment makes it perfect for spiritual practices.",
+      timings: {
+        opening: "6:00 AM",
+        closing: "6:00 PM",
+        specialEvents: ["Meditation sessions at sunrise", "Evening prayers"]
+      },
+      currentStatus: "Open for visitors",
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 3,
+      name: "Kalaram Temple",
+      description: "Historic black stone temple dedicated to Lord Rama, featuring exquisite architecture.",
+      history: "Built in 1788, this temple is known for its architectural beauty and religious significance.",
+      timings: {
+        opening: "5:00 AM",
+        closing: "9:00 PM",
+        specialEvents: ["Morning Aarti at 5:30 AM", "Evening Aarti at 7:00 PM", "Noon Bhog at 12:00 PM"]
+      },
+      currentStatus: "Open for darshan",
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 4,
+      name: "Trimbakeshwar",
+      description: "One of the 12 Jyotirlingas, where the Godavari River originates.",
+      history: "This ancient temple is one of the holiest shrines of Lord Shiva, featuring unique three-faced lingam.",
+      timings: {
+        opening: "4:00 AM",
+        closing: "11:00 PM",
+        specialEvents: ["Special morning abhishek at 4:30 AM", "Night aarti at 10:00 PM"]
+      },
+      currentStatus: "Open for darshan",
+      lastUpdated: new Date().toISOString()
+    }
+  ];
 
   constructor() {
     this.initCrowdLevels();
@@ -285,6 +353,21 @@ export class MemStorage implements IStorage {
         category: "Transport"
       }
     ];
+  }
+  async getKumbhLocations() {
+    // Update current status based on crowd levels
+    const crowdLevels = await this.getAllCrowdLevels();
+
+    return this.kumbhLocations.map(location => {
+      const crowdInfo = crowdLevels.find(cl => cl.location === location.name);
+
+      if (crowdInfo) {
+        location.currentStatus = `${location.currentStatus} - ${crowdInfo.status.toUpperCase()}`;
+      }
+
+      location.lastUpdated = new Date().toISOString();
+      return location;
+    });
   }
 }
 

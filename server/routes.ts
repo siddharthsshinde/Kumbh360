@@ -26,6 +26,11 @@ export async function registerRoutes(app: Express) {
     res.json(news);
   });
 
+  app.get("/api/kumbh-locations", async (_req, res) => {
+    const locations = await storage.getKumbhLocations();
+    res.json(locations);
+  });
+
   app.get("/api/weather", async (_req, res) => {
     try {
       const API_KEY = process.env.OPENWEATHER_API_KEY;
