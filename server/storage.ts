@@ -156,19 +156,36 @@ export class MemStorage implements IStorage {
     const update = this.crowdUpdates[this.currentUpdateIndex];
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
-    // Different base utilization for each location
-    const locationBaseUtilization = {
-      "Ramkund": 0.7, // Typically more crowded
-      "Kalaram Temple": 0.4, // Moderate crowds
-      "Tapovan": 0.85, // Most crowded
-      "Godavari Ghat": 0.3 // Least crowded
+    // Use timestamp to create varied crowd patterns over time
+    const now = new Date();
+    const timeSignature = now.getHours() + (now.getMinutes() / 60);
+    
+    // Forced different crowd levels for demonstration
+    // Each location will have a different status
+    const statusAssignment = {
+      "Ramkund": "",
+      "Kalaram Temple": "",
+      "Tapovan": "",
+      "Godavari Ghat": ""
     };
+    
+    // Assign a unique status to each location based on time
+    const allStatuses = ["safe", "moderate", "crowded", "overcrowded"];
+    const shuffledStatuses = [...allStatuses].sort(() => 0.5 - Math.random());
+    
+    let i = 0;
+    for (const location in statusAssignment) {
+      statusAssignment[location] = shuffledStatuses[i % 4];
+      i++;
+    }
 
     // Location-specific patterns and recommendations
     const locationPatterns = {
       "Ramkund": {
-        peakHours: [6, 7, 8, 17, 18, 19],
+        baseLevel: 0.7, // Typically more crowded
+        variance: 0.2,
         capacity: 12000,
+        peakHours: [6, 7, 8, 17, 18, 19],
         recommendations: {
           safe: "Perfect time for holy dip. Water level is suitable and crowd is manageable.",
           moderate: "Moderate crowds at the ghat. Best to visit in next hour.",
@@ -177,8 +194,10 @@ export class MemStorage implements IStorage {
         }
       },
       "Kalaram Temple": {
-        peakHours: [8, 9, 10, 16, 17, 18],
+        baseLevel: 0.4, // Moderate crowds
+        variance: 0.15,
         capacity: 5000,
+        peakHours: [8, 9, 10, 16, 17, 18],
         recommendations: {
           safe: "Temple is peaceful with minimal waiting time.",
           moderate: "Regular darshan queue moving smoothly.",
@@ -187,8 +206,10 @@ export class MemStorage implements IStorage {
         }
       },
       "Tapovan": {
-        peakHours: [7, 8, 9, 16, 17, 18],
+        baseLevel: 0.85, // Most crowded
+        variance: 0.25,
         capacity: 8000,
+        peakHours: [7, 8, 9, 16, 17, 18],
         recommendations: {
           safe: "Tranquil atmosphere for meditation.",
           moderate: "Good time to explore sacred sites.",
@@ -197,8 +218,10 @@ export class MemStorage implements IStorage {
         }
       },
       "Godavari Ghat": {
-        peakHours: [5, 6, 7, 17, 18, 19],
+        baseLevel: 0.3, // Least crowded
+        variance: 0.1,
         capacity: 15000,
+        peakHours: [5, 6, 7, 17, 18, 19],
         recommendations: {
           safe: "Peaceful time for holy dip and rituals.",
           moderate: "All ghats accessible with minimal waiting.",
@@ -208,30 +231,28 @@ export class MemStorage implements IStorage {
       }
     };
 
-    // Calculate different statuses for each location
+    // Calculate crowd levels with forced different statuses
     const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
-      const baseUtilization = locationBaseUtilization[location];
       const currentHour = new Date().getHours();
       const isPeakHour = pattern.peakHours.includes(currentHour);
-
-      // Add location-specific variation
-      let utilization = baseUtilization + (Math.random() * 0.2 - 0.1);
-      if (isPeakHour) {
-        utilization = Math.min(utilization * 1.3, 1);
+      const status = statusAssignment[location];
+      
+      // Calculate utilization based on status
+      let utilization;
+      switch (status) {
+        case "safe": utilization = 0.1 + (Math.random() * 0.15); break;
+        case "moderate": utilization = 0.3 + (Math.random() * 0.15); break;
+        case "crowded": utilization = 0.55 + (Math.random() * 0.15); break;
+        case "overcrowded": utilization = 0.8 + (Math.random() * 0.15); break;
+        default: utilization = 0.5;
       }
-
-      // Ensure each location has a different status by adding index-based offset
-      utilization = (utilization + (index * 0.15)) % 1;
-
+      
+      // Time-based oscillation for more dynamic behavior
+      const timeOscillation = Math.sin(timeSignature * Math.PI) * 0.1;
+      utilization = Math.max(0.05, Math.min(0.95, utilization + timeOscillation));
+      
       const newCount = Math.floor(pattern.capacity * utilization);
-
-      // Determine status based on adjusted utilization
-      let status;
-      if (utilization > 0.75) status = "overcrowded";
-      else if (utilization > 0.5) status = "crowded";
-      else if (utilization > 0.25) status = "moderate";
-      else status = "safe";
-
+      
       return {
         id: index + 1,
         location,
