@@ -156,12 +156,28 @@ export class MemStorage implements IStorage {
     const update = this.crowdUpdates[this.currentUpdateIndex];
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
-    // Different base utilization for each location
+    // Time-based crowd patterns (more realistic simulation)
+    const now = new Date();
+    const hour = now.getHours();
+    const isWeekend = [0, 6].includes(now.getDay());
+    const isHoliday = false; // Could be determined based on a holiday calendar
+    
+    // Increase base utilization during peak times (morning and evening)
+    const isPeakTime = (hour >= 6 && hour <= 10) || (hour >= 16 && hour <= 20);
+    const isMorningAarti = hour >= 4 && hour <= 6;
+    const isEveningAarti = hour >= 18 && hour <= 20;
+    
+    // Add more randomness and time-based variation
+    const timeMultiplier = isPeakTime ? 1.2 : (isMorningAarti || isEveningAarti ? 1.5 : 1);
+    const weekendMultiplier = isWeekend ? 1.25 : 1;
+    const holidayMultiplier = isHoliday ? 1.5 : 1;
+
+    // Different base utilization for each location with dynamic factors
     const locationBaseUtilization = {
-      "Ramkund": 0.7, // Typically more crowded
-      "Kalaram Temple": 0.4, // Moderate crowds
-      "Tapovan": 0.85, // Most crowded
-      "Godavari Ghat": 0.3 // Least crowded
+      "Ramkund": 0.7 * timeMultiplier * weekendMultiplier * holidayMultiplier,
+      "Kalaram Temple": 0.4 * timeMultiplier * weekendMultiplier * holidayMultiplier,
+      "Tapovan": 0.85 * timeMultiplier * weekendMultiplier * holidayMultiplier,
+      "Godavari Ghat": 0.3 * timeMultiplier * weekendMultiplier * holidayMultiplier
     };
 
     // Location-specific patterns and recommendations
@@ -208,29 +224,53 @@ export class MemStorage implements IStorage {
       }
     };
 
-    // Calculate different statuses for each location
+    // Calculate different statuses for each location with more dynamic behavior
     const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
       const baseUtilization = locationBaseUtilization[location];
       const currentHour = new Date().getHours();
       const isPeakHour = pattern.peakHours.includes(currentHour);
-
-      // Add location-specific variation
-      let utilization = baseUtilization + (Math.random() * 0.2 - 0.1);
+      
+      // Get previous crowd level for this location if exists
+      const previousLevel = this.crowdLevels.find(l => l.location === location);
+      
+      // Add realistic crowd movement - crowd levels don't change drastically in short periods
+      let previousUtilization = previousLevel 
+        ? previousLevel.currentCount / previousLevel.capacity 
+        : baseUtilization;
+      
+      // Gradually adjust toward target utilization (with some randomness)
+      const targetUtilization = baseUtilization + (Math.random() * 0.2 - 0.1);
+      
+      // Change rate determines how quickly the crowd size changes (slower is more realistic)
+      const changeRate = 0.2;
+      let utilization = previousUtilization + (targetUtilization - previousUtilization) * changeRate;
+      
       if (isPeakHour) {
-        utilization = Math.min(utilization * 1.3, 1);
+        utilization = Math.min(utilization * 1.3, 0.98); // Cap at 98% to avoid always hitting 100%
       }
-
-      // Ensure each location has a different status by adding index-based offset
-      utilization = (utilization + (index * 0.15)) % 1;
-
+      
+      // Add some sudden crowd spikes occasionally (random events)
+      if (Math.random() < 0.05) {
+        const suddenChange = (Math.random() * 0.2) - 0.1; // -10% to +10% sudden change
+        utilization = Math.max(0.05, Math.min(0.98, utilization + suddenChange));
+      }
+      
       const newCount = Math.floor(pattern.capacity * utilization);
 
-      // Determine status based on adjusted utilization
+      // Determine status based on adjusted utilization with smoother thresholds
       let status;
       if (utilization > 0.75) status = "overcrowded";
       else if (utilization > 0.5) status = "crowded";
       else if (utilization > 0.25) status = "moderate";
       else status = "safe";
+      
+      // Create dynamic recommendations based on current trends
+      let dynamicRecommendation = pattern.recommendations[status];
+      if (previousLevel && newCount > previousLevel.currentCount + 500) {
+        dynamicRecommendation = `Crowd is increasing rapidly. ${dynamicRecommendation}`;
+      } else if (previousLevel && newCount < previousLevel.currentCount - 500) {
+        dynamicRecommendation = `Crowd is decreasing. Good time to visit soon.`;
+      }
 
       return {
         id: index + 1,
@@ -239,8 +279,8 @@ export class MemStorage implements IStorage {
         capacity: pattern.capacity,
         currentCount: newCount,
         status,
-        lastUpdated: update.lastUpdated,
-        recommendations: pattern.recommendations[status]
+        lastUpdated: new Date().toISOString(), // Use current time for more realistic timestamps
+        recommendations: dynamicRecommendation
       };
     });
 
