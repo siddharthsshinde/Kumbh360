@@ -48,60 +48,6 @@ function findRelevantFAQ(query: string): KumbhFAQItem | null {
   ) || null;
 }
 
-// New function to generate contextual suggestions
-export async function getSuggestions(messages: ChatMessage[]): Promise<string[]> {
-  const lastMessage = messages[messages.length - 1];
-  const currentIntent = findIntent(lastMessage.content);
-
-  // Common suggestions for each intent
-  const suggestionMap: { [key: string]: string[] } = {
-    greetings: [
-      "When is the next Shahi Snan?",
-      "Show me nearby facilities",
-      "What are the main locations?",
-      "Current crowd levels"
-    ],
-    locations: [
-      "Where is Ramkund located?",
-      "How to reach Tapovan?",
-      "Nearest medical facilities",
-      "Show me important temples"
-    ],
-    facilities: [
-      "Where can I find accommodation?",
-      "Nearest restrooms",
-      "Food facilities nearby",
-      "Emergency services location"
-    ],
-    emergency: [
-      "Contact nearest medical help",
-      "Police station locations",
-      "Emergency helpline numbers",
-      "First aid centers"
-    ],
-    schedule: [
-      "Next important event",
-      "Shahi Snan schedule",
-      "Today's programs",
-      "Aarti timings"
-    ],
-    crowd: [
-      "Current crowd at Ramkund",
-      "Safe routes to take",
-      "Less crowded areas",
-      "Best time to visit"
-    ],
-    general: [
-      "Tell me about Kumbh Mela",
-      "Important locations",
-      "Emergency contacts",
-      "Today's events"
-    ]
-  };
-
-  return suggestionMap[currentIntent] || suggestionMap.general;
-}
-
 function getRealTimeUpdate(intent: string): string | null {
   // Simulate real-time updates for certain intents
   switch (intent) {
