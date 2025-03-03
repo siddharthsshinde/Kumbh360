@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Map } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const MAPILLARY_ACCESS_TOKEN = import.meta.env.VITE_MAPILLARY_CLIENT_TOKEN;
@@ -48,7 +48,6 @@ const NASHIK_LOCATIONS: Location[] = [
 ];
 
 export function StreetView() {
-  const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState<Location>(NASHIK_LOCATIONS[0]);
   const [viewer, setViewer] = useState<any>(null);
@@ -56,8 +55,6 @@ export function StreetView() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!isVisible) return;
-
     // Load Mapillary Viewer script
     const script = document.createElement('script');
     script.src = 'https://unpkg.com/mapillary-js@4.1.1/dist/mapillary.min.js';
@@ -78,7 +75,7 @@ export function StreetView() {
         viewer.remove();
       }
     };
-  }, [isVisible]);
+  }, []);
 
   const checkAuthAndInitialize = async () => {
     try {
@@ -170,68 +167,52 @@ export function StreetView() {
     }
   };
 
-  const toggleStreetView = () => {
-    setIsVisible(!isVisible);
-  };
-
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <Button
-        onClick={toggleStreetView}
-        className="mb-4 bg-[#FF7F00] hover:bg-[#E67300] text-white"
-      >
-        <Map className="w-4 h-4 mr-2" />
-        {isVisible ? 'Hide Street View' : 'Show Street View'}
-      </Button>
+    <Card className="p-4 w-full max-w-4xl mx-auto">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-2xl font-bold text-center text-[#FF7F00]">
+          Nashik Street View
+        </h2>
 
-      {isVisible && (
-        <Card className="p-4">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold text-center text-[#FF7F00]">
-              Nashik Street View
-            </h2>
+        <div className="flex gap-2 justify-center mb-4">
+          {NASHIK_LOCATIONS.map((location) => (
+            <Button
+              key={location.imageId}
+              onClick={() => changeLocation(location)}
+              variant={selectedLocation.imageId === location.imageId ? "default" : "outline"}
+              className={selectedLocation.imageId === location.imageId ? "bg-[#FF7F00] text-white" : ""}
+            >
+              {location.name}
+            </Button>
+          ))}
+        </div>
 
-            <div className="flex gap-2 justify-center mb-4">
-              {NASHIK_LOCATIONS.map((location) => (
-                <Button
-                  key={location.imageId}
-                  onClick={() => changeLocation(location)}
-                  variant={selectedLocation.imageId === location.imageId ? "default" : "outline"}
-                  className={selectedLocation.imageId === location.imageId ? "bg-[#FF7F00] text-white" : ""}
-                >
-                  {location.name}
-                </Button>
-              ))}
+        <div className="relative">
+          {!isAuthenticated && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <Button
+                onClick={handleAuth}
+                className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
+              >
+                Authenticate with Mapillary
+              </Button>
             </div>
-
-            <div className="relative">
-              {!isAuthenticated && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-                  <Button
-                    onClick={handleAuth}
-                    className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
-                  >
-                    Authenticate with Mapillary
-                  </Button>
-                </div>
-              )}
-              <div
-                id="street-view-container"
-                className="w-full h-[500px] rounded-lg overflow-hidden"
-              />
-              {isLoading && isAuthenticated && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#FF7F00]" />
-                </div>
-              )}
+          )}
+          <div
+            id="street-view-container"
+            className="w-full h-[500px] rounded-lg overflow-hidden"
+          />
+          {isLoading && isAuthenticated && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75">
+              <Loader2 className="w-8 h-8 animate-spin text-[#FF7F00]" />
             </div>
+          )}
+        </div>
 
-            <p className="text-center text-gray-600 mt-2">
-              {selectedLocation.description}
-            </p>
-          </div>
-        </Card>
-      )}
-    </div>
+        <p className="text-center text-gray-600 mt-2">
+          {selectedLocation.description}
+        </p>
+      </div>
+    </Card>
   );
 }
