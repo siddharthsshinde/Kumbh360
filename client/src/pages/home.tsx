@@ -9,18 +9,20 @@ import { NewsWidget } from "@/components/NewsWidget";
 import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo";
 import { AccommodationFinder } from "@/components/AccommodationFinder";
 import { TransportationGuide } from "@/components/TransportationGuide";
-import { MapPin, AlertCircle } from "lucide-react";
+import { StreetView } from "@/components/StreetView";
+import { MapPin, AlertCircle, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function Home() {
   const { i18n } = useTranslation();
   const { toast } = useToast();
+  const [showStreetView, setShowStreetView] = useState(false);
 
   const handleShareLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Here you would typically send this to your backend
           const { latitude, longitude } = position.coords;
           toast({
             title: "Location Shared",
@@ -46,12 +48,11 @@ export default function Home() {
   };
 
   const handleSOS = () => {
-    // Here you would integrate with emergency services
     toast({
       title: "Emergency Alert Sent",
       description: "Emergency services have been notified. Stay calm, help is on the way.",
       variant: "destructive",
-      duration: 10000 // Show for 10 seconds
+      duration: 10000
     });
   };
 
@@ -75,6 +76,14 @@ export default function Home() {
             >
               <AlertCircle className="h-4 w-4" />
               SOS
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowStreetView(!showStreetView)}
+              className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700"
+            >
+              <Camera className="h-4 w-4" />
+              {showStreetView ? 'Hide Street View' : 'Show Street View'}
             </Button>
           </div>
           <div className="flex gap-2">
@@ -101,6 +110,12 @@ export default function Home() {
             </Button>
           </div>
         </div>
+
+        {showStreetView && (
+          <div className="mb-8">
+            <StreetView />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 mb-4">
           <RealTimeSafetySuggestion />
