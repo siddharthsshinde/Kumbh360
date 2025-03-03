@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const MAPILLARY_ACCESS_TOKEN = 'MLY|9611319228912944|29e109c6564d3af0177a71111877bb0e';
+const MAPILLARY_ACCESS_TOKEN = import.meta.env.VITE_MAPILLARY_CLIENT_TOKEN;
 const MAPILLARY_AUTH_URL = 'https://www.mapillary.com/connect?client_id=9611319228912944';
 
 interface Location {
