@@ -26,6 +26,49 @@ const intents = {
 // Initialize FAQ data
 const faqData: KumbhFAQItem[] = kumbhData.kumbh_mela.faq;
 
+// New function to get suggestions based on user input
+export function getSuggestions(input: string): string[] {
+  if (!input.trim()) return [];
+
+  const lowercaseInput = input.toLowerCase();
+  const suggestions: string[] = [];
+
+  // Check for matches in FAQ questions
+  faqData.forEach(item => {
+    if (item.question.toLowerCase().includes(lowercaseInput) && 
+        !suggestions.includes(item.question)) {
+      suggestions.push(item.question);
+    }
+  });
+
+  // Add intent-based suggestions
+  Object.entries(intents).forEach(([intent, patterns]) => {
+    if (patterns.some(pattern => lowercaseInput.includes(pattern))) {
+      switch (intent) {
+        case 'locations':
+          suggestions.push("Where is Ramkund located?", "How to reach Tapovan?");
+          break;
+        case 'facilities':
+          suggestions.push("What facilities are available for elderly pilgrims?");
+          break;
+        case 'emergency':
+          suggestions.push("Where is the nearest medical facility?");
+          break;
+        case 'schedule':
+          suggestions.push("When is the next Shahi Snan?");
+          break;
+        case 'crowd':
+          suggestions.push("What is the current crowd status at Ramkund?");
+          break;
+      }
+    }
+  });
+
+  // Return top 5 unique suggestions
+  return [...new Set(suggestions)].slice(0, 5);
+}
+
+// Existing functions remain unchanged
 function findIntent(message: string): string {
   const lowercaseMsg = message.toLowerCase();
 
@@ -41,7 +84,6 @@ function findIntent(message: string): string {
 function findRelevantFAQ(query: string): KumbhFAQItem | null {
   const lowercaseQuery = query.toLowerCase();
 
-  // Simple keyword matching for now
   return faqData.find(item => 
     item.question.toLowerCase().includes(lowercaseQuery) ||
     item.tags?.some(tag => lowercaseQuery.includes(tag.toLowerCase()))
@@ -49,7 +91,6 @@ function findRelevantFAQ(query: string): KumbhFAQItem | null {
 }
 
 function getRealTimeUpdate(intent: string): string | null {
-  // Simulate real-time updates for certain intents
   switch (intent) {
     case 'crowd':
       return "⚠️ REAL-TIME UPDATE: Tapovan area is currently experiencing high crowd density. Consider visiting during early morning hours. If visiting with children, please hold their hands firmly.";
@@ -65,12 +106,10 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     const userMessage = messages[messages.length - 1].content;
     const intent = findIntent(userMessage);
 
-    // First, try to find a relevant FAQ
     const faqMatch = findRelevantFAQ(userMessage);
     if (faqMatch) {
       let response = faqMatch.answer;
 
-      // Add real-time update if available
       const realtimeUpdate = getRealTimeUpdate(intent);
       if (realtimeUpdate) {
         response += "\n\n" + realtimeUpdate;
@@ -79,7 +118,6 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
       return response;
     }
 
-    // If no FAQ match, use intent-based responses
     const realtimeUpdate = getRealTimeUpdate(intent);
     return realtimeUpdate || "I understand you're asking about the Kumbh Mela. Could you please be more specific about what you'd like to know? I can help you with information about locations, schedules, facilities, or emergency services.";
   } catch (error) {
