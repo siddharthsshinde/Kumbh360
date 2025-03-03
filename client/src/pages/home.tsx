@@ -13,6 +13,7 @@ import { StreetView } from "@/components/StreetView";
 import { MapPin, AlertCircle, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { PrayerSubmission } from "@/components/PrayerSubmission";
 
 export default function Home() {
   const { i18n } = useTranslation();
@@ -85,6 +86,7 @@ export default function Home() {
               <Camera className="h-4 w-4" />
               {showStreetView ? 'Hide Street View' : 'Show Street View'}
             </Button>
+            <PrayerSubmission />
           </div>
           <div className="flex gap-2">
             <Button

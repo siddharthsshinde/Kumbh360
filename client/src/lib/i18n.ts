@@ -13,6 +13,9 @@ const resources = {
       humidity: "Humidity",
       windSpeed: "Wind Speed",
       searchPlaceholder: "Type your message here...",
+      submitPrayer: "Submit Prayer",
+      prayerSubmitted: "Your prayer has been submitted",
+      prayerPlaceholder: "Enter your prayer here...",
     }
   },
   hi: {
@@ -26,6 +29,9 @@ const resources = {
       humidity: "नमी",
       windSpeed: "हवा की गति",
       searchPlaceholder: "अपना संदेश यहां टाइप करें...",
+      submitPrayer: "प्रार्थना जमा करें",
+      prayerSubmitted: "आपकी प्रार्थना जमा कर दी गई है",
+      prayerPlaceholder: "अपनी प्रार्थना यहां दर्ज करें...",
     }
   },
   mr: {
@@ -42,6 +48,9 @@ const resources = {
       news: "ताजी बातम्या",
       liveNews: "लाईव्ह",
       loadingNews: "बातम्या लोड होत आहेत...",
+      submitPrayer: "प्रार्थना सबमिट करा",
+      prayerSubmitted: "आपली प्रार्थना सबमिट केली गेली आहे",
+      prayerPlaceholder: "आपली प्रार्थना येथे टाइप करा...",
     }
   }
 };
