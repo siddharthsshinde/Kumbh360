@@ -111,33 +111,15 @@ export function ChatInterface() {
         </ScrollArea>
         <div className="p-4 border-t border-gray-200">
           <div className="flex flex-col gap-2 relative">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything about Kumbh Mela..."
-              className="flex-1 bg-gray-50 border-gray-200"
-              disabled={isLoading}
-            />
-            {suggestions.length > 0 && (
-              <div className="absolute bottom-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10">
-                {suggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                      index === selectedSuggestionIndex ? "bg-gray-100" : ""
-                    }`}
-                    onClick={() => {
-                      setInput(suggestion);
-                      setSuggestions([]);
-                    }}
-                  >
-                    {suggestion}
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full relative">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything about Kumbh Mela..."
+                className="flex-1 bg-gray-50 border-gray-200"
+                disabled={isLoading}
+              />
               <Button 
                 onClick={handleSend}
                 disabled={isLoading}
@@ -145,6 +127,24 @@ export function ChatInterface() {
               >
                 <Send className="h-4 w-4" />
               </Button>
+              {suggestions.length > 0 && (
+                <div className="absolute bottom-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10">
+                  {suggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                        index === selectedSuggestionIndex ? "bg-gray-100" : ""
+                      }`}
+                      onClick={() => {
+                        setInput(suggestion);
+                        setSuggestions([]);
+                      }}
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
