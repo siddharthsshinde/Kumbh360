@@ -39,9 +39,9 @@ const createCustomIcon = (type: string) => {
 };
 
 export function FacilityMap() {
-  // For auxiliary maps (toggle between density and area)
-  const [showAuxiliaryMap, setShowAuxiliaryMap] = useState(false);
-  const [auxiliaryMapType, setAuxiliaryMapType] = useState<'density' | 'area'>('density');
+  // For view modes - only one active at a time
+  type ViewMode = 'facilities' | 'heatmap' | 'safety' | 'density' | 'area';
+  const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
   
   // For facilities map
   const mapRef = useRef<L.Map | null>(null);
@@ -54,7 +54,6 @@ export function FacilityMap() {
   
   // For safety zones
   const safetyZonesRef = useRef<L.Circle[]>([]);
-  const [showSafetyZones, setShowSafetyZones] = useState(true);
   
   // For density map
   const densityMapRef = useRef<L.Map | null>(null);
@@ -63,6 +62,26 @@ export function FacilityMap() {
   // For area map
   const areaMapRef = useRef<L.Map | null>(null);
   const [areaMapContainer, setAreaMapContainer] = useState<HTMLElement | null>(null);
+  
+  // Helper function to toggle view modes
+  const toggleViewMode = (mode: ViewMode) => {
+    // If already active, turn it off and go back to base facilities view
+    if (activeViewMode === mode) {
+      setActiveViewMode('facilities');
+    } else {
+      setActiveViewMode(mode);
+    }
+  };
+  
+  // These computed properties help determine if specific views are active
+  // Based on the currently selected view mode
+  const showHeatLayer = activeViewMode === 'heatmap';
+  const showSafetyZones = activeViewMode === 'safety';
+  
+  // For auxiliary maps (density and area) - now managed through view modes
+  const showAuxiliaryMap = activeViewMode === 'density' || activeViewMode === 'area';
+  const auxiliaryMapType = activeViewMode === 'density' ? 'density' : 
+                          activeViewMode === 'area' ? 'area' : undefined;
   
   // Queries
   const { data: facilities } = useQuery<Facility[]>({
@@ -105,8 +124,7 @@ export function FacilityMap() {
     };
   }, [mapContainer]);
 
-  // Toggle for showing or hiding heat layer
-  const [showHeatLayer, setShowHeatLayer] = useState(true);
+  // States for controlling map layer visibility (now controlled via active view mode)
 
   // Initialize density map when container is ready
   useEffect(() => {
@@ -820,7 +838,7 @@ export function FacilityMap() {
           {/* Main map toggles */}
           <div className="flex gap-2">
             <button
-              onClick={() => setShowHeatLayer(!showHeatLayer)}
+              onClick={() => toggleViewMode('heatmap')}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
                 showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
               }`}
@@ -839,7 +857,7 @@ export function FacilityMap() {
             </button>
             
             <button
-              onClick={() => setShowSafetyZones(!showSafetyZones)}
+              onClick={() => toggleViewMode('safety')}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
                 showSafetyZones ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
               }`}
@@ -868,10 +886,7 @@ export function FacilityMap() {
           {/* Auxiliary map buttons */}
           <div className="flex border rounded-md overflow-hidden">
             <button
-              onClick={() => {
-                setAuxiliaryMapType('density');
-                setShowAuxiliaryMap(!showAuxiliaryMap || auxiliaryMapType !== 'density');
-              }}
+              onClick={() => toggleViewMode('density')}
               className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
                 showAuxiliaryMap && auxiliaryMapType === 'density' 
                   ? 'bg-indigo-100 text-indigo-800' 
@@ -887,10 +902,7 @@ export function FacilityMap() {
             </button>
             
             <button
-              onClick={() => {
-                setAuxiliaryMapType('area');
-                setShowAuxiliaryMap(!showAuxiliaryMap || auxiliaryMapType !== 'area');
-              }}
+              onClick={() => toggleViewMode('area')}
               className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
                 showAuxiliaryMap && auxiliaryMapType === 'area' 
                   ? 'bg-violet-100 text-violet-800' 
