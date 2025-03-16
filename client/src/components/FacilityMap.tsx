@@ -13,6 +13,9 @@ import { AlertTriangle, MapPin, Users } from "lucide-react";
 
 type FacilityType = "holy_site" | "hospital" | "hotel" | "temple" | "shuttle_stop" | "restroom";
 
+// Define the possible view modes
+type ViewMode = 'facilities' | 'heatmap' | 'safety' | 'density' | 'area';
+
 // Custom icon function
 const createCustomIcon = (type: string) => {
   const iconColors: Record<FacilityType, string> = {
@@ -40,7 +43,6 @@ const createCustomIcon = (type: string) => {
 
 export function FacilityMap() {
   // For view modes - only one active at a time
-  type ViewMode = 'facilities' | 'heatmap' | 'safety' | 'density' | 'area';
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
   
   // For facilities map
@@ -83,25 +85,25 @@ export function FacilityMap() {
   const auxiliaryMapType = activeViewMode === 'density' ? 'density' : 
                           activeViewMode === 'area' ? 'area' : undefined;
   
-  // Queries
+  // Queries with increased real-time refresh rates
   const { data: facilities } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   const { data: shuttles } = useQuery({
     queryKey: ["/api/shuttle-locations"],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds
   });
 
   const { data: restrooms } = useQuery({
     queryKey: ["/api/restrooms"],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 15000, // Refresh every 15 seconds
   });
 
   const { data: crowdLevels, isLoading: crowdLoading } = useQuery<CrowdLevel[]>({
     queryKey: ["/api/crowd-levels"],
-    refetchInterval: 300000, // Refresh every 5 minutes (300,000 ms)
+    refetchInterval: 10000, // Refresh every 10 seconds for near real-time updates
   });
 
   // Initialize facilities map when container is ready
@@ -982,7 +984,7 @@ export function FacilityMap() {
               
               <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
                 <Users className="h-3 w-3 mr-1" />
-                <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
+                <span>Data updates in real-time every 10 seconds. Last updated: {new Date().toLocaleTimeString()}</span>
               </div>
             </div>
           )}
@@ -1038,7 +1040,7 @@ export function FacilityMap() {
                       <circle cx="10" cy="14" r="2"></circle>
                       <circle cx="16" cy="16" r="2"></circle>
                     </svg>
-                    <span>Density measured in people per square meter. Data updates every 5 minutes.</span>
+                    <span>Density measured in people per square meter. Real-time updates every 10 seconds.</span>
                   </div>
                 </div>
                 
