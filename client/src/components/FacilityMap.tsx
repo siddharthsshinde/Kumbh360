@@ -465,7 +465,8 @@ export function FacilityMap() {
       
       // Create a safety zone with appropriate styling
       const radius = 200 + (ratio * 200); // Size increases with crowd density
-      const circleOptions: L.CircleMarkerOptions = {
+      // Use CircleOptions not CircleMarkerOptions for circles with radius in meters
+      const circleOptions: L.CircleOptions = {
         color: safetyColor,
         fillColor: safetyColor,
         fillOpacity: 0.15,
