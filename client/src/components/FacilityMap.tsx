@@ -39,9 +39,6 @@ const createCustomIcon = (type: string) => {
 };
 
 export function FacilityMap() {
-  // For primary map (combining facilities and heatmap)
-  const [showHeatmap, setShowHeatmap] = useState(false);
-  
   // For auxiliary maps (toggle between density and area)
   const [showAuxiliaryMap, setShowAuxiliaryMap] = useState(false);
   const [auxiliaryMapType, setAuxiliaryMapType] = useState<'density' | 'area'>('density');
@@ -52,10 +49,8 @@ export function FacilityMap() {
   const markersRef = useRef<L.Marker[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  // For heatmap
-  const heatmapRef = useRef<L.Map | null>(null);
+  // For heatmap (integrated with the main map)
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
-  const [heatmapContainer, setHeatmapContainer] = useState<HTMLElement | null>(null);
   
   // For density map
   const densityMapRef = useRef<L.Map | null>(null);
@@ -106,25 +101,8 @@ export function FacilityMap() {
     };
   }, [mapContainer]);
 
-  // Initialize heatmap when container is ready
-  useEffect(() => {
-    if (!heatmapContainer) return;
-
-    if (!heatmapRef.current) {
-      // Center on Ramkund, Nashik
-      heatmapRef.current = L.map(heatmapContainer).setView([20.0059, 73.7913], 14);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(heatmapRef.current);
-    }
-
-    return () => {
-      if (heatmapRef.current) {
-        heatmapRef.current.remove();
-        heatmapRef.current = null;
-      }
-    };
-  }, [heatmapContainer]);
+  // Toggle for showing or hiding heat layer
+  const [showHeatLayer, setShowHeatLayer] = useState(true);
 
   // Initialize density map when container is ready
   useEffect(() => {
@@ -432,14 +410,17 @@ export function FacilityMap() {
     };
   }, [crowdLevels, densityMapRef]);
 
-  // Update the heatmap based on crowd levels
+  // Update the heatmap based on crowd levels (integrated in main map)
   useEffect(() => {
-    if (!heatmapRef.current || !crowdLevels || crowdLevels.length === 0) return;
+    if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
 
     // Remove existing heat layer if it exists
     if (heatLayerRef.current) {
       heatLayerRef.current.remove();
     }
+    
+    // Don't add heatmap layer if it's turned off
+    if (!showHeatLayer) return;
 
     // Get location coordinates for each location
     const locationCoordinates: Record<string, [number, number]> = {
@@ -510,7 +491,7 @@ export function FacilityMap() {
         0.85: '#b91c1c', // Dark red for very high crowd
         0.95: '#7f1d1d'  // Deep red for critical crowding
       }
-    }).addTo(heatmapRef.current);
+    }).addTo(mapRef.current);
     
     // Add location markers to heatmap for reference
     Object.entries(locationCoordinates).forEach(([location, coordinates]) => {
@@ -550,7 +531,7 @@ export function FacilityMap() {
             iconSize: [40, 40],
             iconAnchor: [20, 20]
           })
-        }).addTo(heatmapRef.current!)
+        }).addTo(mapRef.current!)
         .bindPopup(`
           <div class="text-sm p-2">
             <h3 class="font-bold text-[#FF7F00] text-base border-b pb-1 mb-2">${location}</h3>
@@ -589,7 +570,7 @@ export function FacilityMap() {
       }
     });
     
-  }, [crowdLevels, facilities, heatmapRef]);
+  }, [crowdLevels, facilities, mapRef, showHeatLayer]);
 
   // Add markers when data is available
   useEffect(() => {
@@ -722,15 +703,15 @@ export function FacilityMap() {
         <div className="flex gap-2">
           {/* Main map toggle */}
           <button
-            onClick={() => setShowHeatmap(!showHeatmap)}
+            onClick={() => setShowHeatLayer(!showHeatLayer)}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-              showHeatmap ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+              showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
             }`}
           >
-            {showHeatmap ? (
+            {showHeatLayer ? (
               <>
                 <Users className="h-4 w-4" />
-                <span>Show Facilities</span>
+                <span>Hide Heatmap</span>
               </>
             ) : (
               <>
@@ -786,83 +767,74 @@ export function FacilityMap() {
       {/* Main map section (facilities or heatmap) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="w-full">
-          {!showHeatmap ? (
-            <>
-              <div className="p-2 border-b flex flex-wrap gap-2">
-                <button 
-                  className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-                  onClick={() => handleFilterClick(null)}
-                >
-                  All
-                </button>
-                {facilityTypes.map(type => (
-                  <button 
-                    key={type}
-                    className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-                    onClick={() => handleFilterClick(type)}
-                  >
-                    <span 
-                      className="inline-block w-2 h-2 rounded-full mr-1"
-                      style={{ backgroundColor: getTypeColor(type) }}
-                    ></span>
-                    {getTypeName(type)}
-                  </button>
-                ))}
-              </div>
+          <div className="p-2 border-b flex flex-wrap gap-2">
+            <button 
+              className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+              onClick={() => handleFilterClick(null)}
+            >
+              All
+            </button>
+            {facilityTypes.map(type => (
+              <button 
+                key={type}
+                className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+                onClick={() => handleFilterClick(type)}
+              >
+                <span 
+                  className="inline-block w-2 h-2 rounded-full mr-1"
+                  style={{ backgroundColor: getTypeColor(type) }}
+                ></span>
+                {getTypeName(type)}
+              </button>
+            ))}
+          </div>
 
-              <div
-                ref={setMapContainer}
-                className="w-full h-[400px] rounded-b-lg z-0"
-              />
-            </>
-          ) : (
-            <>
-              <div className="p-2 border-b">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-sm font-medium mb-1">Crowd Density</div>
-                    <div className="flex items-center mt-1 text-xs text-gray-600">
-                      <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                      <span>Click markers for details</span>
-                    </div>
-                  </div>
-                  
-                  {/* Enhanced gradient legend */}
-                  <div className="flex flex-col items-end">
-                    <div className="h-6 w-64 rounded-md mb-1" 
-                      style={{ 
-                        background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
-                      }}>
-                    </div>
-                    <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                      <span>0%</span>
-                      <span>20%</span>
-                      <span>40%</span>
-                      <span>60%</span>
-                      <span>80%</span>
-                      <span>100%</span>
-                    </div>
-                    <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                      <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
-                      <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
-                      <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
-                      <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
-                    </div>
+          {showHeatLayer && (
+            <div className="p-2 border-b">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="text-sm font-medium mb-1">Crowd Density</div>
+                  <div className="flex items-center mt-1 text-xs text-gray-600">
+                    <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                    <span>Click markers for details</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                  <Users className="h-3 w-3 mr-1" />
-                  <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
+                {/* Enhanced gradient legend */}
+                <div className="flex flex-col items-end">
+                  <div className="h-6 w-64 rounded-md mb-1" 
+                    style={{ 
+                      background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
+                    }}>
+                  </div>
+                  <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                    <span>0%</span>
+                    <span>20%</span>
+                    <span>40%</span>
+                    <span>60%</span>
+                    <span>80%</span>
+                    <span>100%</span>
+                  </div>
+                  <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                    <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
+                    <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
+                    <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
+                    <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
+                  </div>
                 </div>
               </div>
               
-              <div
-                ref={setHeatmapContainer}
-                className="w-full h-[400px] rounded-b-lg z-0"
-              />
-            </>
+              <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                <Users className="h-3 w-3 mr-1" />
+                <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
+              </div>
+            </div>
           )}
+          
+          <div
+            ref={setMapContainer}
+            className="w-full h-[400px] rounded-b-lg z-0"
+          />
         </div>
         
         {/* Auxiliary map (density or area) */}
