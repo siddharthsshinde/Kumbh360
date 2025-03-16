@@ -70,7 +70,7 @@ export function FacilityMap() {
 
   const { data: crowdLevels, isLoading: crowdLoading } = useQuery<CrowdLevel[]>({
     queryKey: ["/api/crowd-levels"],
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 300000, // Refresh every 5 minutes (300,000 ms)
   });
 
   // Initialize facilities map when container is ready
@@ -176,17 +176,20 @@ export function FacilityMap() {
       }
     });
     
-    // Create heat layer with the data
+    // Create heat layer with the data - improved visual aesthetics
     heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
-      radius: 35, // Size of each point in the heatmap
-      blur: 30, // Blur effect
+      radius: 45, // Increased size of each point in the heatmap
+      blur: 35, // Increased blur effect for smoother transitions
       maxZoom: 15, // Maximum zoom level for the heatmap
-      max: 100, // Maximum possible intensity
+      max: 120, // Increased max intensity for more vibrant colors
       gradient: {
-        0.0: '#3c0', // Green for low crowd
-        0.3: '#FFA500', // Orange for moderate crowd
-        0.6: '#F03E3E', // Red for high crowd
-        0.8: '#7F0000'  // Dark red for very high crowd
+        0.0: '#4ade80', // Bright green for very low crowd
+        0.2: '#22c55e', // Medium green for low crowd
+        0.4: '#f59e0b', // Amber for moderate crowd
+        0.6: '#f97316', // Orange for medium-high crowd
+        0.75: '#ef4444', // Red for high crowd
+        0.85: '#b91c1c', // Dark red for very high crowd
+        0.95: '#7f1d1d'  // Deep red for critical crowding
       }
     }).addTo(heatmapRef.current);
     
@@ -195,36 +198,75 @@ export function FacilityMap() {
       const crowdLevel = crowdLevels.find(level => level.location === location);
       
       if (crowdLevel) {
-        // Create a marker with popup showing crowd info
+        // Create a marker with popup showing crowd info - enhanced visuals
+        const crowdPercentage = Math.round((crowdLevel.currentCount / crowdLevel.capacity) * 100);
+        const statusColor = 
+          crowdLevel.status === 'overcrowded' ? '#b91c1c' :
+          crowdLevel.status === 'crowded' ? '#f97316' :
+          crowdLevel.status === 'moderate' ? '#f59e0b' :
+          '#22c55e';
+        
         L.marker(coordinates as [number, number], {
           icon: L.divIcon({
             className: 'crowd-marker',
-            html: `<div class="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 ${
-              crowdLevel.status === 'overcrowded' ? 'border-red-600' :
-              crowdLevel.status === 'crowded' ? 'border-orange-500' :
-              crowdLevel.status === 'moderate' ? 'border-yellow-500' :
-              'border-green-500'
-            } text-xs font-bold">
-              ${Math.round((crowdLevel.currentCount / crowdLevel.capacity) * 100)}%
-            </div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            html: `
+              <div class="flex items-center justify-center relative">
+                <div class="absolute -z-10 w-10 h-10 rounded-full bg-white opacity-70"></div>
+                <div class="flex items-center justify-center w-9 h-9 rounded-full border-3 shadow-lg" 
+                  style="background: linear-gradient(135deg, white, ${statusColor}20); border-color: ${statusColor};">
+                  <div class="text-xs font-bold" style="color: ${statusColor}; text-shadow: 0 0 2px white;">
+                    ${crowdPercentage}%
+                  </div>
+                </div>
+                ${crowdLevel.status === 'overcrowded' || crowdLevel.status === 'crowded' ? 
+                  `<div class="absolute -top-1 -right-1 animate-pulse">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                  </div>` 
+                : ''}
+              </div>
+            `,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
           })
         }).addTo(heatmapRef.current!)
         .bindPopup(`
-          <div class="text-sm p-1">
-            <h3 class="font-bold text-[#FF7F00]">${location}</h3>
-            <p><b>Status:</b> <span class="${
-              crowdLevel.status === 'overcrowded' ? 'text-red-600 font-bold' :
-              crowdLevel.status === 'crowded' ? 'text-orange-500 font-bold' :
-              crowdLevel.status === 'moderate' ? 'text-yellow-600' :
-              'text-green-600'
-            }">${crowdLevel.status.toUpperCase()}</span></p>
-            <p><b>Current:</b> ${crowdLevel.currentCount.toLocaleString()}</p>
-            <p><b>Capacity:</b> ${crowdLevel.capacity.toLocaleString()}</p>
-            <p class="mt-2 text-xs border-t pt-1 text-gray-700">${crowdLevel.recommendations}</p>
+          <div class="text-sm p-2">
+            <h3 class="font-bold text-[#FF7F00] text-base border-b pb-1 mb-2">${location}</h3>
+            <div class="grid grid-cols-2 gap-y-2 mb-2">
+              <div class="font-medium">Status:</div>
+              <div class="font-semibold ${
+                crowdLevel.status === 'overcrowded' ? 'text-red-600' :
+                crowdLevel.status === 'crowded' ? 'text-orange-500' :
+                crowdLevel.status === 'moderate' ? 'text-yellow-600' :
+                'text-green-600'
+              }">${crowdLevel.status.toUpperCase()}</div>
+              
+              <div class="font-medium">Current:</div>
+              <div class="font-semibold">${crowdLevel.currentCount.toLocaleString()}</div>
+              
+              <div class="font-medium">Capacity:</div>
+              <div class="font-semibold">${crowdLevel.capacity.toLocaleString()}</div>
+              
+              <div class="font-medium">Density:</div>
+              <div class="font-semibold">${crowdPercentage}%</div>
+            </div>
+            
+            <div class="bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 text-xs text-amber-800">
+              <div class="font-medium mb-1">Recommendations:</div>
+              ${crowdLevel.recommendations}
+            </div>
+            
+            <div class="text-center text-xs text-gray-500 mt-2">
+              Updates every 5 minutes
+            </div>
           </div>
-        `);
+        `, {
+          className: 'crowd-popup',
+          maxWidth: 300
+        });
       }
     });
     
@@ -406,30 +448,42 @@ export function FacilityMap() {
       {activeMap === 'heatmap' && (
         <>
           <div className="p-2 border-b">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium">Crowd Density</div>
-              <div className="flex items-center gap-1">
-                <div className="flex items-center text-xs">
-                  <span className="inline-block w-3 h-3 rounded-full mr-1 bg-green-500"></span>
-                  Low
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-sm font-medium mb-1">Crowd Density</div>
+                <div className="flex items-center mt-1 text-xs text-gray-600">
+                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                  <span>Click markers for details</span>
                 </div>
-                <div className="flex items-center text-xs">
-                  <span className="inline-block w-3 h-3 rounded-full mr-1 bg-yellow-500"></span>
-                  Moderate
+              </div>
+              
+              {/* Enhanced gradient legend */}
+              <div className="flex flex-col items-end">
+                <div className="h-6 w-64 rounded-md mb-1" 
+                  style={{ 
+                    background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
+                  }}>
                 </div>
-                <div className="flex items-center text-xs">
-                  <span className="inline-block w-3 h-3 rounded-full mr-1 bg-orange-500"></span>
-                  High
+                <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                  <span>0%</span>
+                  <span>20%</span>
+                  <span>40%</span>
+                  <span>60%</span>
+                  <span>80%</span>
+                  <span>100%</span>
                 </div>
-                <div className="flex items-center text-xs">
-                  <span className="inline-block w-3 h-3 rounded-full mr-1 bg-red-600"></span>
-                  Very High
+                <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                  <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
+                  <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
+                  <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
+                  <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center mt-1 text-xs text-gray-600">
-              <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-              <span>Click on markers to see real-time crowd information at each location</span>
+            
+            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+              <Users className="h-3 w-3 mr-1" />
+              <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
             </div>
           </div>
           
