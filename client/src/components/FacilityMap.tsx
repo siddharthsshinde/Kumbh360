@@ -52,6 +52,10 @@ export function FacilityMap() {
   // For heatmap (integrated with the main map)
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
   
+  // For safety zones
+  const safetyZonesRef = useRef<L.Circle[]>([]);
+  const [showSafetyZones, setShowSafetyZones] = useState(true);
+  
   // For density map
   const densityMapRef = useRef<L.Map | null>(null);
   const [densityMapContainer, setDensityMapContainer] = useState<HTMLElement | null>(null);
@@ -410,6 +414,116 @@ export function FacilityMap() {
     };
   }, [crowdLevels, densityMapRef]);
 
+  // Update the safety zones based on crowd levels
+  useEffect(() => {
+    if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
+    
+    // Remove existing safety zones if they exist
+    safetyZonesRef.current.forEach(zone => zone.remove());
+    safetyZonesRef.current = [];
+    
+    // Don't add safety zones if they're turned off
+    if (!showSafetyZones) return;
+    
+    // Get location coordinates for each location
+    const locationCoordinates: Record<string, [number, number]> = {
+      "Ramkund": [20.0059, 73.7913],
+      "Kalaram Temple": [20.0064, 73.7904],
+      "Tapovan": [20.0116, 73.7938],
+      "Godavari Ghat": [20.0030, 73.7900],
+      "Trimbakeshwar": [19.9322, 73.5309]
+    };
+    
+    // Create safety zones for each crowd level location
+    crowdLevels.forEach(level => {
+      const coordinates = locationCoordinates[level.location];
+      if (!coordinates) return;
+      
+      // Calculate ratio of current crowd to capacity
+      const ratio = level.currentCount / level.capacity;
+      
+      // Determine safety level based on crowd density
+      let safetyLevel: 'safe' | 'moderate' | 'crowded' | 'dangerous';
+      let safetyColor: string;
+      let pulsate = false;
+      
+      if (ratio < 0.25) {
+        safetyLevel = 'safe';
+        safetyColor = '#10b981'; // emerald-500
+      } else if (ratio < 0.5) {
+        safetyLevel = 'moderate';
+        safetyColor = '#f59e0b'; // amber-500
+      } else if (ratio < 0.75) {
+        safetyLevel = 'crowded';
+        safetyColor = '#f97316'; // orange-500
+        pulsate = true;
+      } else {
+        safetyLevel = 'dangerous';
+        safetyColor = '#ef4444'; // red-500
+        pulsate = true;
+      }
+      
+      // Create a safety zone with appropriate styling
+      const radius = 200 + (ratio * 200); // Size increases with crowd density
+      const circleOptions: L.CircleMarkerOptions = {
+        color: safetyColor,
+        fillColor: safetyColor,
+        fillOpacity: 0.15,
+        weight: 3,
+      };
+      
+      // Add conditional options
+      if (pulsate) {
+        circleOptions.dashArray = '5, 10';
+        circleOptions.className = 'animate-pulse-border';
+      }
+      
+      const safetyZone = L.circle(coordinates, radius, circleOptions).addTo(mapRef.current!);
+      
+      // Add popup with safety information
+      safetyZone.bindPopup(`
+        <div class="text-sm p-2">
+          <h3 class="font-bold text-base border-b pb-1 mb-2" style="color: ${safetyColor}">${level.location} - Safety Zone</h3>
+          <div class="grid grid-cols-2 gap-y-2 mb-2">
+            <div class="font-medium">Status:</div>
+            <div class="font-semibold" style="color: ${safetyColor}">
+              ${safetyLevel.toUpperCase()}
+            </div>
+            
+            <div class="font-medium">Current Count:</div>
+            <div class="font-semibold">${level.currentCount.toLocaleString()}</div>
+            
+            <div class="font-medium">Capacity:</div>
+            <div class="font-semibold">${level.capacity.toLocaleString()}</div>
+            
+            <div class="font-medium">Occupancy:</div>
+            <div class="font-semibold">${Math.round(ratio * 100)}%</div>
+          </div>
+          
+          <div class="mt-2 text-xs p-2 rounded-md" style="background-color: ${safetyColor}15; border: 1px solid ${safetyColor}30; color: ${safetyColor}">
+            <div class="font-medium mb-1">Safety Recommendations:</div>
+            ${
+              safetyLevel === 'safe' 
+                ? 'Safe for all visitors. Easy movement and navigation.'
+                : safetyLevel === 'moderate'
+                  ? 'Moderate crowding. Keep belongings secure and stay aware of surroundings.'
+                  : safetyLevel === 'crowded'
+                    ? 'High crowd density. Move with caution and follow official directions. Not recommended for elderly or children.'
+                    : 'DANGER ZONE. Avoid this area if possible. Follow all official instructions immediately.'
+            }
+          </div>
+        </div>
+      `, {
+        className: 'safety-popup',
+        maxWidth: 300
+      });
+      
+      // Store reference to the safety zone
+      safetyZonesRef.current.push(safetyZone);
+    });
+    
+  }, [crowdLevels, mapRef, showSafetyZones]);
+
   // Update the heatmap based on crowd levels (integrated in main map)
   useEffect(() => {
     if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
@@ -702,25 +816,53 @@ export function FacilityMap() {
         </h2>
         
         <div className="flex gap-2">
-          {/* Main map toggle */}
-          <button
-            onClick={() => setShowHeatLayer(!showHeatLayer)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-              showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
-            }`}
-          >
-            {showHeatLayer ? (
-              <>
-                <Users className="h-4 w-4" />
-                <span>Hide Heatmap</span>
-              </>
-            ) : (
-              <>
-                <MapPin className="h-4 w-4" />
-                <span>Show Heatmap</span>
-              </>
-            )}
-          </button>
+          {/* Main map toggles */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowHeatLayer(!showHeatLayer)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
+                showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+              }`}
+            >
+              {showHeatLayer ? (
+                <>
+                  <Users className="h-4 w-4" />
+                  <span>Hide Heatmap</span>
+                </>
+              ) : (
+                <>
+                  <MapPin className="h-4 w-4" />
+                  <span>Show Heatmap</span>
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={() => setShowSafetyZones(!showSafetyZones)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
+                showSafetyZones ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+              }`}
+            >
+              {showSafetyZones ? (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                  </svg>
+                  <span>Hide Safety Zones</span>
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 8v8"></path>
+                    <path d="M8 12h8"></path>
+                  </svg>
+                  <span>Show Safety Zones</span>
+                </>
+              )}
+            </button>
+          </div>
           
           {/* Auxiliary map buttons */}
           <div className="flex border rounded-md overflow-hidden">

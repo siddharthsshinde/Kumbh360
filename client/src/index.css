@@ -4,6 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styles for safety zones */
+.animate-pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0% {
+    stroke-width: 3;
+    stroke-opacity: 0.8;
+  }
+  50% {
+    stroke-width: 4;
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-width: 3;
+    stroke-opacity: 0.8;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
