@@ -39,8 +39,12 @@ const createCustomIcon = (type: string) => {
 };
 
 export function FacilityMap() {
-  // For all maps
-  const [activeMap, setActiveMap] = useState<'facilities' | 'heatmap' | 'density' | 'area'>('facilities');
+  // For primary map (combining facilities and heatmap)
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  
+  // For auxiliary maps (toggle between density and area)
+  const [showAuxiliaryMap, setShowAuxiliaryMap] = useState(false);
+  const [auxiliaryMapType, setAuxiliaryMapType] = useState<'density' | 'area'>('density');
   
   // For facilities map
   const mapRef = useRef<L.Map | null>(null);
@@ -715,219 +719,256 @@ export function FacilityMap() {
           Kumbh Mela Map
         </h2>
         
-        <Tabs value={activeMap} className="w-auto" onValueChange={(val) => setActiveMap(val as any)}>
-          <TabsList className="flex flex-wrap w-full max-w-[400px]">
-            <TabsTrigger value="facilities" className="flex items-center gap-1 flex-1">
-              <MapPin className="h-4 w-4" />
-              <span>Facilities</span>
-            </TabsTrigger>
-            <TabsTrigger value="heatmap" className="flex items-center gap-1 flex-1">
-              <Users className="h-4 w-4" />
-              <span>Crowd Heatmap</span>
-            </TabsTrigger>
-            <TabsTrigger value="density" className="flex items-center gap-1 flex-1">
+        <div className="flex gap-2">
+          {/* Main map toggle */}
+          <button
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
+              showHeatmap ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+            }`}
+          >
+            {showHeatmap ? (
+              <>
+                <Users className="h-4 w-4" />
+                <span>Show Facilities</span>
+              </>
+            ) : (
+              <>
+                <MapPin className="h-4 w-4" />
+                <span>Show Heatmap</span>
+              </>
+            )}
+          </button>
+          
+          {/* Auxiliary map buttons */}
+          <div className="flex border rounded-md overflow-hidden">
+            <button
+              onClick={() => {
+                setAuxiliaryMapType('density');
+                setShowAuxiliaryMap(!showAuxiliaryMap || auxiliaryMapType !== 'density');
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
+                showAuxiliaryMap && auxiliaryMapType === 'density' 
+                  ? 'bg-indigo-100 text-indigo-800' 
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
                 <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                <path d="M8 2v4"></path>
-                <path d="M16 2v4"></path>
-                <path d="M2 10h20"></path>
                 <circle cx="10" cy="14" r="2"></circle>
                 <circle cx="16" cy="16" r="2"></circle>
               </svg>
-              <span>Density Map</span>
-            </TabsTrigger>
-            <TabsTrigger value="area" className="flex items-center gap-1 flex-1">
+              <span>Density</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setAuxiliaryMapType('area');
+                setShowAuxiliaryMap(!showAuxiliaryMap || auxiliaryMapType !== 'area');
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
+                showAuxiliaryMap && auxiliaryMapType === 'area' 
+                  ? 'bg-violet-100 text-violet-800' 
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
                 <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
                 <path d="M10 2v8"></path>
                 <path d="M2 10h16"></path>
               </svg>
-              <span>Area Map</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+              <span>Areas</span>
+            </button>
+          </div>
+        </div>
       </div>
       
-      {activeMap === 'facilities' && (
-        <>
-          <div className="p-2 border-b flex flex-wrap gap-2">
-            <button 
-              className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-              onClick={() => handleFilterClick(null)}
-            >
-              All
-            </button>
-            {facilityTypes.map(type => (
-              <button 
-                key={type}
-                className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-                onClick={() => handleFilterClick(type)}
-              >
-                <span 
-                  className="inline-block w-2 h-2 rounded-full mr-1"
-                  style={{ backgroundColor: getTypeColor(type) }}
-                ></span>
-                {getTypeName(type)}
-              </button>
-            ))}
-          </div>
+      {/* Main map section (facilities or heatmap) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="w-full">
+          {!showHeatmap ? (
+            <>
+              <div className="p-2 border-b flex flex-wrap gap-2">
+                <button 
+                  className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+                  onClick={() => handleFilterClick(null)}
+                >
+                  All
+                </button>
+                {facilityTypes.map(type => (
+                  <button 
+                    key={type}
+                    className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+                    onClick={() => handleFilterClick(type)}
+                  >
+                    <span 
+                      className="inline-block w-2 h-2 rounded-full mr-1"
+                      style={{ backgroundColor: getTypeColor(type) }}
+                    ></span>
+                    {getTypeName(type)}
+                  </button>
+                ))}
+              </div>
 
-          <div
-            ref={setMapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
-          />
-        </>
-      )}
-      
-      {activeMap === 'heatmap' && (
-        <>
-          <div className="p-2 border-b">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-sm font-medium mb-1">Crowd Density</div>
-                <div className="flex items-center mt-1 text-xs text-gray-600">
-                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                  <span>Click markers for details</span>
+              <div
+                ref={setMapContainer}
+                className="w-full h-[400px] rounded-b-lg z-0"
+              />
+            </>
+          ) : (
+            <>
+              <div className="p-2 border-b">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-sm font-medium mb-1">Crowd Density</div>
+                    <div className="flex items-center mt-1 text-xs text-gray-600">
+                      <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                      <span>Click markers for details</span>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced gradient legend */}
+                  <div className="flex flex-col items-end">
+                    <div className="h-6 w-64 rounded-md mb-1" 
+                      style={{ 
+                        background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
+                      }}>
+                    </div>
+                    <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                      <span>0%</span>
+                      <span>20%</span>
+                      <span>40%</span>
+                      <span>60%</span>
+                      <span>80%</span>
+                      <span>100%</span>
+                    </div>
+                    <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                      <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
+                      <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
+                      <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
+                      <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                  <Users className="h-3 w-3 mr-1" />
+                  <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
                 </div>
               </div>
               
-              {/* Enhanced gradient legend */}
-              <div className="flex flex-col items-end">
-                <div className="h-6 w-64 rounded-md mb-1" 
-                  style={{ 
-                    background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
-                  }}>
+              <div
+                ref={setHeatmapContainer}
+                className="w-full h-[400px] rounded-b-lg z-0"
+              />
+            </>
+          )}
+        </div>
+        
+        {/* Auxiliary map (density or area) */}
+        {showAuxiliaryMap && (
+          <div className="w-full">
+            {auxiliaryMapType === 'density' ? (
+              <>
+                <div className="p-2 border-b">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm font-medium mb-1">Population Density Map</div>
+                      <div className="flex items-center mt-1 text-xs text-gray-600">
+                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                        <span>Shows people per square meter across locations</span>
+                      </div>
+                    </div>
+                    
+                    {/* Density map legend */}
+                    <div className="flex flex-col items-end">
+                      <div className="h-6 w-64 rounded-md mb-1" 
+                        style={{ 
+                          background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
+                        }}>
+                      </div>
+                      <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                        <span>0.1</span>
+                        <span>0.5</span>
+                        <span>1.0</span>
+                        <span>2.0</span>
+                        <span>3.0</span>
+                        <span>4.0+</span>
+                      </div>
+                      <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                        <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
+                        <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
+                        <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
+                        <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                      <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
+                      <circle cx="10" cy="14" r="2"></circle>
+                      <circle cx="16" cy="16" r="2"></circle>
+                    </svg>
+                    <span>Density measured in people per square meter. Data updates every 5 minutes.</span>
+                  </div>
                 </div>
-                <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                  <span>0%</span>
-                  <span>20%</span>
-                  <span>40%</span>
-                  <span>60%</span>
-                  <span>80%</span>
-                  <span>100%</span>
+                
+                <div
+                  ref={setDensityMapContainer}
+                  className="w-full h-[400px] rounded-b-lg z-0"
+                />
+              </>
+            ) : (
+              <>
+                <div className="p-2 border-b">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="text-sm font-medium mb-1">Area Coverage Map</div>
+                      <div className="flex items-center mt-1 text-xs text-gray-600">
+                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                        <span>Boundary areas of Kumbh Mela zones</span>
+                      </div>
+                    </div>
+                    
+                    {/* Area map legend */}
+                    <div className="mt-1 text-xs space-y-1">
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
+                        <span>Main Ceremonial Area</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
+                        <span>Accomodation Zone</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
+                        <span>Parking & Transport Zone</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
+                        <span>Restricted Area</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                      <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
+                    </svg>
+                    <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
+                  </div>
                 </div>
-                <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                  <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
-                  <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
-                  <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
-                  <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-              <Users className="h-3 w-3 mr-1" />
-              <span>Data updates every 5 minutes. Last updated: {new Date().toLocaleTimeString()}</span>
-            </div>
+                
+                <div
+                  ref={setAreaMapContainer}
+                  className="w-full h-[400px] rounded-b-lg z-0"
+                />
+              </>
+            )}
           </div>
-          
-          <div
-            ref={setHeatmapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
-          />
-        </>
-      )}
-      
-      {activeMap === 'density' && (
-        <>
-          <div className="p-2 border-b">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-sm font-medium mb-1">Population Density Map</div>
-                <div className="flex items-center mt-1 text-xs text-gray-600">
-                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                  <span>Shows people per square meter across locations</span>
-                </div>
-              </div>
-              
-              {/* Density map legend */}
-              <div className="flex flex-col items-end">
-                <div className="h-6 w-64 rounded-md mb-1" 
-                  style={{ 
-                    background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
-                  }}>
-                </div>
-                <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                  <span>0.1</span>
-                  <span>0.5</span>
-                  <span>1.0</span>
-                  <span>2.0</span>
-                  <span>3.0</span>
-                  <span>4.0+</span>
-                </div>
-                <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                  <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
-                  <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
-                  <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
-                  <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                <circle cx="10" cy="14" r="2"></circle>
-                <circle cx="16" cy="16" r="2"></circle>
-              </svg>
-              <span>Density measured in people per square meter. Data updates every 5 minutes.</span>
-            </div>
-          </div>
-          
-          <div
-            ref={setDensityMapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
-          />
-        </>
-      )}
-      
-      {activeMap === 'area' && (
-        <>
-          <div className="p-2 border-b">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="text-sm font-medium mb-1">Area Coverage Map</div>
-                <div className="flex items-center mt-1 text-xs text-gray-600">
-                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                  <span>Boundary areas of Kumbh Mela zones</span>
-                </div>
-              </div>
-              
-              {/* Area map legend */}
-              <div className="mt-1 text-xs space-y-1">
-                <div className="flex items-center gap-1">
-                  <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
-                  <span>Main Ceremonial Area</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
-                  <span>Accomodation Zone</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
-                  <span>Parking & Transport Zone</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
-                  <span>Restricted Area</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
-              </svg>
-              <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
-            </div>
-          </div>
-          
-          <div
-            ref={setAreaMapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
-          />
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
