@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import L from "leaflet";
+import type { Map, TileLayer, HeatLayer, Layer, Marker, Polygon, Polyline } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import type { Facility, CrowdLevel } from "@shared/schema";
@@ -39,7 +40,7 @@ const createCustomIcon = (type: string) => {
 
 export function FacilityMap() {
   // For all maps
-  const [activeMap, setActiveMap] = useState<'facilities' | 'heatmap'>('facilities');
+  const [activeMap, setActiveMap] = useState<'facilities' | 'heatmap' | 'density' | 'area'>('facilities');
   
   // For facilities map
   const mapRef = useRef<L.Map | null>(null);
@@ -51,6 +52,14 @@ export function FacilityMap() {
   const heatmapRef = useRef<L.Map | null>(null);
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
   const [heatmapContainer, setHeatmapContainer] = useState<HTMLElement | null>(null);
+  
+  // For density map
+  const densityMapRef = useRef<L.Map | null>(null);
+  const [densityMapContainer, setDensityMapContainer] = useState<HTMLElement | null>(null);
+  
+  // For area map
+  const areaMapRef = useRef<L.Map | null>(null);
+  const [areaMapContainer, setAreaMapContainer] = useState<HTMLElement | null>(null);
   
   // Queries
   const { data: facilities } = useQuery<Facility[]>({
@@ -112,6 +121,312 @@ export function FacilityMap() {
       }
     };
   }, [heatmapContainer]);
+
+  // Initialize density map when container is ready
+  useEffect(() => {
+    if (!densityMapContainer) return;
+
+    if (!densityMapRef.current) {
+      // Center on Ramkund, Nashik
+      densityMapRef.current = L.map(densityMapContainer).setView([20.0059, 73.7913], 14);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(densityMapRef.current);
+    }
+
+    return () => {
+      if (densityMapRef.current) {
+        densityMapRef.current.remove();
+        densityMapRef.current = null;
+      }
+    };
+  }, [densityMapContainer]);
+
+  // Initialize area map when container is ready
+  useEffect(() => {
+    if (!areaMapContainer) return;
+
+    if (!areaMapRef.current) {
+      // Center on Ramkund, Nashik
+      areaMapRef.current = L.map(areaMapContainer).setView([20.0059, 73.7913], 14);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(areaMapRef.current);
+    }
+
+    return () => {
+      if (areaMapRef.current) {
+        areaMapRef.current.remove();
+        areaMapRef.current = null;
+      }
+    };
+  }, [areaMapContainer]);
+
+  // Update the area map
+  useEffect(() => {
+    if (!areaMapRef.current) return;
+
+    // Define the different zones for Kumbh Mela
+    const kumbhZones = [
+      {
+        name: "Main Ceremonial Area",
+        center: [20.0059, 73.7913], // Centered at Ramkund
+        points: [
+          [20.0067, 73.7920],
+          [20.0080, 73.7915],
+          [20.0075, 73.7900],
+          [20.0062, 73.7892],
+          [20.0045, 73.7902],
+          [20.0050, 73.7916]
+        ],
+        color: "#7c3aed", // violet-600
+        status: "Busy"
+      },
+      {
+        name: "Accommodation Zone",
+        center: [20.0116, 73.7938], // Centered at Tapovan
+        points: [
+          [20.0130, 73.7950],
+          [20.0145, 73.7940],
+          [20.0140, 73.7925],
+          [20.0125, 73.7920],
+          [20.0105, 73.7930],
+          [20.0110, 73.7945]
+        ],
+        color: "#ea580c", // orange-600
+        status: "Available"
+      },
+      {
+        name: "Parking & Transport Zone",
+        center: [20.0030, 73.7900], // Near Godavari Ghat
+        points: [
+          [20.0040, 73.7910],
+          [20.0050, 73.7905],
+          [20.0045, 73.7890],
+          [20.0030, 73.7880],
+          [20.0020, 73.7885],
+          [20.0025, 73.7900]
+        ],
+        color: "#0d9488", // teal-600
+        status: "Available"
+      },
+      {
+        name: "Restricted Area",
+        center: [20.0064, 73.7904], // Near Kalaram Temple
+        points: [
+          [20.0070, 73.7910],
+          [20.0075, 73.7905],
+          [20.0070, 73.7895],
+          [20.0060, 73.7890],
+          [20.0055, 73.7895],
+          [20.0060, 73.7905]
+        ],
+        color: "#dc2626", // red-600
+        status: "Limited Access"
+      }
+    ];
+
+    // Add polygons for each zone
+    kumbhZones.forEach(zone => {
+      // Create polygon with zone properties
+      const polygon = L.polygon(zone.points, {
+        color: zone.color,
+        fillColor: zone.color,
+        fillOpacity: 0.2,
+        weight: 2
+      }).addTo(areaMapRef.current!);
+
+      // Add a label for each zone
+      L.marker(zone.center, {
+        icon: L.divIcon({
+          className: 'area-label',
+          html: `
+            <div class="px-2 py-1 rounded-md text-white text-xs font-semibold shadow-md" 
+                 style="background-color: ${zone.color}; white-space: nowrap;">
+              ${zone.name}
+            </div>
+          `,
+          iconSize: [100, 20],
+          iconAnchor: [50, 10]
+        })
+      }).addTo(areaMapRef.current!);
+
+      // Add popup with zone information
+      polygon.bindPopup(`
+        <div class="text-sm p-2">
+          <h3 class="font-bold border-b pb-1 mb-2" style="color: ${zone.color}">${zone.name}</h3>
+          <div class="grid grid-cols-2 gap-y-2 mb-2">
+            <div class="font-medium">Status:</div>
+            <div class="font-semibold">${zone.status}</div>
+            
+            <div class="font-medium">Size:</div>
+            <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
+          </div>
+          
+          <div class="mt-2 text-xs p-2 rounded-md" style="background-color: ${zone.color}20; border: 1px solid ${zone.color}40; color: ${zone.color}">
+            <div class="font-medium mb-1">Access Information:</div>
+            ${zone.name === "Restricted Area" 
+              ? "Special permit required. Limited entry hours from 9 AM to 5 PM." 
+              : zone.name === "Main Ceremonial Area"
+                ? "Open to all devotees. Expected high crowd during ceremonial hours."
+                : zone.name === "Accommodation Zone"
+                  ? "Reserved for registered pilgrims. Security check at entry points."
+                  : "Public parking available. Shuttle services run every 15 minutes."
+            }
+          </div>
+        </div>
+      `, {
+        className: 'area-popup',
+        maxWidth: 300
+      });
+    });
+
+    // Add path connecting the main sites
+    const mainSitesPath = [
+      [20.0059, 73.7913], // Ramkund
+      [20.0064, 73.7904], // Kalaram Temple
+      [20.0116, 73.7938], // Tapovan
+      [20.0030, 73.7900]  // Godavari Ghat
+    ];
+
+    L.polyline(mainSitesPath, {
+      color: '#FF7F00',
+      weight: 3,
+      opacity: 0.7,
+      dashArray: '5, 8',
+    }).addTo(areaMapRef.current!)
+    .bindPopup(`
+      <div class="text-sm p-2">
+        <h3 class="font-bold text-[#FF7F00] border-b pb-1 mb-2">Pilgrimage Route</h3>
+        <p class="text-xs mb-2">Official route connecting major sites at Kumbh Mela</p>
+        <div class="bg-amber-50 p-2 rounded-md border border-amber-200 text-xs text-amber-800">
+          Walking time: Approximately 40 minutes for the complete circuit
+        </div>
+      </div>
+    `);
+
+    return () => {
+      areaMapRef.current?.eachLayer(layer => {
+        if (layer instanceof L.TileLayer) return; // Keep the base map
+        layer.remove();
+      });
+    };
+  }, [areaMapRef]);
+
+  // Update the density map
+  useEffect(() => {
+    if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
+    
+    // Location coordinates matching the ones from the heatmap
+    const locationCoordinates: Record<string, [number, number]> = {
+      "Ramkund": [20.0059, 73.7913],
+      "Kalaram Temple": [20.0064, 73.7904],
+      "Tapovan": [20.0116, 73.7938],
+      "Godavari Ghat": [20.0030, 73.7900],
+      "Trimbakeshwar": [19.9322, 73.5309]
+    };
+    
+    // Approximate area sizes in square meters for each location
+    const locationAreas: Record<string, number> = {
+      "Ramkund": 5000,
+      "Kalaram Temple": 3500,
+      "Tapovan": 8000,
+      "Godavari Ghat": 4000,
+      "Trimbakeshwar": 6000
+    };
+    
+    // Add circular areas for each location with density visualization
+    crowdLevels.forEach(level => {
+      const coordinates = locationCoordinates[level.location];
+      if (!coordinates) return;
+      
+      // Calculate density (people per square meter)
+      const area = locationAreas[level.location] || 5000; // Default to 5000 sq meters if not specified
+      const density = level.currentCount / area;
+      
+      // Determine color based on density
+      const densityColor = 
+        density >= 4 ? '#3730a3' : // Very high density (dangerous)
+        density >= 3 ? '#4338ca' : // High density
+        density >= 2 ? '#4f46e5' : // Medium-high density
+        density >= 1 ? '#6366f1' : // Medium density
+        density >= 0.5 ? '#818cf8' : // Low-medium density
+        density >= 0.2 ? '#a5b4fc' : // Low density
+        '#c7d2fe'; // Very low density
+      
+      // Calculate radius based on area (rough estimation for circular representation)
+      const radius = Math.sqrt(area / Math.PI);
+      
+      // Add a circle to represent the area with density-based coloring
+      const circle = L.circle(coordinates, {
+        radius: radius,
+        color: densityColor,
+        fillColor: densityColor,
+        fillOpacity: 0.25 + (density * 0.1), // Opacity increases with density
+        weight: 2
+      }).addTo(densityMapRef.current!);
+      
+      // Add a marker with density information
+      L.marker(coordinates, {
+        icon: L.divIcon({
+          className: 'density-marker',
+          html: `
+            <div class="flex items-center justify-center relative">
+              <div class="absolute -z-10 w-10 h-10 rounded-full bg-white opacity-70"></div>
+              <div class="flex items-center justify-center w-9 h-9 rounded-full border-2 shadow-lg" 
+                style="background: linear-gradient(135deg, white, ${densityColor}20); border-color: ${densityColor};">
+                <div class="text-xs font-bold" style="color: ${densityColor}">
+                  ${density.toFixed(1)}
+                </div>
+              </div>
+            </div>
+          `,
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        })
+      }).addTo(densityMapRef.current!)
+      .bindPopup(`
+        <div class="text-sm p-2">
+          <h3 class="font-bold text-indigo-600 text-base border-b pb-1 mb-2">${level.location}</h3>
+          <div class="grid grid-cols-2 gap-y-2 mb-2">
+            <div class="font-medium">Current Count:</div>
+            <div class="font-semibold">${level.currentCount.toLocaleString()}</div>
+            
+            <div class="font-medium">Area Size:</div>
+            <div class="font-semibold">${area.toLocaleString()} m²</div>
+            
+            <div class="font-medium">Density:</div>
+            <div class="font-semibold ${
+              density >= 4 ? 'text-indigo-900' :
+              density >= 2 ? 'text-indigo-700' :
+              'text-indigo-500'
+            }">${density.toFixed(2)} people/m²</div>
+          </div>
+          
+          <div class="bg-indigo-50 p-2 rounded-md border border-indigo-200 mt-2 text-xs text-indigo-800">
+            <div class="font-medium mb-1">Safety Level:</div>
+            ${
+              density >= 4 ? 'CRITICAL - Immediate crowd management required' :
+              density >= 3 ? 'WARNING - High density, monitor carefully' :
+              density >= 2 ? 'CAUTION - Medium-high density' :
+              density >= 1 ? 'MODERATE - Comfortable movement limited' :
+              'SAFE - Free movement possible'
+            }
+          </div>
+        </div>
+      `, {
+        className: 'density-popup',
+        maxWidth: 300
+      });
+    });
+    
+    return () => {
+      densityMapRef.current?.eachLayer(layer => {
+        if (layer instanceof L.TileLayer) return; // Keep the base map
+        layer.remove();
+      });
+    };
+  }, [crowdLevels, densityMapRef]);
 
   // Update the heatmap based on crowd levels
   useEffect(() => {
@@ -400,15 +715,34 @@ export function FacilityMap() {
           Kumbh Mela Map
         </h2>
         
-        <Tabs value={activeMap} className="w-auto" onValueChange={(val) => setActiveMap(val as 'facilities' | 'heatmap')}>
-          <TabsList className="grid grid-cols-2 w-[260px]">
-            <TabsTrigger value="facilities" className="flex items-center gap-1">
+        <Tabs value={activeMap} className="w-auto" onValueChange={(val) => setActiveMap(val as any)}>
+          <TabsList className="flex flex-wrap w-full max-w-[400px]">
+            <TabsTrigger value="facilities" className="flex items-center gap-1 flex-1">
               <MapPin className="h-4 w-4" />
               <span>Facilities</span>
             </TabsTrigger>
-            <TabsTrigger value="heatmap" className="flex items-center gap-1">
+            <TabsTrigger value="heatmap" className="flex items-center gap-1 flex-1">
               <Users className="h-4 w-4" />
               <span>Crowd Heatmap</span>
+            </TabsTrigger>
+            <TabsTrigger value="density" className="flex items-center gap-1 flex-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
+                <path d="M8 2v4"></path>
+                <path d="M16 2v4"></path>
+                <path d="M2 10h20"></path>
+                <circle cx="10" cy="14" r="2"></circle>
+                <circle cx="16" cy="16" r="2"></circle>
+              </svg>
+              <span>Density Map</span>
+            </TabsTrigger>
+            <TabsTrigger value="area" className="flex items-center gap-1 flex-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
+                <path d="M10 2v8"></path>
+                <path d="M2 10h16"></path>
+              </svg>
+              <span>Area Map</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -489,6 +823,107 @@ export function FacilityMap() {
           
           <div
             ref={setHeatmapContainer}
+            className="w-full h-[400px] rounded-b-lg z-0"
+          />
+        </>
+      )}
+      
+      {activeMap === 'density' && (
+        <>
+          <div className="p-2 border-b">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-sm font-medium mb-1">Population Density Map</div>
+                <div className="flex items-center mt-1 text-xs text-gray-600">
+                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                  <span>Shows people per square meter across locations</span>
+                </div>
+              </div>
+              
+              {/* Density map legend */}
+              <div className="flex flex-col items-end">
+                <div className="h-6 w-64 rounded-md mb-1" 
+                  style={{ 
+                    background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
+                  }}>
+                </div>
+                <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                  <span>0.1</span>
+                  <span>0.5</span>
+                  <span>1.0</span>
+                  <span>2.0</span>
+                  <span>3.0</span>
+                  <span>4.0+</span>
+                </div>
+                <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                  <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
+                  <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
+                  <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
+                  <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
+                <circle cx="10" cy="14" r="2"></circle>
+                <circle cx="16" cy="16" r="2"></circle>
+              </svg>
+              <span>Density measured in people per square meter. Data updates every 5 minutes.</span>
+            </div>
+          </div>
+          
+          <div
+            ref={setDensityMapContainer}
+            className="w-full h-[400px] rounded-b-lg z-0"
+          />
+        </>
+      )}
+      
+      {activeMap === 'area' && (
+        <>
+          <div className="p-2 border-b">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-sm font-medium mb-1">Area Coverage Map</div>
+                <div className="flex items-center mt-1 text-xs text-gray-600">
+                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                  <span>Boundary areas of Kumbh Mela zones</span>
+                </div>
+              </div>
+              
+              {/* Area map legend */}
+              <div className="mt-1 text-xs space-y-1">
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
+                  <span>Main Ceremonial Area</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
+                  <span>Accomodation Zone</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
+                  <span>Parking & Transport Zone</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
+                  <span>Restricted Area</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
+              </svg>
+              <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
+            </div>
+          </div>
+          
+          <div
+            ref={setAreaMapContainer}
             className="w-full h-[400px] rounded-b-lg z-0"
           />
         </>
