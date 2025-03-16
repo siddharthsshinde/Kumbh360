@@ -417,6 +417,7 @@ export function FacilityMap() {
     // Remove existing heat layer if it exists
     if (heatLayerRef.current) {
       heatLayerRef.current.remove();
+      heatLayerRef.current = null;
     }
     
     // Don't add heatmap layer if it's turned off
