@@ -627,152 +627,248 @@ export function FacilityMap() {
   useEffect(() => {
     if (!areaMapRef.current) return;
 
-    // Define the different zones for Kumbh Mela
-    const kumbhZones = [
-      {
-        name: "Main Ceremonial Area",
-        center: [20.0059, 73.7913] as [number, number], // Centered at Ramkund
-        points: [
-          [20.0067, 73.7920],
-          [20.0080, 73.7915],
-          [20.0075, 73.7900],
-          [20.0062, 73.7892],
-          [20.0045, 73.7902],
-          [20.0050, 73.7916]
-        ] as [number, number][],
-        color: "#7c3aed", // violet-600
-        status: "Busy"
-      },
-      {
-        name: "Accommodation Zone",
-        center: [20.0116, 73.7938] as [number, number], // Centered at Tapovan
-        points: [
-          [20.0130, 73.7950],
-          [20.0145, 73.7940],
-          [20.0140, 73.7925],
-          [20.0125, 73.7920],
-          [20.0105, 73.7930],
-          [20.0110, 73.7945]
-        ] as [number, number][],
-        color: "#ea580c", // orange-600
-        status: "Available"
-      },
-      {
-        name: "Parking & Transport Zone",
-        center: [20.0030, 73.7900] as [number, number], // Near Godavari Ghat
-        points: [
-          [20.0040, 73.7910],
-          [20.0050, 73.7905],
-          [20.0045, 73.7890],
-          [20.0030, 73.7880],
-          [20.0020, 73.7885],
-          [20.0025, 73.7900]
-        ] as [number, number][],
-        color: "#0d9488", // teal-600
-        status: "Available"
-      },
-      {
-        name: "Restricted Area",
-        center: [20.0064, 73.7904] as [number, number], // Near Kalaram Temple
-        points: [
-          [20.0070, 73.7910],
-          [20.0075, 73.7905],
-          [20.0070, 73.7895],
-          [20.0060, 73.7890],
-          [20.0055, 73.7895],
-          [20.0060, 73.7905]
-        ] as [number, number][],
-        color: "#dc2626", // red-600
-        status: "Limited Access"
-      }
-    ] as const;
-
-    // Add polygons for each zone
-    kumbhZones.forEach(zone => {
-      // Create polygon with zone properties
-      const polygon = L.polygon(zone.points, {
-        color: zone.color,
-        fillColor: zone.color,
-        fillOpacity: 0.2,
-        weight: 2
-      }).addTo(areaMapRef.current!);
-
-      // Add a label for each zone
-      L.marker(zone.center, {
-        icon: L.divIcon({
-          className: 'area-label',
-          html: `
-            <div class="px-2 py-1 rounded-md text-white text-xs font-semibold shadow-md" 
-                 style="background-color: ${zone.color}; white-space: nowrap;">
-              ${zone.name}
-            </div>
-          `,
-          iconSize: [100, 20],
-          iconAnchor: [50, 10]
-        })
-      }).addTo(areaMapRef.current!);
-
-      // Add popup with zone information
-      polygon.bindPopup(`
-        <div class="text-sm p-2">
-          <h3 class="font-bold border-b pb-1 mb-2" style="color: ${zone.color}">${zone.name}</h3>
-          <div class="grid grid-cols-2 gap-y-2 mb-2">
-            <div class="font-medium">Status:</div>
-            <div class="font-semibold">${zone.status}</div>
-
-            <div class="font-medium">Size:</div>
-            <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
-          </div>
-
-          <div class="mt-2 text-xs p-2 rounded-md" style="background-color: ${zone.color}20; border: 1px solid ${zone.color}40; color: ${zone.color}">
-            <div class="font-medium mb-1">Access Information:</div>
-            ${zone.name === "Restricted Area"
-              ? "Special permit required. Limited entry hours from 9 AM to 5 PM."
-              : zone.name === "Main Ceremonial Area"
-                ? "Open to all devotees. Expected high crowd during ceremonial hours."
-                : zone.name === "Accommodation Zone"
-                  ? "Reserved for registered pilgrims. Security check at entry points."
-                  : "Public parking available. Shuttle services run every 15 minutes."
-            }
-          </div>
-        </div>
-      `, {
-        className: 'area-popup',
-        maxWidth: 300
-      });
-    });
-
-    // Add path connecting the main sites
-    const mainSitesPath = [
-      [20.0059, 73.7913], // Ramkund
-      [20.0064, 73.7904], // Kalaram Temple
-      [20.0116, 73.7938], // Tapovan
-      [20.0030, 73.7900]  // Godavari Ghat
-    ];
-
-    L.polyline(mainSitesPath, {
-      color: '#FF7F00',
-      weight: 3,
-      opacity: 0.7,
-      dashArray: '5, 8',
-    }).addTo(areaMapRef.current!)
-      .bindPopup(`
-      <div class="text-sm p-2">
-        <h3 class="font-bold text-[#FF7F00] border-b pb-1 mb-2">Pilgrimage Route</h3>
-        <p class="text-xs mb-2">Official route connecting major sites at Kumbh Mela</p>
-        <div class="bg-amber-50 p-2 rounded-md border border-amber-200 text-xs text-amber-800">
-          Walking time: Approximately 40 minutes for the complete circuit
-        </div>
-      </div>
-    `);
-
-    return () => {
+    // Set up interval for continuous updates
+    const updateInterval = setInterval(() => {
+      // Clear existing layers
       areaMapRef.current?.eachLayer(layer => {
-        if (layer instanceof L.TileLayer) return; // Keep the base map
+        if (layer instanceof L.TileLayer) return;
         layer.remove();
       });
+
+      // Get current time info for dynamic updates
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const timeOffset = (minute / 60) * Math.PI * 2;
+
+      // Define the different zones for Kumbh Mela with dynamic boundaries
+      const kumbhZones = [
+        {
+          name: "Main Ceremonial Area",
+          center: [20.0059, 73.7913] as [number, number],
+          basePoints: [
+            [20.0067, 73.7920],
+            [20.0080, 73.7915],
+            [20.0075, 73.7900],
+            [20.0062, 73.7892],
+            [20.0045, 73.7902],
+            [20.0050, 73.7916]
+          ] as [number, number][],
+          color: "#7c3aed",
+          status: "Busy",
+          crowdFactor: 0.8 + Math.sin(timeOffset) * 0.2
+        },
+        {
+          name: "Accommodation Zone",
+          center: [20.0116, 73.7938] as [number, number],
+          basePoints: [
+            [20.0130, 73.7950],
+            [20.0145, 73.7940],
+            [20.0140, 73.7925],
+            [20.0125, 73.7920],
+            [20.0105, 73.7930],
+            [20.0110, 73.7945]
+          ] as [number, number][],
+          color: "#ea580c",
+          status: hour >= 22 || hour <= 6 ? "Peak Hours" : "Available",
+          crowdFactor: hour >= 22 || hour <= 6 ? 0.9 : 0.6
+        },
+        {
+          name: "Parking & Transport Zone",
+          center: [20.0030, 73.7900] as [number, number],
+          basePoints: [
+            [20.0040, 73.7910],
+            [20.0050, 73.7905],
+            [20.0045, 73.7890],
+            [20.0030, 73.7880],
+            [20.0020, 73.7885],
+            [20.0025, 73.7900]
+          ] as [number, number][],
+          color: "#0d9488",
+          status: (hour >= 7 && hour <= 10) || (hour >= 16 && hour <= 19) ? "High Traffic" : "Normal Flow",
+          crowdFactor: (hour >= 7 && hour <= 10) || (hour >= 16 && hour <= 19) ? 0.85 : 0.5
+        },
+        {
+          name: "Restricted Area",
+          center: [20.0064, 73.7904] as [number, number],
+          basePoints: [
+            [20.0070, 73.7910],
+            [20.0075, 73.7905],
+            [20.0070, 73.7895],
+            [20.0060, 73.7890],
+            [20.0055, 73.7895],
+            [20.0060, 73.7905]
+          ] as [number, number][],
+          color: "#dc2626",
+          status: "Limited Access",
+          crowdFactor: 0.3
+        }
+      ] as const;
+
+      // Add dynamic polygons for each zone
+      kumbhZones.forEach(zone => {
+        // Calculate dynamic points with time-based movement
+        const dynamicPoints = zone.basePoints.map(([lat, lng], index) => {
+          const angle = (index / zone.basePoints.length) * Math.PI * 2 + timeOffset;
+          const crowdOffset = zone.crowdFactor * 0.0002;
+          const dynamicOffset = Math.sin(angle) * crowdOffset;
+
+          return [
+            lat + dynamicOffset * Math.cos(timeOffset),
+            lng + dynamicOffset * Math.sin(timeOffset)
+          ] as [number, number];
+        });
+
+        // Create polygon with dynamic properties
+        const polygon = L.polygon(dynamicPoints, {
+          color: zone.color,
+          fillColor: zone.color,
+          fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
+          weight: 2,
+          className: 'area-zone animate-pulse-slow'
+        }).addTo(areaMapRef.current!);
+
+        // Add animated label
+        const labelOpacity = 0.7 + Math.sin(timeOffset) * 0.3;
+        L.marker(zone.center, {
+          icon: L.divIcon({
+            className: 'area-label',
+            html: `
+              <div class="px-2 py-1 rounded-md text-white text-xs font-semibold shadow-md transform transition-all duration-500" 
+                   style="background-color: ${zone.color}; white-space: nowrap; opacity: ${labelOpacity}">
+                ${zone.name}
+                <span class="ml-2 px-1.5 py0.5 bg-white/20 rounded-full text-[10px]">
+                  ${zone.status}
+                </span>
+              </div>
+            `,
+            iconSize: [120, 24],
+            iconAnchor: [60, 12]
+          })
+        }).addTo(areaMapRef.current!);
+
+        // Enhanced popup with real-time information
+        polygon.bindPopup(`
+          <div class="text-sm p-3">
+            <h3 class="font-bold border-b pb-1 mb-2" style="color: ${zone.color}">${zone.name}</h3>
+
+            <div class="grid grid-cols-2 gap-y-2 mb-3">
+              <div class="font-medium">Status:</div>
+              <div class="font-semibold">${zone.status}</div>
+
+              <div class="font-medium">Occupancy:</div>
+              <div class="font-semibold">${Math.round(zone.crowdFactor * 100)}%</div>
+
+              <div class="font-medium">Area Size:</div>
+              <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
+            </div>
+
+            <div class="mt-2 text-xs p-2 rounded-md" 
+                 style="background-color: ${zone.color}20; border: 1px solid ${zone.color}40; color: ${zone.color}">
+              <div class="font-medium mb-1">Access Information:</div>
+              ${getZoneAccessInfo(zone.name, hour)}
+            </div>
+
+            ${getEmergencyInfo(zone.name, zone.crowdFactor)}
+          </div>
+        `, {
+          className: 'area-popup',
+          maxWidth: 300
+        });
+      });
+
+      // Add dynamic path connecting the main sites
+      const mainSitesPath = [
+        [20.0059, 73.7913], // Ramkund
+        [20.0064, 73.7904], // Kalaram Temple
+        [20.0116, 73.7938], // Tapovan
+        [20.0030, 73.7900]  // Godavari Ghat
+      ];
+
+      // Create animated path with dynamic dash offset
+      const pathStyle = {
+        color: '#FF7F00',
+        weight: 3,
+        opacity: 0.7 + Math.sin(timeOffset) * 0.3,
+        dashArray: '5, 8',
+        className: 'animated-path'
+      };
+
+      L.polyline(mainSitesPath, pathStyle)
+        .addTo(areaMapRef.current!)
+        .bindPopup(`
+          <div class="text-sm p-3">
+            <h3 class="font-bold text-[#FF7F00] border-b pb-1 mb-2">Pilgrimage Route</h3>
+            <p class="text-xs mb-2">Official route connecting major sites</p>
+
+            <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+              <div class="bg-amber-50 p-2 rounded">
+                <div class="text-amber-800 font-medium">Walking Time</div>
+                <div class="text-amber-600">~40 minutes</div>
+              </div>
+              <div class="bg-amber-50 p-2 rounded">
+                <div class="text-amber-800 font-medium">Distance</div>
+                <div class="text-amber-600">2.5 km</div>
+              </div>
+            </div>
+
+            <div class="text-xs text-gray-600">
+              ${getRouteStatus(hour)}
+            </div>
+          </div>
+        `);
+
+    }, 2000); // Update every 2 seconds for smooth animations
+
+    return () => {
+      clearInterval(updateInterval);
     };
   }, [areaMapRef]);
+
+  // Helper functions for area map
+  const getZoneAccessInfo = (zoneName: string, hour: number): string => {
+    switch (zoneName) {
+      case "Restricted Area":
+        return "Special permit required. Limited entry hours from 9 AM to 5 PM.";
+      case "Main Ceremonial Area":
+        return hour >= 4 && hour <= 22 
+          ? "Open to all devotees. Expected high crowd during ceremonial hours."
+          : "Limited access during night hours. Security checkpoints active.";
+      case "Accommodation Zone":
+        return "Reserved for registered pilgrims. Security check at entry points.";
+      default:
+        return "Public access. Shuttle services run every 15 minutes.";
+    }
+  };
+
+  const getEmergencyInfo = (zoneName: string, crowdFactor: number): string => {
+    if (crowdFactor > 0.8) {
+      return `
+        <div class="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
+          <div class="font-medium text-red-700 mb-1">High Occupancy Alert:</div>
+          <div class="text-red-600">
+            • Follow crowd management directions<br>
+            • Use alternative routes if possible<br>
+            • Emergency exits marked in green
+          </div>
+        </div>
+      `;
+    }
+    return '';
+  };
+
+  const getRouteStatus = (hour: number): string => {
+    if (hour >= 22 || hour <= 4) {
+      return "⚠️ Night hours: Limited access, enhanced security patrols";
+    }
+    if (hour >= 4 && hour <= 9) {
+      return "🌅 Morning rush: Heavy pilgrim movement expected";
+    }
+    if (hour >= 17 && hour <= 21) {
+      return "🌆 Evening peak: Increased crowd flow";
+    }
+    return "✅ Normal hours: Regular movement flow";
+  };
 
   // Update the density map
   useEffect(() => {
