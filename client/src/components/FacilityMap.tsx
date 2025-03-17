@@ -177,6 +177,27 @@ const getHeatPattern = (location: string, crowdLevel: number) => {
 };
 
 
+type LocationCoordinates = Record<string, [number, number]>;
+type LocationAreas = Record<string, number>;
+
+// Define the coordinates map
+const locationCoordinates: LocationCoordinates = {
+  "Ramkund": [20.0059, 73.7913],
+  "Kalaram Temple": [20.0064, 73.7904],
+  "Tapovan": [20.0116, 73.7938],
+  "Godavari Ghat": [20.0030, 73.7900],
+  "Trimbakeshwar": [19.9322, 73.5309]
+};
+
+// Define the areas map
+const locationAreas: LocationAreas = {
+  "Ramkund": 5000,
+  "Kalaram Temple": 3500,
+  "Tapovan": 8000,
+  "Godavari Ghat": 4000,
+  "Trimbakeshwar": 6000
+};
+
 export function FacilityMap() {
   // For view modes - only one active at a time
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
@@ -227,12 +248,12 @@ export function FacilityMap() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  const { data: shuttles } = useQuery({
+  const { data: shuttles } = useQuery<Shuttle[]>({
     queryKey: ["/api/shuttle-locations"],
     refetchInterval: 5000, // Refresh every 5 seconds
   });
 
-  const { data: restrooms } = useQuery({
+  const { data: restrooms } = useQuery<Restroom[]>({
     queryKey: ["/api/restrooms"],
     refetchInterval: 15000, // Refresh every 15 seconds
   });
@@ -312,7 +333,7 @@ export function FacilityMap() {
     const kumbhZones = [
       {
         name: "Main Ceremonial Area",
-        center: [20.0059, 73.7913], // Centered at Ramkund
+        center: [20.0059, 73.7913] as [number, number], // Centered at Ramkund
         points: [
           [20.0067, 73.7920],
           [20.0080, 73.7915],
@@ -320,13 +341,13 @@ export function FacilityMap() {
           [20.0062, 73.7892],
           [20.0045, 73.7902],
           [20.0050, 73.7916]
-        ],
+        ] as [number, number][],
         color: "#7c3aed", // violet-600
         status: "Busy"
       },
       {
         name: "Accommodation Zone",
-        center: [20.0116, 73.7938], // Centered at Tapovan
+        center: [20.0116, 73.7938] as [number, number], // Centered at Tapovan
         points: [
           [20.0130, 73.7950],
           [20.0145, 73.7940],
@@ -334,13 +355,13 @@ export function FacilityMap() {
           [20.0125, 73.7920],
           [20.0105, 73.7930],
           [20.0110, 73.7945]
-        ],
+        ] as [number, number][],
         color: "#ea580c", // orange-600
         status: "Available"
       },
       {
         name: "Parking & Transport Zone",
-        center: [20.0030, 73.7900], // Near Godavari Ghat
+        center: [20.0030, 73.7900] as [number, number], // Near Godavari Ghat
         points: [
           [20.0040, 73.7910],
           [20.0050, 73.7905],
@@ -348,13 +369,13 @@ export function FacilityMap() {
           [20.0030, 73.7880],
           [20.0020, 73.7885],
           [20.0025, 73.7900]
-        ],
+        ] as [number, number][],
         color: "#0d9488", // teal-600
         status: "Available"
       },
       {
         name: "Restricted Area",
-        center: [20.0064, 73.7904], // Near Kalaram Temple
+        center: [20.0064, 73.7904] as [number, number], // Near Kalaram Temple
         points: [
           [20.0070, 73.7910],
           [20.0075, 73.7905],
@@ -362,11 +383,11 @@ export function FacilityMap() {
           [20.0060, 73.7890],
           [20.0055, 73.7895],
           [20.0060, 73.7905]
-        ],
+        ] as [number, number][],
         color: "#dc2626", // red-600
         status: "Limited Access"
       }
-    ];
+    ] as const;
 
     // Add polygons for each zone
     kumbhZones.forEach(zone => {
@@ -580,13 +601,6 @@ export function FacilityMap() {
     if (!showSafetyZones) return;
 
     // Get location coordinates for each location
-    const locationCoordinates: Record<string, [number, number]> = {
-      "Ramkund": [20.0059, 73.7913],
-      "Kalaram Temple": [20.0064, 73.7904],
-      "Tapovan": [20.0116, 73.7938],
-      "Godavari Ghat": [20.0030, 73.7900],
-      "Trimbakeshwar": [19.9322, 73.5309]
-    };
 
     // Create safety zones for each crowd level location
     crowdLevels.forEach(level => {
@@ -732,7 +746,6 @@ export function FacilityMap() {
 
     safetyZonesRef.current.push(safetyZone);
   });
-
 }, [crowdLevels, mapRef, showSafetyZones]);
 
 // Update the heatmap effect to use location-specific patterns
@@ -976,6 +989,32 @@ const getTypeColor = (type: string) => {
     restroom: "#800080"
   };
   return colors[type] || "#000080";
+};
+
+interface Shuttle {
+  coordinates: { lat: number; lng: number };
+  routeName: string;
+  currentLocation: string;
+  nextStop: string;
+  estimatedArrival: string;
+  capacity: number;
+  status: 'on-time' | 'delayed' | 'warning';
+}
+
+interface Restroom {
+  coordinates: { lat: number; lng: number };
+  location: string;
+  nearestStop: string;
+  status: 'operational' | 'maintenance' | 'closed';
+  facilities: string[];
+}
+
+type SafetyLevel = 'safe' | 'moderate' | 'crowded' | 'dangerous';
+const safetyAdvice: Record<SafetyLevel, string> = {
+  safe: 'Safe for all visitors. Easy movement and navigation.',
+  moderate: 'Moderate crowding observed. Keep belongings secure.',
+  crowded: 'High crowd density. Follow official directions.',
+  dangerous: 'CRITICAL ALERT: Avoid this area. Emergency protocols active.'
 };
 
 return (
