@@ -499,8 +499,6 @@ const locationAreas: LocationAreas = {
 };
 
 // Add before the FacilityMap component
-
-// Interface for area zone boundaries
 interface AreaZone {
   name: string;
   center: [number, number];
@@ -739,11 +737,11 @@ export function FacilityMap() {
       if (areaMapRef.current) {
         areaMapRef.current.remove();
         areaMapRef.current = null;
-      }
+            }
     };
   }, [areaMapContainer]);
 
-  // Update the area map
+  // Effect for area map updates
   useEffect(() => {
     if (!areaMapRef.current) return;
 
@@ -761,16 +759,16 @@ export function FacilityMap() {
       const minute = now.getMinutes();
       const timeOffset = (minute / 60) * Math.PI * 2;
 
-      // Get zones with current time-based states
-      const kumbhZones = defineKumbhZones(hour, timeOffset);
+      // Get updated zones with current time-based states
+      const zones = getUpdatedZones(hour, timeOffset);
 
       // Add dynamic polygons for each zone
-      kumbhZones.forEach(zone => {
+      zones.forEach(zone => {
         // Calculate dynamic boundary points
-        const dynamicPoints = calculateAreaBoundary(zone.basePoints, timeOffset, zone.crowdFactor);
+        const boundaryPoints = calculateAreaBoundary(zone.basePoints, timeOffset, zone.crowdFactor);
 
         // Create polygon with dynamic properties
-        const polygon = L.polygon(dynamicPoints, {
+        const polygon = L.polygon(boundaryPoints, {
           color: zone.color,
           fillColor: zone.color,
           fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
@@ -797,7 +795,7 @@ export function FacilityMap() {
           })
         }).addTo(areaMapRef.current!);
 
-        // Add interactive popup with enhanced information
+        // Add interactive popup
         polygon.bindPopup(`
         <div class="text-sm p-4">
           <h3 class="font-bold text-lg border-b pb-2 mb-3" style="color: ${zone.color}">${zone.name}</h3>
@@ -846,9 +844,9 @@ export function FacilityMap() {
     });
 
     // Add animated connection paths between zones
-    kumbhZones.forEach((zone, index) => {
-      if (index < kumbhZones.length - 1) {
-        const nextZone = kumbhZones[index + 1];
+    zones.forEach((zone, index) => {
+      if (index < zones.length - 1) {
+        const nextZone = zones[index + 1];
         L.polyline([zone.center, nextZone.center], {
           color: '#FF7F00',
           weight: 2,
@@ -861,31 +859,30 @@ export function FacilityMap() {
 
   }, 1000); // Update every second for smooth animations
 
-  return () => {
-    clearInterval(updateInterval);
-  };
+  return () => clearInterval(updateInterval);
 }, [areaMapRef]);
 
-// Update the density map
+// Enhance density visualization with real-time updates
 useEffect(() => {
   if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
 
-  // Set up interval for continuous updates
   const updateInterval = setInterval(() => {
-    // Clear existing layers except base tile layer
+    // Clear existing layers
     densityMapRef.current?.eachLayer(layer => {
       if (layer instanceof L.TileLayer) return;
       layer.remove();
     });
 
-    const hour = new Date().getHours();
-    const minute = new Date().getMinutes();
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const timeOffset = (minute / 60) * Math.PI * 2;
 
     crowdLevels.forEach(level => {
       const coordinates = locationCoordinates[level.location];
       if (!coordinates) return;
 
-      // Enhanced crowd simulation with time-based variations
+      // Calculate real-time density
       const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
       const areaSize = locationAreas[level.location] || 5000;
       const density = simulatedCount / areaSize;
@@ -894,15 +891,15 @@ useEffect(() => {
       const boundaryPoints = calculateDynamicBoundary(coordinates, density);
 
       // Add animated density zone
-      const densityZone = L.polygon(boundaryPoints, {
+      L.polygon(boundaryPoints, {
         color: getDensityColor(density).color,
         fillColor: getDensityColor(density).color,
-        fillOpacity: 0.3 + (density * 0.1) + Math.sin(minute / 60 * Math.PI) * 0.1,
+        fillOpacity: 0.3 + (density * 0.1) + Math.sin(timeOffset) * 0.1,
         weight: 2,
         className: 'density-zone animate-pulse-slow'
       }).addTo(densityMapRef.current!);
 
-      // Add dynamic flow indicators
+      // Add flow indicators during peak hours
       if (getTimeFactor(hour, level.location) > 1.3) {
         const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
         arrowPoints.forEach(([start, end], index) => {
@@ -917,13 +914,18 @@ useEffect(() => {
       }
 
       // Add enhanced density marker
-      addEnhancedDensityMarker(densityMapRef.current!, coordinates, level, simulatedCount, density, areaSize);
+      addEnhancedDensityMarker(
+        densityMapRef.current!,
+        coordinates,
+        level,
+        simulatedCount,
+        density,
+        areaSize
+      );
     });
-  }, 2000); // Update every 2 seconds for smooth animations
+  }, 1000); // Update every second for smooth animations
 
-  return () => {
-    clearInterval(updateInterval);
-  };
+  return () => clearInterval(updateInterval);
 }, [crowdLevels, densityMapRef]);
 
 // Update the safety zones based on crowd levels
@@ -1454,7 +1456,7 @@ return (
       <div className="w-full">
         <div className="p-2 border-b flex flex-wrap gap-2">
           <button
-            className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+            className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] textwhite' : 'bg-gray-200'}`}
             onClick={()=> handleFilterClick(null)}
           >
             All
