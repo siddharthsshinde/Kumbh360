@@ -737,7 +737,7 @@ export function FacilityMap() {
               <div class="px-2 py-1 rounded-md text-white text-xs font-semibold shadow-md transform transition-all duration-500" 
                    style="background-color: ${zone.color}; white-space: nowrap; opacity: ${labelOpacity}">
                 ${zone.name}
-                <span class="ml-2 px-1.5 py0.5 bg-white/20 rounded-full text-[10px]">
+                <span class="ml-2 px-1.5 py0.5 bg-white/20 rounded-full text-xs">
                   ${zone.status}
                 </span>
               </div>
@@ -777,25 +777,22 @@ export function FacilityMap() {
         });
       });
 
-      // Add dynamic path connecting the main sites
-      const mainSitesPath = [
+      // Update the mainSitesPath coordinates type
+      const mainSitesPath: L.LatLngExpression[] = [
         [20.0059, 73.7913], // Ramkund
         [20.0064, 73.7904], // Kalaram Temple
         [20.0116, 73.7938], // Tapovan
         [20.0030, 73.7900]  // Godavari Ghat
       ];
 
-      // Create animated path with dynamic dash offset
-      const pathStyle = {
+      // Fix the polyline type and add proper coordinates
+      L.polyline(mainSitesPath as L.LatLngExpression[], {
         color: '#FF7F00',
         weight: 3,
         opacity: 0.7 + Math.sin(timeOffset) * 0.3,
         dashArray: '5, 8',
         className: 'animated-path'
-      };
-
-      L.polyline(mainSitesPath, pathStyle)
-        .addTo(areaMapRef.current!)
+      }).addTo(areaMapRef.current!)
         .bindPopup(`
           <div class="text-sm p-3">
             <h3 class="font-bold text-[#FF7F00] border-b pb-1 mb-2">Pilgrimage Route</h3>
@@ -831,7 +828,7 @@ export function FacilityMap() {
       case "Restricted Area":
         return "Special permit required. Limited entry hours from 9 AM to 5 PM.";
       case "Main Ceremonial Area":
-        return hour >= 4 && hour <= 22 
+        return hour >= 4 && hour <= 22
           ? "Open to all devotees. Expected high crowd during ceremonial hours."
           : "Limited access during night hours. Security checkpoints active.";
       case "Accommodation Zone":
@@ -1033,7 +1030,7 @@ export function FacilityMap() {
         <div class="rounded-lg p-3 flex gap-2 items-start" 
              style="background: ${safetyColor}10; border: 1px solid ${safetyColor}30">
           <div class="mt-1">
-            ${safetyLevel === 'dangerous' 
+            ${safetyLevel === 'dangerous'
               ? '<AlertTriangle class="w-5 h-5" style="color: ' + safetyColor + '" />'
               : '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: ' + safetyColor + '"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
             }
@@ -1454,7 +1451,7 @@ export function FacilityMap() {
       </div>
 
       {/* Main map section (facilities or heatmap) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap4">
         <div className="w-full">
           <div className="p-2 border-b flex flex-wrap gap-2">
             <button
