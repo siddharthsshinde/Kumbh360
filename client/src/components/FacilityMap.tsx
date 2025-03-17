@@ -701,7 +701,8 @@ export function FacilityMap() {
         const timeOffset = (minute / 60) * Math.PI * 2;
 
         // Get updated zones with current time-based states
-        const zones = getUpdatedZones(hour, timeOffset);
+        // This incorporates realistic Kumbh Mela crowd movement patterns
+        const zones = getUpdatedZones(hour, timeOffset, crowdLevels);
 
         // Add dynamic polygons for each zone
         zones.forEach(zone => {
@@ -862,23 +863,119 @@ export function FacilityMap() {
           directionFactor += i < 0 ? 0.25 : -0.15;
         }
         
-        // Location-specific patterns
+        // Location-specific crowd patterns based on authentic Kumbh Mela crowd dynamics
         switch (location) {
           case "Ramkund":
-            // Ramkund typically has higher density near the water (south)
-            directionFactor *= i < 0 ? 1.2 : 0.9;
+            // Ramkund - Main bathing ghat, critical ritual site with distinctive crowd patterns
+            // Morning: Concentrated at water's edge for bathing rituals
+            if (hour >= 4 && hour <= 10) {
+              // During morning bathing hours - intense concentration near water
+              directionFactor *= i < 0 ? 2.0 : 0.7; // Strong south preference for morning baths
+              directionFactor *= Math.abs(i) < numCells/4 ? 1.5 : 0.8; // Concentrated in center
+            } else if (hour >= 17 && hour <= 22) {
+              // Evening aarti creates circular patterns around platforms
+              const distFromCenter = Math.sqrt(i*i + j*j);
+              if (distFromCenter < numCells/5) {
+                directionFactor *= 1.8; // Center density during aarti
+              } else if (distFromCenter < numCells/3) {
+                directionFactor *= 1.4; // Ring of observers
+              } else {
+                directionFactor *= 0.7; // Less dense outside
+              }
+            } else {
+              // General daytime pattern - high at water edge, fading outward
+              directionFactor *= i < 0 ? 1.5 : 0.8; // South (water) preference
+            }
             break;
+
           case "Kalaram Temple":
-            // Temple has higher density near the entrance (east)
-            directionFactor *= j > 0 ? 1.15 : 0.9;
+            // Temple shows queue-like patterns with lines extending east
+            // Sacred space with linear entry patterns and circular inner courtyard
+            if (hour >= 5 && hour <= 12) {
+              // Morning worship times - long lines from east entrance
+              if (j > 0) {
+                // Eastern approach (entry path)
+                directionFactor *= 1.8 - (Math.abs(j) / numCells/2) * 0.8; // Tapering queue from east
+                directionFactor *= Math.abs(i) < numCells/6 ? 1.4 : 0.6; // Narrow queue
+              } else {
+                // Inside temple complex
+                const distFromCenter = Math.sqrt(i*i + j*j);
+                directionFactor *= distFromCenter < numCells/8 ? 1.7 : 0.8; // Dense core
+              }
+            } else if (hour >= 16 && hour <= 20) {
+              // Evening worship - circular crowd in courtyard with radial paths
+              const angle = Math.atan2(i, j);
+              // Create 4 radial paths matching temple architecture
+              const radialFactor = (Math.abs(Math.sin(angle * 2)) * 0.5) + 0.7;
+              directionFactor *= radialFactor;
+              // Central courtyard density
+              const distFromCenter = Math.sqrt(i*i + j*j);
+              if (distFromCenter < numCells/6) {
+                directionFactor *= 1.5; // Crowded inner courtyard
+              }
+            } else {
+              // Regular hours - concentrated inside temple complex
+              directionFactor *= j < 0 ? 1.3 : 0.9; // Western side (temple interior)
+            }
             break;
+
           case "Tapovan":
-            // Tapovan has more uniform density with slight elevation to the north
-            directionFactor *= i > 0 ? 1.1 : 0.95;
+            // Tapovan - sprawling camping area with different density zones
+            // Shows organic clustering around sacred spots with lower overall density
+            if (hour >= 4 && hour <= 8) {
+              // Early morning meditation - clusters around spiritual sites
+              if ((i*i + j*j) % 3 < 1) { // Create meditation clusters
+                directionFactor *= 1.4;
+              } else {
+                directionFactor *= 0.7;
+              }
+            } else if (hour >= 10 && hour <= 15) {
+              // Daytime - scattered groups throughout with activity centers
+              const distortion = Math.sin(i/2) * Math.cos(j/2); // Create organic pattern
+              directionFactor *= 0.8 + Math.abs(distortion) * 0.6;
+              // Northern activity centers
+              if (i > 0 && Math.abs(j) < numCells/5) {
+                directionFactor *= 1.3;
+              }
+            } else {
+              // Evening - concentration around camp clusters
+              // Simulate scattered camping groups with some empty spaces
+              const campPattern = (Math.sin(i*3) * Math.cos(j*2)) > 0 ? 1.2 : 0.6;
+              directionFactor *= campPattern;
+            }
             break;
+
           case "Godavari Ghat":
-            // Ghat has higher density near the water (west)
-            directionFactor *= j < 0 ? 1.25 : 0.85;
+            // Ghat has riverside movement patterns, flowing north to south
+            // High density at specific ritual points along water
+            if (hour >= 5 && hour <= 11) {
+              // Morning bathing - concentrated spots along western edge with queues
+              if (j < -numCells/4) { // Western edge (water)
+                directionFactor *= 1.8; // Water edge density
+                // Create 3 high-density bathing spots
+                if (Math.abs(i % (numCells/3)) < numCells/8) {
+                  directionFactor *= 1.5; // Ritual bathing spots
+                }
+              } else if (j < 0) {
+                directionFactor *= 1.2; // Queueing area
+                directionFactor *= 1.0 - (Math.abs(j) / numCells/2) * 0.5; // Tapers toward water
+              } else {
+                directionFactor *= 0.6; // Lower density away from water
+              }
+            } else if (hour >= 16 && hour <= 21) {
+              // Evening ceremonies - concentrated in central area with viewing crowds
+              const centralDist = Math.sqrt(Math.pow(i, 2) + Math.pow(j + numCells/8, 2)); // Center slightly toward water
+              if (centralDist < numCells/5) {
+                directionFactor *= 1.6; // Central ceremony area
+              } else if (j < 0 && centralDist < numCells/3) {
+                directionFactor *= 1.3; // Viewing crowds near water
+              } else {
+                directionFactor *= 0.7; // Lower density in periphery
+              }
+            } else {
+              // Regular hours - higher at water, gradually decreasing
+              directionFactor *= j < 0 ? 1.25 + (j / -numCells/2) * 0.5 : 0.75; // Gradient from water
+            }
             break;
         }
         
