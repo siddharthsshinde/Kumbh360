@@ -666,7 +666,7 @@ export function FacilityMap() {
       } catch (error) {
         console.error("Error updating density grid:", error);
       }
-    }, 1000); // Update every second for smooth animations
+    }, 10000); // Update every 10 seconds for real-time visualization
 
     return () => clearInterval(updateInterval);
   }, [crowdLevels, showDensityGrid, mapRef]);
@@ -809,7 +809,7 @@ export function FacilityMap() {
       } catch (error) {
         console.error("Error updating area zones:", error);
       }
-    }, 1000); // Update every second for smooth animations
+    }, 10000); // Update every 10 seconds for real-time visualization
 
     return () => clearInterval(updateInterval);
   }, [showAreaZones, mapRef]);
