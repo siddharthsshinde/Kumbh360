@@ -1,6 +1,14 @@
 import type { Facility, EmergencyContact, CrowdLevel } from "@shared/schema";
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
+// Define migration pattern type for crowd movement
+interface CrowdMigrationPattern {
+  from: "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
+  to: "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
+  flowRate: number;
+  timeRange: [number, number]; // [startHour, endHour]
+}
+
 export interface IStorage {
   getAllFacilities(): Promise<Facility[]>;
   getAllEmergencyContacts(): Promise<EmergencyContact[]>;
@@ -164,6 +172,27 @@ export class MemStorage implements IStorage {
   private crowdLevels: CrowdLevel[] = [];
   private crowdUpdates = kumbhData.crowdUpdates;
   private currentUpdateIndex = 0;
+  private updateInterval: NodeJS.Timeout | null = null;
+  private lastDataRefresh: number = Date.now();
+  
+  // Track dynamic movement of crowds between locations
+  private crowdMigrationPatterns: CrowdMigrationPattern[] = [
+    // Pattern 1: Morning ritual flow - Godavari to Ramkund to Kalaram
+    { from: "Godavari Ghat", to: "Ramkund", flowRate: 0.15, timeRange: [4, 10] },
+    { from: "Ramkund", to: "Kalaram Temple", flowRate: 0.2, timeRange: [5, 11] },
+    
+    // Pattern 2: Midday visitor circulation
+    { from: "Kalaram Temple", to: "Tapovan", flowRate: 0.1, timeRange: [11, 15] },
+    { from: "Tapovan", to: "Godavari Ghat", flowRate: 0.15, timeRange: [12, 16] },
+    
+    // Pattern 3: Evening ceremonies
+    { from: "Tapovan", to: "Ramkund", flowRate: 0.25, timeRange: [16, 20] },
+    { from: "Godavari Ghat", to: "Ramkund", flowRate: 0.3, timeRange: [16, 20] },
+    
+    // Pattern 4: Night dispersal
+    { from: "Ramkund", to: "Godavari Ghat", flowRate: 0.15, timeRange: [20, 23] },
+    { from: "Kalaram Temple", to: "Godavari Ghat", flowRate: 0.1, timeRange: [19, 23] }
+  ];
 
   private newsItems: {
     id: number;
@@ -418,6 +447,17 @@ export class MemStorage implements IStorage {
   }
 
   async getAllCrowdLevels(): Promise<CrowdLevel[]> {
+    // Only update data if it's been at least 5 seconds since last refresh
+    const now = Date.now();
+    if (now - this.lastDataRefresh > 5000) {
+      this.updateDynamicCrowdData();
+      this.lastDataRefresh = now;
+    }
+    
+    return this.crowdLevels;
+  }
+  
+  private updateDynamicCrowdData() {
     const update = this.crowdUpdates[this.currentUpdateIndex];
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
@@ -468,13 +508,21 @@ export class MemStorage implements IStorage {
           safe: "Peaceful time for holy dip and rituals.",
           moderate: "All ghats accessible with minimal waiting.",
           crowded: "Main ghat congested. Use side ghats.",
-          overcrowded: "Please wait or visit Ramkund."
+          overcrowded: "Extremely crowded. Entry regulated."
         }
       }
     };
 
-    // Calculate different statuses for each location
-    const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
+    // Create data structure to track crowd numbers
+    const crowdNumbers: Record<string, number> = {
+      "Ramkund": 0,
+      "Kalaram Temple": 0,
+      "Tapovan": 0,
+      "Godavari Ghat": 0
+    };
+    
+    // First calculate base crowd levels
+    Object.entries(locationPatterns).forEach(([location, pattern]) => {
       const baseUtilization = locationBaseUtilization[location];
       const currentHour = new Date().getHours();
       const isPeakHour = pattern.peakHours.includes(currentHour);
@@ -484,12 +532,46 @@ export class MemStorage implements IStorage {
       if (isPeakHour) {
         utilization = Math.min(utilization * 1.3, 1);
       }
+      
+      // Calculate base crowd count
+      crowdNumbers[location] = Math.floor(pattern.capacity * utilization);
+    });
+    
+    // Now apply crowd migrations based on time of day
+    const currentHour = new Date().getHours();
+    
+    // Find applicable migration patterns for current hour
+    this.crowdMigrationPatterns.forEach(pattern => {
+      const [startHour, endHour] = pattern.timeRange;
+      
+      // Check if this migration pattern applies to current time
+      if (currentHour >= startHour && currentHour <= endHour) {
+        // Calculate number of people moving from source to destination
+        const movingCount = Math.floor(crowdNumbers[pattern.from] * pattern.flowRate);
+        
+        // Remove people from source location
+        crowdNumbers[pattern.from] -= movingCount;
+        
+        // Add people to destination location
+        crowdNumbers[pattern.to] += movingCount;
+      }
+    });
+    
+    // Add randomness to ensure dynamic changes even in the same hour
+    Object.keys(crowdNumbers).forEach(location => {
+      // Add +/- 5% random variation
+      const variation = Math.floor(crowdNumbers[location] * (Math.random() * 0.1 - 0.05));
+      crowdNumbers[location] += variation;
+      
+      // Ensure we don't go below 0
+      crowdNumbers[location] = Math.max(0, crowdNumbers[location]);
+    });
 
-      // Ensure each location has a different status by adding index-based offset
-      utilization = (utilization + (index * 0.15)) % 1;
-
-      const newCount = Math.floor(pattern.capacity * utilization);
-
+    // Calculate different statuses for each location
+    const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
+      const currentCount = crowdNumbers[location];
+      const utilization = currentCount / pattern.capacity;
+      
       // Determine status based on adjusted utilization
       let status;
       if (utilization > 0.75) status = "overcrowded";
@@ -502,7 +584,7 @@ export class MemStorage implements IStorage {
         location,
         level: Math.ceil(utilization * 5),
         capacity: pattern.capacity,
-        currentCount: newCount,
+        currentCount,
         status,
         lastUpdated: update.lastUpdated,
         recommendations: pattern.recommendations[status]
@@ -510,7 +592,6 @@ export class MemStorage implements IStorage {
     });
 
     this.crowdLevels = newLevels;
-    return this.crowdLevels;
   }
 
   async getAllFacilities(): Promise<Facility[]> {
