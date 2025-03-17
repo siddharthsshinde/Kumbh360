@@ -519,12 +519,15 @@ export function FacilityMap() {
   const areaZoneLayersRef = useRef<L.Layer[]>([]);
   const [showAreaZones, setShowAreaZones] = useState(false);
 
-  // Helper function to toggle view modes
+  // Helper function to toggle view modes - ensuring all modes are mutually exclusive
   const toggleViewMode = (mode: ViewMode) => {
     // If already active, turn it off and go back to base facilities view
     if (activeViewMode === mode) {
       setActiveViewMode('facilities');
     } else {
+      // Turn off density grid and area zones when toggling between heatmap and safety
+      setShowDensityGrid(false);
+      setShowAreaZones(false);
       setActiveViewMode(mode);
     }
   };
@@ -1254,12 +1257,20 @@ export function FacilityMap() {
     return colors[type] || "#000080";
   };
 
-  // Toggle functions for visualization layers
+  // Toggle functions for visualization layers - ensuring they're mutually exclusive
   const toggleDensityGrid = () => {
+    // If turning on density grid, turn off area zones
+    if (!showDensityGrid) {
+      setShowAreaZones(false);
+    }
     setShowDensityGrid(!showDensityGrid);
   };
   
   const toggleAreaZones = () => {
+    // If turning on area zones, turn off density grid
+    if (!showAreaZones) {
+      setShowDensityGrid(false);
+    }
     setShowAreaZones(!showAreaZones);
   };
 
