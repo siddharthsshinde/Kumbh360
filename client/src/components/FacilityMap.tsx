@@ -862,7 +862,107 @@ export function FacilityMap() {
   return () => clearInterval(updateInterval);
 }, [areaMapRef]);
 
-// Enhance density visualization with real-time updates
+// Generate a grid of cells around a location
+const generateDensityGrid = (
+  center: [number, number], 
+  baseCount: number, 
+  areaSize: number,
+  location: string
+): { cell: L.LatLngExpression[], density: number }[] => {
+  // Configure grid
+  const gridCellSize = 0.001; // Size of each grid cell in degrees (approximately 100m)
+  const gridRadius = 0.005; // Radius around the center point to generate grid (approximately 500m)
+  const numCells = Math.floor(gridRadius / gridCellSize) * 2; // Number of cells in each direction
+  
+  const now = new Date();
+  const hour = now.getHours();
+  const cells: { cell: L.LatLngExpression[], density: number }[] = [];
+  
+  // Calculate time-based variation factor
+  const minute = now.getMinutes();
+  const secondsElapsed = now.getSeconds() + (minute * 60);
+  const timeFactor = 1 + Math.sin(secondsElapsed / 30 * Math.PI / 180) * 0.2;
+  
+  // Generate grid cells around the center point
+  for (let i = -numCells/2; i < numCells/2; i++) {
+    for (let j = -numCells/2; j < numCells/2; j++) {
+      // Calculate the center of this grid cell
+      const cellLat = center[0] + (i * gridCellSize);
+      const cellLng = center[1] + (j * gridCellSize);
+      
+      // Calculate distance from center as a factor (0-1)
+      const distanceFromCenter = Math.sqrt(i*i + j*j) / (numCells/2);
+      
+      // Calculate density for this cell
+      // Density decreases as distance from center increases
+      const baseDensity = baseCount / areaSize;
+      
+      // Direction-based density distribution based on time of day
+      let directionFactor = 1.0;
+      
+      if (hour >= 4 && hour <= 9) {
+        // Morning pattern - higher density to the east
+        directionFactor += j > 0 ? 0.3 : -0.2;
+      } else if (hour >= 17 && hour <= 20) {
+        // Evening pattern - higher density to the west
+        directionFactor += j < 0 ? 0.3 : -0.2;
+      } else if (hour >= 11 && hour <= 15) {
+        // Midday pattern - higher density to the south
+        directionFactor += i < 0 ? 0.25 : -0.15;
+      }
+      
+      // Location-specific patterns
+      switch (location) {
+        case "Ramkund":
+          // Ramkund typically has higher density near the water (south)
+          directionFactor *= i < 0 ? 1.2 : 0.9;
+          break;
+        case "Kalaram Temple":
+          // Temple has higher density near the entrance (east)
+          directionFactor *= j > 0 ? 1.15 : 0.9;
+          break;
+        case "Tapovan":
+          // Tapovan has more uniform density with slight elevation to the north
+          directionFactor *= i > 0 ? 1.1 : 0.95;
+          break;
+        case "Godavari Ghat":
+          // Ghat has higher density near the water (west)
+          directionFactor *= j < 0 ? 1.25 : 0.85;
+          break;
+      }
+      
+      // Apply randomness to create more natural-looking patterns
+      const randomFactor = 0.8 + Math.random() * 0.4;
+      
+      // Calculate final cell density
+      const cellDensity = baseDensity * 
+        (1 - (distanceFromCenter * 0.8)) * // Density decreases from center
+        directionFactor * 
+        timeFactor * 
+        randomFactor;
+      
+      // Create cell boundary
+      const cell = [
+        [cellLat - gridCellSize/2, cellLng - gridCellSize/2],
+        [cellLat - gridCellSize/2, cellLng + gridCellSize/2],
+        [cellLat + gridCellSize/2, cellLng + gridCellSize/2],
+        [cellLat + gridCellSize/2, cellLng - gridCellSize/2]
+      ];
+      
+      // Only add cells with meaningful density
+      if (cellDensity > 0.1) {
+        cells.push({
+          cell,
+          density: cellDensity
+        });
+      }
+    }
+  }
+  
+  return cells;
+};
+
+// Enhance density visualization with real-time updates using grid squares
 useEffect(() => {
   if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
 
@@ -886,19 +986,33 @@ useEffect(() => {
       const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
       const areaSize = locationAreas[level.location] || 5000;
       const density = simulatedCount / areaSize;
-
-      // Create dynamic boundary with time-based movement
-      const boundaryPoints = calculateDynamicBoundary(coordinates, density);
-
-      // Add animated density zone
-      L.polygon(boundaryPoints, {
-        color: getDensityColor(density).color,
-        fillColor: getDensityColor(density).color,
-        fillOpacity: 0.3 + (density * 0.1) + Math.sin(timeOffset) * 0.1,
-        weight: 2,
-        className: 'density-zone animate-pulse-slow'
-      }).addTo(densityMapRef.current!);
-
+      
+      // Generate grid cells with density values
+      const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
+      
+      // Render each grid cell with appropriate color based on density
+      gridCells.forEach(({ cell, density }) => {
+        const { color } = getDensityColor(density);
+        
+        // Create a pulsing effect based on time
+        const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
+        
+        // Add grid cell with color intensity based on density
+        L.polygon(cell, {
+          color: 'rgba(255,255,255,0.3)',
+          fillColor: color,
+          fillOpacity: 0.3 + (density * 0.15) + pulseEffect,
+          weight: 1,
+          className: 'density-grid-cell'
+        }).addTo(densityMapRef.current!)
+        .bindPopup(`
+          <div class="text-xs p-2">
+            <div class="font-semibold mb-1">${level.location} Area</div>
+            <div>Density: ${density.toFixed(2)} people/m²</div>
+          </div>
+        `);
+      });
+      
       // Add flow indicators during peak hours
       if (getTimeFactor(hour, level.location) > 1.3) {
         const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
@@ -913,7 +1027,7 @@ useEffect(() => {
         });
       }
 
-      // Add enhanced density marker
+      // Add enhanced density marker at the location center
       addEnhancedDensityMarker(
         densityMapRef.current!,
         coordinates,
@@ -1569,7 +1683,7 @@ return (
                     <circle cx="10" cy="14" r="2"></circle>
                     <circle cx="16" cy="16" r="2"></circle>
                   </svg>
-                  <span>Density measured in people per square meter. Real-time updates every 10 seconds.</span>
+                  <span>Grid-based density visualization showing people per square meter. Each cell represents approximately 100m² area with real-time updates.</span>
                 </div>
               </div>
 
