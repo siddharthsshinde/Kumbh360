@@ -616,14 +616,6 @@ const defineKumbhZones = (hour: number, timeOffset: number): AreaZone[] => {
   ];
 };
 
-// Function to get updated zone information based on current time and crowd density data
-const getUpdatedZones = (hour: number, timeOffset: number): AreaZone[] => {
-  // Currently we use the base zones defined in defineKumbhZones
-  // This function will be enhanced to incorporate real-time crowd data
-  // from server APIs in future implementations
-  return defineKumbhZones(hour, timeOffset);
-};
-
 export function FacilityMap() {
   // For view modes - only one active at a time
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
