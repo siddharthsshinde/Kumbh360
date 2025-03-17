@@ -41,6 +41,142 @@ const createCustomIcon = (type: string) => {
   });
 };
 
+// Simulate crowd movement patterns based on location and time
+const simulateCrowdMovement = (location: string, baseCount: number): number => {
+  const hour = new Date().getHours();
+  const isRushHour = (hour >= 6 && hour <= 9) || (hour >= 17 && hour <= 19);
+  const isLunchTime = hour >= 12 && hour <= 14;
+
+  let multiplier = 1;
+
+  // Location-specific patterns
+  switch (location) {
+    case "Ramkund":
+      // Busier during morning and evening aarti
+      multiplier = (hour >= 5 && hour <= 8) || (hour >= 18 && hour <= 20) ? 1.5 : 1;
+      break;
+    case "Kalaram Temple":
+      // Peak during morning hours
+      multiplier = hour >= 6 && hour <= 11 ? 1.4 : 1;
+      break;
+    case "Tapovan":
+      // Steady throughout with slight increase during evenings
+      multiplier = hour >= 16 && hour <= 19 ? 1.3 : 1;
+      break;
+    case "Godavari Ghat":
+      // Busier during early morning and sunset
+      multiplier = (hour >= 5 && hour <= 7) || (hour >= 17 && hour <= 19) ? 1.6 : 1;
+      break;
+    case "Trimbakeshwar":
+      // Peak during midday
+      multiplier = hour >= 10 && hour <= 14 ? 1.3 : 1;
+      break;
+  }
+
+  // Add randomization for natural variation
+  const randomFactor = 0.8 + Math.random() * 0.4; // 80-120% of base value
+  return Math.round(baseCount * multiplier * randomFactor);
+};
+
+// Get location-specific safety thresholds
+const getSafetyThresholds = (location: string) => {
+  // Different locations have different crowd handling capacities
+  switch (location) {
+    case "Ramkund":
+      return {
+        safe: 0.3,
+        moderate: 0.5,
+        crowded: 0.7,
+        dangerous: 0.85
+      };
+    case "Kalaram Temple":
+      return {
+        safe: 0.25,
+        moderate: 0.45,
+        crowded: 0.65,
+        dangerous: 0.8
+      };
+    case "Tapovan":
+      return {
+        safe: 0.35,
+        moderate: 0.55,
+        crowded: 0.75,
+        dangerous: 0.9
+      };
+    case "Godavari Ghat":
+      return {
+        safe: 0.3,
+        moderate: 0.5,
+        crowded: 0.7,
+        dangerous: 0.85
+      };
+    default:
+      return {
+        safe: 0.3,
+        moderate: 0.5,
+        crowded: 0.7,
+        dangerous: 0.85
+      };
+  }
+};
+
+// Get location-specific heat patterns
+const getHeatPattern = (location: string, crowdLevel: number) => {
+  const basePattern = {
+    radius: 45,
+    blur: 35,
+    maxZoom: 15,
+    max: 120
+  };
+
+  // Customize heat patterns based on location
+  switch (location) {
+    case "Ramkund":
+      return {
+        ...basePattern,
+        radius: 50 + (crowdLevel * 5),
+        gradient: {
+          0.0: '#4ade80',
+          0.2: '#22c55e',
+          0.4: '#f59e0b',
+          0.6: '#f97316',
+          0.75: '#ef4444',
+          0.85: '#b91c1c',
+          0.95: '#7f1d1d'
+        }
+      };
+    case "Kalaram Temple":
+      return {
+        ...basePattern,
+        radius: 40 + (crowdLevel * 4),
+        gradient: {
+          0.0: '#818cf8',
+          0.3: '#6366f1',
+          0.5: '#4f46e5',
+          0.7: '#4338ca',
+          0.85: '#3730a3',
+          0.95: '#312e81'
+        }
+      };
+    case "Tapovan":
+      return {
+        ...basePattern,
+        radius: 55 + (crowdLevel * 6),
+        gradient: {
+          0.0: '#34d399',
+          0.3: '#10b981',
+          0.5: '#059669',
+          0.7: '#047857',
+          0.85: '#065f46',
+          0.95: '#064e3b'
+        }
+      };
+    default:
+      return basePattern;
+  }
+};
+
+
 export function FacilityMap() {
   // For view modes - only one active at a time
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
@@ -411,9 +547,9 @@ export function FacilityMap() {
               ${
                 density >= 4 ? 'CRITICAL - Immediate crowd control measures in effect'
                   : density >= 3 ? 'WARNING - Active monitoring and flow control in place'
-                  : density >= 2 ? 'CAUTION - Crowd management personnel deployed'
-                  : density >= 1 ? 'MODERATE - Regular monitoring in effect'
-                  : 'NORMAL - Standard operations'
+                    : density >= 2 ? 'CAUTION - Crowd management personnel deployed'
+                      : density >= 1 ? 'MODERATE - Regular monitoring in effect'
+                        : 'NORMAL - Standard operations'
               }
             </div>
           </div>
@@ -457,697 +593,662 @@ export function FacilityMap() {
       const coordinates = locationCoordinates[level.location];
       if (!coordinates) return;
 
-      // Calculate ratio of current crowd to capacity
-      const ratio = level.currentCount / level.capacity;
+      // Get location-specific thresholds
+      const thresholds = getSafetyThresholds(level.location);
 
-      // Determine safety level based on crowd density
+      // Simulate dynamic crowd movement
+      const simulatedCount = simulateCrowdMovement(level.location, level.currentCount);
+      const ratio = simulatedCount / level.capacity;
+
+      // Determine safety level with location-specific thresholds
       let safetyLevel: 'safe' | 'moderate' | 'crowded' | 'dangerous';
       let safetyColor: string;
       let pulsate = false;
 
-      if (ratio < 0.25) {
+      if (ratio < thresholds.safe) {
         safetyLevel = 'safe';
-        safetyColor = '#10b981'; // emerald-500
-      } else if (ratio < 0.5) {
+        safetyColor = '#10b981';
+      } else if (ratio < thresholds.moderate) {
         safetyLevel = 'moderate';
-        safetyColor = '#f59e0b'; // amber-500
-      } else if (ratio < 0.75) {
+        safetyColor = '#f59e0b';
+      } else if (ratio < thresholds.crowded) {
         safetyLevel = 'crowded';
-        safetyColor = '#f97316'; // orange-500
+        safetyColor = '#f97316';
         pulsate = true;
       } else {
         safetyLevel = 'dangerous';
-        safetyColor = '#ef4444'; // red-500
+        safetyColor = '#ef4444';
         pulsate = true;
       }
 
-      // Create a safety zone with enhanced styling
-      const radius = 200 + (ratio * 200); // Size increases with crowd density
+      // Dynamic radius based on location and crowd level
+      const baseRadius = 200;
+      const locationMultiplier = level.location === "Ramkund" ? 1.2 :
+        level.location === "Tapovan" ? 1.5 : 1;
+      const radius = (baseRadius + (ratio * 200)) * locationMultiplier;
+
+      // Enhanced circle options
       const circleOptions: L.CircleOptions = {
         color: safetyColor,
         fillColor: safetyColor,
-        fillOpacity: 0.2,
+        fillOpacity: 0.2 + (ratio * 0.2), // Opacity increases with crowd density
         weight: 2,
         className: `safety-zone ${pulsate ? 'animate-pulse-slow' : ''}`,
       };
 
-      // Add conditional options for enhanced visuals
+      // Add visual effects for crowded/dangerous zones
       if (pulsate) {
         circleOptions.dashArray = '5, 10';
       }
 
       const safetyZone = L.circle(coordinates, radius, circleOptions).addTo(mapRef.current!);
 
-      // Enhanced popup with more visual information
+      // Enhanced popup content
       safetyZone.bindPopup(`
-        <div class="text-sm p-4 max-w-sm">
-          <div class="flex items-center justify-between border-b pb-2 mb-3">
-            <h3 class="font-bold text-lg" style="color: ${safetyColor}">${level.location}</h3>
-            <span class="px-2 py-1 rounded-full text-xs font-semibold" 
-                  style="background: ${safetyColor}20; color: ${safetyColor}">
+      <div class="text-sm p-4 max-w-sm">
+        <div class="flex items-center justify-between border-b pb-2 mb-3">
+          <h3 class="font-bold text-lg" style="color: ${safetyColor}">${level.location}</h3>
+          <span class="px-2 py-1 rounded-full text-xs font-semibold" 
+                style="background: ${safetyColor}20; color: ${safetyColor}">
+            ${safetyLevel.toUpperCase()}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-gray-50 p-2 rounded">
+            <div class="text-xs text-gray-500">Current Count</div>
+            <div class="font-semibold">${simulatedCount.toLocaleString()}</div>
+          </div>
+          <div class="bg-gray-50 p-2 rounded">
+            <div class="text-xs text-gray-500">Capacity</div>
+            <div class="font-semibold">${level.capacity.toLocaleString()}</div>
+          </div>
+          <div class="bg-gray-50 p-2 rounded">
+            <div class="text-xs text-gray-500">Occupancy</div>
+            <div class="font-semibold">${Math.round(ratio * 100)}%</div>
+          </div>
+          <div class="bg-gray-50 p-2 rounded">
+            <div class="text-xs text-gray-500">Status</div>
+            <div class="font-semibold" style="color: ${safetyColor}">
               ${safetyLevel.toUpperCase()}
-            </span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Current Count</div>
-              <div class="font-semibold">${level.currentCount.toLocaleString()}</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Capacity</div>
-              <div class="font-semibold">${level.capacity.toLocaleString()}</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Occupancy</div>
-              <div class="font-semibold">${Math.round(ratio * 100)}%</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Status</div>
-              <div class="font-semibold" style="color: ${safetyColor}">
-                ${safetyLevel.toUpperCase()}
-              </div>
             </div>
           </div>
+        </div>
 
-          <div class="rounded-lg p-3 flex gap-2 items-start" 
-               style="background: ${safetyColor}10; border: 1px solid ${safetyColor}30">
-            <div class="mt-1">
-              ${safetyLevel === 'dangerous' 
-                ? '<AlertTriangle class="w-5 h-5" style="color: ' + safetyColor + '" />'
-                : '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: ' + safetyColor + '"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
-              }
-            </div>
-            <div>
-              <div class="font-medium mb-1" style="color: ${safetyColor}">Safety Advisory:</div>
-              <div class="text-sm" style="color: ${safetyColor}">
-                ${
-                  safetyLevel === 'safe' 
-                    ? 'Safe for all visitors. Easy movement and navigation. Regular monitoring in place.'
-                    : safetyLevel === 'moderate'
-                      ? 'Moderate crowding observed. Keep belongings secure and stay aware of surroundings. Follow marked paths.'
-                      : safetyLevel === 'crowded'
-                        ? 'High crowd density detected. Move with caution and follow official directions. Not recommended for elderly or children.'
-                        : 'CRITICAL ALERT: Avoid this area. Emergency protocols in effect. Follow official evacuation routes if present.'
-                }
-              </div>
+        <div class="rounded-lg p-3 flex gap-2 items-start" 
+             style="background: ${safetyColor}10; border: 1px solid ${safetyColor}30">
+          <div class="mt-1">
+            ${safetyLevel === 'dangerous' 
+              ? '<AlertTriangle class="w-5 h-5" style="color: ' + safetyColor + '" />'
+              : '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: ' + safetyColor + '"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+            }
+          </div>
+          <div>
+            <div class="font-medium mb-1" style="color: ${safetyColor}">Safety Advisory:</div>
+            <div class="text-sm" style="color: ${safetyColor}">
+              ${getLocationSpecificAdvisory(level.location, safetyLevel)}
             </div>
           </div>
+        </div>
 
-          ${safetyLevel === 'dangerous' || safetyLevel === 'crowded' ? `
-            <div class="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs text-red-700">
-              <div class="font-medium mb-1">Emergency Contacts:</div>
+        ${safetyLevel === 'dangerous' || safetyLevel === 'crowded' ? `
+          <div class="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
+            <div class="font-medium text-red-700 mb-1">Emergency Protocol:</div>
+            <div class="text-red-600">${getEmergencyProtocol(level.location)}</div>
+            <div class="mt-2 font-medium text-red-700">Emergency Contacts:</div>
+            <div class="grid grid-cols-2 gap-1 mt-1">
               <div>Police: 100</div>
               <div>Ambulance: 108</div>
               <div>Control Room: 0253-2578500</div>
-            </div>
-          ` : ''}
-        </div>
-      `, {
-        className: `safety-popup safety-${safetyLevel}`,
-        maxWidth: 350
-      });
-
-      // Add a pulsating marker for dangerous/crowded areas
-      if (safetyLevel === 'dangerous' || safetyLevel === 'crowded') {
-        L.marker(coordinates, {
-          icon: L.divIcon({
-            className: 'safety-alert-marker',
-            html: `
-              <div class="relative">
-                <div class="absolute -inset-2 bg-${safetyLevel === 'dangerous' ? 'red' : 'orange'}-500 rounded-full animate-ping opacity-20"></div>
-                <div class="relative flex h-4 w-4 items-center justify-center">
-                  <span class="absolute inline-flex h-full w-full rounded-full ${safetyLevel === 'dangerous' ? 'bg-red-500' : 'bg-orange-500'} opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 ${safetyLevel === 'dangerous' ? 'bg-red-500' : 'bg-orange-500'}"></span>
-                </div>
-              </div>
-            `,
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
-          })
-        }).addTo(mapRef.current!);
-      }
-
-      // Store reference to the safety zone
-      safetyZonesRef.current.push(safetyZone);
-    });
-
-  }, [crowdLevels, mapRef, showSafetyZones]);
-
-  // Update the heatmap based on crowd levels (integrated in main map)
-  useEffect(() => {
-    if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
-
-    // Remove existing heat layer if it exists
-    if (heatLayerRef.current) {
-      heatLayerRef.current.remove();
-      heatLayerRef.current = null;
-    }
-
-    // Don't add heatmap layer if it's turned off
-    if (!showHeatLayer) return;
-
-    // Get location coordinates for each location
-    const locationCoordinates: Record<string, [number, number]> = {
-      "Ramkund": [20.0059, 73.7913],
-      "Kalaram Temple": [20.0064, 73.7904],
-      "Tapovan": [20.0116, 73.7938],
-      "Godavari Ghat": [20.0030, 73.7900],
-      "Trimbakeshwar": [19.9322, 73.5309]
-    };
-
-    // Create heatmap data points with intensity based on crowd levels
-    const heatmapData = crowdLevels.map(level => {
-      const coordinates = locationCoordinates[level.location];
-      if (!coordinates) return null;
-
-      // Calculate intensity based on level.currentCount / level.capacity
-      const ratio = level.currentCount / level.capacity;
-      const intensity = ratio * 100; // Scale for better visualization
-
-      return [
-        coordinates[0],
-        coordinates[1],
-        intensity
-      ] as [number, number, number];
-    }).filter(Boolean) as [number, number, number][];
-
-    // Add some surrounding points to create a more natural heatmap effect
-    const expandedHeatmapData = [...heatmapData];
-
-    // For each main point, add some surrounding points with lower intensity
-    heatmapData.forEach(point => {
-      const [lat, lng, intensity] = point;
-      // Add 5-10 surrounding points with decreasing intensity
-      for (let i = 0; i < 8; i++) {
-        const offset = 0.002 * Math.random(); // Random offset within ~200m
-        const direction = Math.random() * Math.PI * 2; // Random direction
-        const newLat = lat + Math.sin(direction) * offset;
-        const newLng = lng + Math.cos(direction) * offset;
-        const newIntensity = intensity * (0.3 + Math.random() * 0.4); // 30-70% of original intensity
-
-        expandedHeatmapData.push([newLat, newLng, newIntensity]);
-      }
-    });
-
-    // Add key landmarks with fixed lower intensity to ensure visibility
-    facilities?.forEach(facility => {
-      if (facility.type === 'holy_site' || facility.type === 'temple') {
-        expandedHeatmapData.push([
-          facility.location.lat,
-          facility.location.lng,
-          5 // Base intensity to ensure visibility
-        ]);
-      }
-    });
-
-    // Create heat layer with the data - improved visual aesthetics
-    heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
-      radius: 45, // Increased size of each point in the heatmap
-      blur: 35, // Increased blur effect for smoother transitions
-      maxZoom: 15, // Maximum zoom level for the heatmap
-      max: 120, // Increased max intensity for more vibrant colors
-      gradient: {
-        0.0: '#4ade80', // Bright green for very low crowd
-        0.2: '#22c55e', // Medium green for low crowd
-        0.4: '#f59e0b', // Amber for moderate crowd
-        0.6: '#f97316', // Orange for medium-high crowd
-        0.75: '#ef4444', // Red for high crowd
-        0.85: '#b91c1c', // Dark red for very high crowd
-        0.95: '#7f1d1d'  // Deep red for critical crowding
-      }
-    }).addTo(mapRef.current);
-
-    // Add location markers to heatmap for reference
-    Object.entries(locationCoordinates).forEach(([location, coordinates]) => {
-      const crowdLevel = crowdLevels.find(level => level.location === location);
-
-      if (crowdLevel) {
-        // Create a marker with popup showing crowd info - enhanced visuals
-        const crowdPercentage = Math.round((crowdLevel.currentCount / crowdLevel.capacity) * 100);
-        const statusColor =
-          crowdLevel.status === 'overcrowded' ? '#b91c1c' :
-            crowdLevel.status === 'crowded' ? '#f97316' :
-              crowdLevel.status === 'moderate' ? '#f59e0b' :
-                '#22c55e';
-
-        L.marker(coordinates as [number, number], {
-          icon: L.divIcon({
-            className: 'crowd-marker',
-            html: `
-              <div class="flex items-center justify-center relative">
-                <div class="absolute -z-10 w-10 h-10 rounded-full bg-white opacity-70"></div>
-                <div class="flex items-center justify-center w-9 h-9 rounded-full border-3 shadow-lg" 
-                  style="background: linear-gradient(135deg, white, ${statusColor}20); border-color: ${statusColor};">
-                  <div class="text-xs font-bold" style="color: ${statusColor}; text-shadow: 0 0 2px white;">
-                    ${crowdPercentage}%
-                  </div>
-                </div>
-                ${crowdLevel.status === 'overcrowded' || crowdLevel.status === 'crowded' ?
-                  `<div class="absolute -top-1 -right-1 animate-pulse">
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                    </span>
-                  </div>`
-                  : ''}
-              </div>
-            `,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
-          })
-        }).addTo(mapRef.current!)
-          .bindPopup(`
-          <div class="text-sm p-2">
-            <h3 class="font-bold text-[#FF7F00] text-base border-b pb-1 mb-2">${location}</h3>
-            <div class="grid grid-cols-2 gap-y-2 mb-2">
-              <div class="font-medium">Status:</div>
-              <div class="font-semibold ${
-            crowdLevel.status === 'overcrowded' ? 'text-red-600' :
-              crowdLevel.status === 'crowded' ? 'text-orange-500' :
-                crowdLevel.status === 'moderate' ? 'text-yellow-600' :
-                  'text-green-600'
-            }">${crowdLevel.status.toUpperCase()}</div>
-
-              <div class="font-medium">Current:</div>
-              <div class="font-semibold">${crowdLevel.currentCount.toLocaleString()}</div>
-
-              <div class="font-medium">Capacity:</div>
-              <div class="font-semibold">${crowdLevel.capacity.toLocaleString()}</div>
-
-              <div class="font-medium">Density:</div>
-              <div class="font-semibold">${crowdPercentage}%</div>
-            </div>
-
-            <div class="bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 text-xs text-amber-800">
-              <div class="font-medium mb-1">Recommendations:</div>
-              ${crowdLevel.recommendations}
-            </div>
-
-            <div class="text-center text-xs text-gray-500 mt-2">
-              Updates every 5 minutes
+              <div>Local Help: ${getLocalEmergencyContact(level.location)}</div>
             </div>
           </div>
-        `, {
-            className: 'crowd-popup',
-            maxWidth: 300
-          });
+        ` : ''}
+      </div>
+    `, {
+      className: `safety-popup safety-${safetyLevel}`,
+      maxWidth: 350
+    });
+
+    // Add a pulsating marker for dangerous/crowded areas
+    if (safetyLevel === 'dangerous' || safetyLevel === 'crowded') {
+      L.marker(coordinates, {
+        icon: L.divIcon({
+          className: 'safety-alert-marker',
+          html: `
+            <div class="relative">
+              <div class="absolute -inset-2 bg-${safetyLevel === 'dangerous' ? 'red' : 'orange'}-500 rounded-full animate-ping opacity-20"></div>
+              <div class="relative flex h-4 w-4 items-center justify-center">
+                <span class="absolute inline-flex h-full w-full rounded-full ${safetyLevel === 'dangerous' ? 'bg-red-500' : 'bg-orange-500'} opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 ${safetyLevel === 'dangerous' ? 'bg-red-500' : 'bg-orange-500'}"></span>
+              </div>
+            </div>
+          `,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        })
+      }).addTo(mapRef.current!);
+    }
+
+    safetyZonesRef.current.push(safetyZone);
+  });
+
+}, [crowdLevels, mapRef, showSafetyZones]);
+
+// Update the heatmap effect to use location-specific patterns
+useEffect(() => {
+  if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
+
+  if (heatLayerRef.current) {
+    heatLayerRef.current.remove();
+    heatLayerRef.current = null;
+  }
+
+  if (!showHeatLayer) return;
+
+  const expandedHeatmapData: [number, number, number][] = [];
+
+  crowdLevels.forEach(level => {
+    const coordinates = locationCoordinates[level.location];
+    if (!coordinates) return;
+
+    // Simulate dynamic crowd movement
+    const simulatedCount = simulateCrowdMovement(level.location, level.currentCount);
+    const ratio = simulatedCount / level.capacity;
+    const baseIntensity = ratio * 100;
+
+    // Get location-specific heat pattern
+    const heatPattern = getHeatPattern(level.location, ratio);
+
+    // Create main heat point
+    expandedHeatmapData.push([
+      coordinates[0],
+      coordinates[1],
+      baseIntensity
+    ]);
+
+    // Add surrounding points with location-specific patterns
+    const numPoints = Math.floor(10 + (ratio * 5)); // More points for higher density
+    for (let i = 0; i < numPoints; i++) {
+      const angle = (Math.PI * 2 * i) / numPoints;
+      const distance = 0.002 * (0.5 + Math.random() * 0.5); // Varying distances
+      const newLat = coordinates[0] + Math.sin(angle) * distance;
+      const newLng = coordinates[1] + Math.cos(angle) * distance;
+      const intensity = baseIntensity * (0.3 + Math.random() * 0.4);
+
+      expandedHeatmapData.push([newLat, newLng, intensity]);
+    }
+
+    // Add movement trails based on time of day
+    const hour = new Date().getHours();
+    if ((hour >= 6 && hour <= 9) || (hour >= 17 && hour <= 19)) {
+      // Add directional heat trails during peak hours
+      const trailDirection = hour < 12 ? 1 : -1;
+      for (let i = 1; i <= 3; i++) {
+        const trailLat = coordinates[0] + (0.001 * i * trailDirection);
+        const trailLng = coordinates[1] + (0.001 * i);
+        expandedHeatmapData.push([trailLat, trailLng, baseIntensity * (1 - (i * 0.2))]);
       }
-    });
+    }
+  });
 
-  }, [crowdLevels, facilities, mapRef, showHeatLayer]);
+  // Create enhanced heat layer with dynamic patterns
+  heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
+    radius: 45,
+    blur: 35,
+    maxZoom: 15,
+    max: 120,
+    gradient: {
+      0.0: '#4ade80',
+      0.2: '#22c55e',
+      0.4: '#f59e0b',
+      0.6: '#f97316',
+      0.75: '#ef4444',
+      0.85: '#b91c1c',
+      0.95: '#7f1d1d'
+    }
+  }).addTo(mapRef.current);
 
-  // Add markers when data is available
-  useEffect(() => {
-    if (!mapRef.current || !facilities) return;
+}, [crowdLevels, facilities, mapRef, showHeatLayer]);
 
-    // Clear existing markers
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
+// Helper functions for safety advisories
+const getLocationSpecificAdvisory = (location: string, safetyLevel: string) => {
+  const baseAdvice = {
+    safe: 'Safe for all visitors. Easy movement and navigation.',
+    moderate: 'Moderate crowding observed. Keep belongings secure.',
+    crowded: 'High crowd density. Follow official directions.',
+    dangerous: 'CRITICAL ALERT: Avoid this area. Emergency protocols active.'
+  };
 
-    // Add facility markers
-    facilities.forEach((facility) => {
-      if (selectedType && facility.type !== selectedType) return;
+  // Add location-specific advice
+  switch (location) {
+    case "Ramkund":
+      return safetyLevel === 'crowded' || safetyLevel === 'dangerous'
+        ? `${baseAdvice[safetyLevel]} Use alternative ghats for rituals.`
+        : baseAdvice[safetyLevel];
+    case "Kalaram Temple":
+      return safetyLevel === 'crowded' || safetyLevel === 'dangerous'
+        ? `${baseAdvice[safetyLevel]} Consider visiting during off-peak hours.`
+        : baseAdvice[safetyLevel];
+    default:
+      return baseAdvice[safetyLevel];
+  }
+};
 
-      const marker = L.marker(
-        [facility.location.lat, facility.location.lng],
-        { icon: createCustomIcon(facility.type) }
-      )
-        .addTo(mapRef.current!)
-        .bindPopup(
-          `<b>${facility.name}</b><br>${facility.address}<br>${
-            facility.contact ? `Contact: ${facility.contact}` : ""
-          }`
-        );
-      markersRef.current.push(marker);
-    });
+const getEmergencyProtocol = (location: string) => {
+  switch (location) {
+    case "Ramkund":
+      return "Use emergency exits near the northern steps. Emergency boats are stationed nearby.";
+    case "Kalaram Temple":
+      return "Exit through the western gate. Emergency response team at main entrance.";
+    case "Tapovan":
+      return "Follow the marked evacuation routes. Assembly point at the main parking area.";
+    default:
+      return "Follow official evacuation routes and stay with your group.";
+  }
+};
 
-    // Add shuttle markers
-    shuttles?.forEach((shuttle) => {
-      if (selectedType && selectedType !== 'shuttle_stop') return;
+const getLocalEmergencyContact = (location: string) => {
+  switch (location) {
+    case "Ramkund": return "0253-2590171";
+    case "Kalaram Temple": return "0253-2590172";
+    case "Tapovan": return "0253-2590173";
+    case "Godavari Ghat": return "0253-2590174";
+    default: return "0253-2590170";
+  }
+};
 
-      const marker = L.marker(
-        [shuttle.coordinates.lat, shuttle.coordinates.lng],
-        { icon: createCustomIcon('shuttle_stop') }
-      )
-        .addTo(mapRef.current!)
-        .bindPopup(
-          `<div class="text-sm">
+// Add markers when data is available
+useEffect(() => {
+  if (!mapRef.current || !facilities) return;
+
+  // Clear existing markers
+  markersRef.current.forEach((marker) => marker.remove());
+  markersRef.current = [];
+
+  // Add facility markers
+  facilities.forEach((facility) => {
+    if (selectedType && facility.type !== selectedType) return;
+
+    const marker = L.marker(
+      [facility.location.lat, facility.location.lng],
+      { icon: createCustomIcon(facility.type) }
+    )
+      .addTo(mapRef.current!)
+      .bindPopup(
+        `<b>${facility.name}</b><br>${facility.address}<br>${
+          facility.contact ? `Contact: ${facility.contact}` : ""
+        }`
+      );
+    markersRef.current.push(marker);
+  });
+
+  // Add shuttle markers
+  shuttles?.forEach((shuttle) => {
+    if (selectedType && selectedType !== 'shuttle_stop') return;
+
+    const marker = L.marker(
+      [shuttle.coordinates.lat, shuttle.coordinates.lng],
+      { icon: createCustomIcon('shuttle_stop') }
+    )
+      .addTo(mapRef.current!)
+      .bindPopup(
+        `<div class="text-sm">
           <h3 class="font-bold text-blue-600">${shuttle.routeName}</h3>
           <p><b>Current:</b> ${shuttle.currentLocation}</p>
           <p><b>Next:</b> ${shuttle.nextStop}</p>
           <p><b>Arrival:</b> ${shuttle.estimatedArrival}</p>
           <p><b>Capacity:</b> ${shuttle.capacity}</p>
           <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
-            shuttle.status === 'on-time' ? 'bg-green-100 text-green-700' :
-              shuttle.status === 'delayed' ? 'bg-red-100 text-red-700' :
-                'bg-yellow-100 text-yellow-700'
-          }">${shuttle.status}</span></p>
+          shuttle.status === 'on-time' ? 'bg-green-100 text-green-700' :
+            shuttle.status === 'delayed' ? 'bg-red-100 text-red-700' :
+              'bg-yellow-100 text-yellow-700'
+        }">${shuttle.status}</span></p>
         </div>`
-        );
-      markersRef.current.push(marker);
-    });
+      );
+    markersRef.current.push(marker);
+  });
 
-    // Add restroom markers
-    restrooms?.forEach((restroom) => {
-      if (selectedType && selectedType !== 'restroom') return;
+  // Add restroom markers
+  restrooms?.forEach((restroom) => {
+    if (selectedType && selectedType !== 'restroom') return;
 
-      const marker = L.marker(
-        [restroom.coordinates.lat, restroom.coordinates.lng],
-        { icon: createCustomIcon('restroom') }
-      )
-        .addTo(mapRef.current!)
-        .bindPopup(
-          `<div class="text-sm">
+    const marker = L.marker(
+      [restroom.coordinates.lat, restroom.coordinates.lng],
+      { icon: createCustomIcon('restroom') }
+    )
+      .addTo(mapRef.current!)
+      .bindPopup(
+        `<div class="text-sm">
           <h3 class="font-bold text-purple-600">Public Restroom</h3>
           <p><b>Location:</b> ${restroom.location}</p>
           <p><b>Nearest Stop:</b> ${restroom.nearestStop}</p>
           <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
-            restroom.status === 'operational' ? 'bg-green-100 text-green-700' :
-              restroom.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
-          }">${restroom.status}</span></p>
+          restroom.status === 'operational' ? 'bg-green-100 text-green-700' :
+            restroom.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-red-100 text-red-700'
+        }">${restroom.status}</span></p>
           <div class="mt-2">
             ${restroom.facilities.map(f =>
-              `<span class="inline-block px-2 py-1 bg-gray-100 rounded-full text-xs mr-1 mb-1">${f}</span>`
-            ).join('')}
+          `<span class="inline-block px-2 py-1 bg-gray-100 rounded-full text-xs mr-1 mb-1">${f}</span>`
+        ).join('')}
           </div>
         </div>`
-        );
-      markersRef.current.push(marker);
-    });
+      );
+    markersRef.current.push(marker);
+  });
 
-  }, [facilities, shuttles, restrooms, selectedType]);
+}, [facilities, shuttles, restrooms, selectedType]);
 
-  const facilityTypes = [
-    ...new Set([
-      ...(facilities?.map(f => f.type) || []),
-      'shuttle_stop',
-      'restroom'
-    ])
-  ];
+const facilityTypes = [
+  ...new Set([
+    ...(facilities?.map(f => f.type) || []),
+    'shuttle_stop',
+    'restroom'
+  ])
+];
 
-  const handleFilterClick = (type: string | null) => {
-    setSelectedType(type === selectedType ? null : type);
+const handleFilterClick = (type: string | null) => {
+  setSelectedType(type === selectedType ? null : type);
+};
+
+// Helper function to get human-readable type names
+const getTypeName = (type: string) => {
+  const names: Record<string, string> = {
+    holy_site: "Holy Sites",
+    hospital: "Hospitals",
+    hotel: "Hotels",
+    temple: "Temples",
+    shuttle_stop: "Shuttle Stops",
+    restroom: "Restrooms"
   };
+  return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
+};
 
-  // Helper function to get human-readable type names
-  const getTypeName = (type: string) => {
-    const names: Record<string, string> = {
-      holy_site: "Holy Sites",
-      hospital: "Hospitals",
-      hotel: "Hotels",
-      temple: "Temples",
-      shuttle_stop: "Shuttle Stops",
-      restroom: "Restrooms"
-    };
-    return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
+// Helper function to get icon color for legend
+const getTypeColor = (type: string) => {
+  const colors: Record<string, string> = {
+    holy_site: "#FF7F00",
+    hospital: "#FF0000",
+    hotel: "#138808",
+    temple: "#FF7F00",
+    shuttle_stop: "#0000FF",
+    restroom: "#800080"
   };
+  return colors[type] || "#000080";
+};
 
-  // Helper function to get icon color for legend
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      holy_site: "#FF7F00",
-      hospital: "#FF0000",
-      hotel: "#138808",
-      temple: "#FF7F00",
-      shuttle_stop: "#0000FF",
-      restroom: "#800080"
-    };
-    return colors[type] || "#000080";
-  };
+return (
+  <div className="w-full bg-white rounded-lg shadow-md mb-8">
+    <div className="p-3 flex justify-between items-center border-b">
+      <h2 className="text-xl font-semibold text-[#FF7F00] flex items-center">
+        <span className="mr-2">🗺️</span>
+        Kumbh Mela Map
+      </h2>
 
-  return (
-    <div className="w-full bg-white rounded-lg shadow-md mb-8">
-      <div className="p-3 flex justify-between items-center border-b">
-        <h2 className="text-xl font-semibold text-[#FF7F00] flex items-center">
-          <span className="mr-2">🗺️</span>
-          Kumbh Mela Map
-        </h2>
-
+      <div className="flex gap-2">
+        {/* Main map toggles */}
         <div className="flex gap-2">
-          {/* Main map toggles */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => toggleViewMode('heatmap')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-                showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
-              }`}
-            >
-              {showHeatLayer ? (
-                <>
-                  <Users className="h-4 w-4" />
-                  <span>Hide Heatmap</span>
-                </>
-              ) : (
-                <>
-                  <MapPin className="h-4 w-4" />
-                  <span>Show Heatmap</span>
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => toggleViewMode('safety')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-                showSafetyZones ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
-              }`}
-            >
-              {showSafetyZones ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                  </svg>
-                  <span>Hide Safety Zones</span>
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 8v8"></path>
-                    <path d="M8 12h8"></path>
-                  </svg>
-                  <span>Show Safety Zones</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Auxiliary map buttons */}
-          <div className="flex border rounded-md overflow-hidden">
-            <button
-              onClick={() => toggleViewMode('density')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
-                showAuxiliaryMap && auxiliaryMapType === 'density'
-                  ? 'bg-indigo-100 text-indigo-800'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                <circle cx="10" cy="14" r="2"></circle>
-                <circle cx="16" cy="16" r="2"></circle>
-              </svg>
-              <span>Density</span>
-            </button>
-
-            <button
-              onClick={() => toggleViewMode('area')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
-                showAuxiliaryMap && auxiliaryMapType === 'area'
-                  ? 'bg-violet-100 text-violet-800'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
-                <path d="M10 2v8"></path>
-                <path d="M2 10h16"></path>
-              </svg>
-              <span>Areas</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main map section (facilities or heatmap) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="w-full">
-          <div className="p-2 border-b flex flex-wrap gap-2">
-            <button
-              className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-              onClick={() => handleFilterClick(null)}
-            >
-              All
-            </button>
-            {facilityTypes.map(type => (
-              <button
-                key={type}
-                className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-                onClick={() => handleFilterClick(type)}
-              >
-                <span
-                  className="inline-block w-2 h-2 rounded-full mr-1"
-                  style={{ backgroundColor: getTypeColor(type) }}
-                ></span>
-                {getTypeName(type)}
-              </button>
-            ))}
-          </div>
-
-          {showHeatLayer && (
-            <div className="p-2 border-b">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-sm font-medium mb-1">Crowd Density</div>
-                  <div className="flex items-center mt-1 text-xs text-gray-600">
-                    <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                    <span>Click markers for details</span>
-                  </div>
-                </div>
-
-                {/* Enhanced gradient legend */}
-                <div className="flex flex-col items-end">
-                  <div className="h-6 w-64 rounded-md mb-1"
-                    style={{
-                      background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
-                    }}>
-                  </div>
-                  <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                    <span>0%</span>
-                    <span>20%</span>
-                    <span>40%</span>
-                    <span>60%</span>
-                    <span>80%</span>
-                    <span>100%</span>
-                  </div>
-                  <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                    <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
-                    <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
-                    <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
-                    <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                <Users className="h-3 w-3 mr-1" />
-                <span>Data updates in real-time every 10 seconds. Last updated: {new Date().toLocaleTimeString()}</span>
-              </div>
-            </div>
-          )}
-
-          <div
-            ref={setMapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
-          />
-        </div>
-
-        {/* Auxiliary map (density or area) */}
-        {showAuxiliaryMap && (
-          <div className="w-full">
-            {auxiliaryMapType === 'density' ? (
+          <button
+            onClick={() => toggleViewMode('heatmap')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
+              showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+            }`}
+          >
+            {showHeatLayer ? (
               <>
-                <div className="p-2 border-b">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm font-medium mb-1">Population Density Map</div>
-                      <div className="flex items-center mt-1 text-xs text-gray-600">
-                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                        <span>Shows people per square meter across locations</span>
-                      </div>
-                    </div>
-
-                    {/* Density map legend */}
-                    <div className="flex flex-col items-end">
-                      <div className="h-6 w-64 rounded-md mb-1"
-                        style={{
-                          background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
-                        }}>
-                      </div>
-                      <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                        <span>0.1</span>
-                        <span>0.5</span>
-                        <span>1.0</span>
-                        <span>2.0</span>
-                        <span>3.0</span>
-                        <span>4.0+</span>
-                      </div>
-                      <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                        <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
-                        <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
-                        <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
-                        <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                      <circle cx="10" cy="14" r="2"></circle>
-                      <circle cx="16" cy="16" r="2"></circle>
-                    </svg>
-                    <span>Density measured in people per square meter. Real-time updates every 10 seconds.</span>
-                  </div>
-                </div>
-
-                <div
-                  ref={setDensityMapContainer}
-                  className="w-full h-[400px] rounded-b-lg z-0"
-                />
+                <Users className="h-4 w-4" />
+                <span>Hide Heatmap</span>
               </>
             ) : (
               <>
-                <div className="p-2 border-b">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm font-medium mb-1">Area Coverage Map</div>
-                      <div className="flex items-center mt-1 text-xs text-gray-600">
-                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                        <span>Boundary areas of Kumbh Mela zones</span>
-                      </div>
-                    </div>
+                <MapPin className="h-4 w-4" />
+                <span>Show Heatmap</span>
+              </>
+            )}
+          </button>
 
-                    {/* Area map legend */}
-                    <div className="mt-1 text-xs space-y-1">
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
-                        <span>Main Ceremonial Area</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
-                        <span>Accomodation Zone</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
-                        <span>Parking & Transport Zone</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
-                        <span>Restricted Area</span>
-                      </div>
+          <button
+            onClick={() => toggleViewMode('safety')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
+              showSafetyZones ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
+            }`}
+          >
+            {showSafetyZones ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                </svg>
+                <span>Hide Safety Zones</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 8v8"></path>
+                  <path d="M8 12h8"></path>
+                </svg>
+                <span>Show Safety Zones</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Auxiliary map buttons */}
+        <div className="flex border rounded-md overflow-hidden">
+          <button
+            onClick={() => toggleViewMode('density')}
+            className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
+              showAuxiliaryMap && auxiliaryMapType === 'density'
+                ? 'bg-indigo-100 text-indigo-800'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
+              <circle cx="10" cy="14" r="2"></circle>
+              <circle cx="16" cy="16" r="2"></circle>
+            </svg>
+            <span>Density</span>
+          </button>
+
+          <button
+            onClick={() => toggleViewMode('area')}
+            className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
+              showAuxiliaryMap && auxiliaryMapType === 'area'
+                ? 'bg-violet-100 text-violet-800'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
+              <path d="M10 2v8"></path>
+              <path d="M2 10h16"></path>
+            </svg>
+            <span>Areas</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* Main map section (facilities or heatmap) */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="w-full">
+        <div className="p-2 border-b flex flex-wrap gap-2">
+          <button
+            className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+            onClick={() => handleFilterClick(null)}
+          >
+            All
+          </button>
+          {facilityTypes.map(type => (
+            <button
+              key={type}
+              className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
+              onClick={() => handleFilterClick(type)}
+            >
+              <span
+                className="inline-block w-2 h-2 rounded-full mr-1"
+                style={{ backgroundColor: getTypeColor(type) }}
+              ></span>
+              {getTypeName(type)}
+            </button>
+          ))}
+        </div>
+
+        {showHeatLayer && (
+          <div className="p-2 border-b">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-sm font-medium mb-1">Crowd Density</div>
+                <div className="flex items-center mt-1 text-xs text-gray-600">
+                  <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                  <span>Click markers for details</span>
+                </div>
+              </div>
+
+              {/* Enhanced gradient legend */}
+              <div className="flex flex-col items-end">
+                <div className="h-6 w-64 rounded-md mb-1"
+                  style={{
+                    background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
+                  }}>
+                </div>
+                <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                  <span>0%</span>
+                  <span>20%</span>
+                  <span>40%</span>
+                  <span>60%</span>
+                  <span>80%</span>
+                  <span>100%</span>
+                </div>
+                <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                  <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
+                  <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
+                  <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
+                  <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+              <Users className="h-3 w-3 mr-1" />
+              <span>Data updates in real-time every 10 seconds. Last updated: {new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
+        )}
+
+        <div
+          ref={setMapContainer}
+          className="w-full h-[400px] rounded-b-lg z-0"
+        />
+      </div>
+
+      {/* Auxiliary map (density or area) */}
+      {showAuxiliaryMap && (
+        <div className="w-full">
+          {auxiliaryMapType === 'density' ? (
+            <>
+              <div className="p-2 border-b">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-sm font-medium mb-1">Population Density Map</div>
+                    <div className="flex items-center mt-1 text-xs text-gray-600">
+                      <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                      <span>Shows people per square meter across locations</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
-                    </svg>
-                    <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
+                  {/* Density map legend */}
+                  <div className="flex flex-col items-end">
+                    <div className="h-6 w-64 rounded-md mb-1"
+                      style={{
+                        background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
+                      }}>
+                    </div>
+                    <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
+                      <span>0.1</span>
+                      <span>0.5</span>
+                      <span>1.0</span>
+                      <span>2.0</span>
+                      <span>3.0</span>
+                      <span>4.0+</span>
+                    </div>
+                    <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
+                      <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
+                      <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
+                      <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
+                      <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
+                    </div>
                   </div>
                 </div>
 
-                <div
-                  ref={setAreaMapContainer}
-                  className="w-full h-[400px] rounded-b-lg z-0"
-                />
-              </>
-            )}
-          </div>
-        )}
-      </div>
+                <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
+                    <circle cx="10" cy="14" r="2"></circle>
+                    <circle cx="16" cy="16" r="2"></circle>
+                  </svg>
+                  <span>Density measured in people per square meter. Real-time updates every 10 seconds.</span>
+                </div>
+              </div>
+
+              <div
+                ref={setDensityMapContainer}
+                className="w-full h-[400px] rounded-b-lg z-0"
+              />
+            </>
+          ) : (
+            <>
+              <div className="p-2 border-b">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="text-sm font-medium mb-1">Area Coverage Map</div>
+                    <div className="flex items-center mt-1 text-xs text-gray-600">
+                      <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
+                      <span>Boundary areas of Kumbh Mela zones</span>
+                    </div>
+                  </div>
+
+                  {/* Area map legend */}
+                  <div className="mt-1 text-xs space-y-1">
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
+                      <span>Main Ceremonial Area</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
+                      <span>Accomodation Zone</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
+                      <span>Parking & Transport Zone</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
+                      <span>Restricted Area</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
+                  </svg>
+                  <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
+                </div>
+              </div>
+
+              <div
+                ref={setAreaMapContainer}
+                className="w-full h-[400px] rounded-b-lg z-0"
+              />
+            </>
+          )}
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }
