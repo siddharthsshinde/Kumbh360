@@ -6,8 +6,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import type { Facility, CrowdLevel } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Tabs, TabsContent, TabsList, TabsTrigger 
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger
 } from "@/components/ui/tabs";
 import { AlertTriangle, MapPin, Users } from "lucide-react";
 
@@ -41,10 +41,25 @@ const createCustomIcon = (type: string) => {
   });
 };
 
+// Update the getStatusColor function with more vibrant colors
+const getStatusColor = (type: FacilityType) => {
+  const iconColors: Record<FacilityType, string> = {
+    holy_site: "#FF7F00", // Saffron for temples and holy sites
+    hospital: "#dc2626", // Vibrant red for hospitals
+    hotel: "#16a34a", // Rich green for hotels
+    temple: "#FF7F00", // Saffron for temples
+    shuttle_stop: "#2563eb", // Royal blue for shuttle stops
+    restroom: "#9333ea", // Deep purple for restrooms
+  };
+
+  return iconColors[type] || "#1e293b";
+};
+
+
 export function FacilityMap() {
   // For view modes - only one active at a time
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
-  
+
   // For facilities map
   const mapRef = useRef<L.Map | null>(null);
   const [mapContainer, setMapContainer] = useState<HTMLElement | null>(null);
@@ -53,18 +68,18 @@ export function FacilityMap() {
 
   // For heatmap (integrated with the main map)
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
-  
+
   // For safety zones
   const safetyZonesRef = useRef<L.Circle[]>([]);
-  
+
   // For density map
   const densityMapRef = useRef<L.Map | null>(null);
   const [densityMapContainer, setDensityMapContainer] = useState<HTMLElement | null>(null);
-  
+
   // For area map
   const areaMapRef = useRef<L.Map | null>(null);
   const [areaMapContainer, setAreaMapContainer] = useState<HTMLElement | null>(null);
-  
+
   // Helper function to toggle view modes
   const toggleViewMode = (mode: ViewMode) => {
     // If already active, turn it off and go back to base facilities view
@@ -74,17 +89,17 @@ export function FacilityMap() {
       setActiveViewMode(mode);
     }
   };
-  
+
   // These computed properties help determine if specific views are active
   // Based on the currently selected view mode
   const showHeatLayer = activeViewMode === 'heatmap';
   const showSafetyZones = activeViewMode === 'safety';
-  
+
   // For auxiliary maps (density and area) - now managed through view modes
   const showAuxiliaryMap = activeViewMode === 'density' || activeViewMode === 'area';
-  const auxiliaryMapType = activeViewMode === 'density' ? 'density' : 
-                          activeViewMode === 'area' ? 'area' : undefined;
-  
+  const auxiliaryMapType = activeViewMode === 'density' ? 'density' :
+    activeViewMode === 'area' ? 'area' : undefined;
+
   // Queries with increased real-time refresh rates
   const { data: facilities } = useQuery<Facility[]>({
     queryKey: ["/api/facilities"],
@@ -172,7 +187,7 @@ export function FacilityMap() {
   useEffect(() => {
     if (!areaMapRef.current) return;
 
-    // Define the different zones for Kumbh Mela
+    // Update polygon styles for area visualization
     const kumbhZones = [
       {
         name: "Main Ceremonial Area",
@@ -185,7 +200,7 @@ export function FacilityMap() {
           [20.0045, 73.7902],
           [20.0050, 73.7916]
         ],
-        color: "#7c3aed", // violet-600
+        color: "#7c3aed", // Vibrant violet
         status: "Busy"
       },
       {
@@ -234,12 +249,14 @@ export function FacilityMap() {
 
     // Add polygons for each zone
     kumbhZones.forEach(zone => {
-      // Create polygon with zone properties
+      // Enhanced polygon styling
       const polygon = L.polygon(zone.points, {
         color: zone.color,
         fillColor: zone.color,
-        fillOpacity: 0.2,
-        weight: 2
+        fillOpacity: 0.3,
+        weight: 3,
+        dashArray: '5, 10',
+        className: 'area-polygon-hover'
       }).addTo(areaMapRef.current!);
 
       // Add a label for each zone
@@ -264,15 +281,15 @@ export function FacilityMap() {
           <div class="grid grid-cols-2 gap-y-2 mb-2">
             <div class="font-medium">Status:</div>
             <div class="font-semibold">${zone.status}</div>
-            
+
             <div class="font-medium">Size:</div>
             <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
           </div>
-          
+
           <div class="mt-2 text-xs p-2 rounded-md" style="background-color: ${zone.color}20; border: 1px solid ${zone.color}40; color: ${zone.color}">
             <div class="font-medium mb-1">Access Information:</div>
-            ${zone.name === "Restricted Area" 
-              ? "Special permit required. Limited entry hours from 9 AM to 5 PM." 
+            ${zone.name === "Restricted Area"
+              ? "Special permit required. Limited entry hours from 9 AM to 5 PM."
               : zone.name === "Main Ceremonial Area"
                 ? "Open to all devotees. Expected high crowd during ceremonial hours."
                 : zone.name === "Accommodation Zone"
@@ -301,7 +318,7 @@ export function FacilityMap() {
       opacity: 0.7,
       dashArray: '5, 8',
     }).addTo(areaMapRef.current!)
-    .bindPopup(`
+      .bindPopup(`
       <div class="text-sm p-2">
         <h3 class="font-bold text-[#FF7F00] border-b pb-1 mb-2">Pilgrimage Route</h3>
         <p class="text-xs mb-2">Official route connecting major sites at Kumbh Mela</p>
@@ -322,7 +339,7 @@ export function FacilityMap() {
   // Update the density map
   useEffect(() => {
     if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
-    
+
     // Location coordinates matching the ones from the heatmap
     const locationCoordinates: Record<string, [number, number]> = {
       "Ramkund": [20.0059, 73.7913],
@@ -331,7 +348,7 @@ export function FacilityMap() {
       "Godavari Ghat": [20.0030, 73.7900],
       "Trimbakeshwar": [19.9322, 73.5309]
     };
-    
+
     // Approximate area sizes in square meters for each location
     const locationAreas: Record<string, number> = {
       "Ramkund": 5000,
@@ -340,29 +357,28 @@ export function FacilityMap() {
       "Godavari Ghat": 4000,
       "Trimbakeshwar": 6000
     };
-    
+
     // Add circular areas for each location with density visualization
     crowdLevels.forEach(level => {
       const coordinates = locationCoordinates[level.location];
       if (!coordinates) return;
-      
+
       // Calculate density (people per square meter)
       const area = locationAreas[level.location] || 5000; // Default to 5000 sq meters if not specified
       const density = level.currentCount / area;
-      
-      // Determine color based on density
-      const densityColor = 
-        density >= 4 ? '#3730a3' : // Very high density (dangerous)
-        density >= 3 ? '#4338ca' : // High density
-        density >= 2 ? '#4f46e5' : // Medium-high density
-        density >= 1 ? '#6366f1' : // Medium density
-        density >= 0.5 ? '#818cf8' : // Low-medium density
-        density >= 0.2 ? '#a5b4fc' : // Low density
-        '#c7d2fe'; // Very low density
-      
+
+      // Enhanced density visualization
+      const densityColor =
+        density >= 4 ? '#312e81' : // Deep indigo for very high density
+          density >= 3 ? '#4338ca' : // Rich indigo for high density
+            density >= 2 ? '#6366f1' : // Bright indigo for medium-high density
+              density >= 1 ? '#818cf8' : // Light indigo for medium density
+                density >= 0.5 ? '#93c5fd' : // Sky blue for low-medium density
+                  '#bfdbfe'; // Very light blue for low density
+
       // Calculate radius based on area (rough estimation for circular representation)
       const radius = Math.sqrt(area / Math.PI);
-      
+
       // Add a circle to represent the area with density-based coloring
       const circle = L.circle(coordinates, {
         radius: radius,
@@ -371,7 +387,7 @@ export function FacilityMap() {
         fillOpacity: 0.25 + (density * 0.1), // Opacity increases with density
         weight: 2
       }).addTo(densityMapRef.current!);
-      
+
       // Add a marker with density information
       L.marker(coordinates, {
         icon: L.divIcon({
@@ -391,33 +407,33 @@ export function FacilityMap() {
           iconAnchor: [20, 20]
         })
       }).addTo(densityMapRef.current!)
-      .bindPopup(`
+        .bindPopup(`
         <div class="text-sm p-2">
           <h3 class="font-bold text-indigo-600 text-base border-b pb-1 mb-2">${level.location}</h3>
           <div class="grid grid-cols-2 gap-y-2 mb-2">
             <div class="font-medium">Current Count:</div>
             <div class="font-semibold">${level.currentCount.toLocaleString()}</div>
-            
+
             <div class="font-medium">Area Size:</div>
             <div class="font-semibold">${area.toLocaleString()} m²</div>
-            
+
             <div class="font-medium">Density:</div>
             <div class="font-semibold ${
-              density >= 4 ? 'text-indigo-900' :
-              density >= 2 ? 'text-indigo-700' :
-              'text-indigo-500'
-            }">${density.toFixed(2)} people/m²</div>
+        density >= 4 ? 'text-indigo-900' :
+          density >= 2 ? 'text-indigo-700' :
+            'text-indigo-500'
+        }">${density.toFixed(2)} people/m²</div>
           </div>
-          
+
           <div class="bg-indigo-50 p-2 rounded-md border border-indigo-200 mt-2 text-xs text-indigo-800">
             <div class="font-medium mb-1">Safety Level:</div>
             ${
-              density >= 4 ? 'CRITICAL - Immediate crowd management required' :
-              density >= 3 ? 'WARNING - High density, monitor carefully' :
-              density >= 2 ? 'CAUTION - Medium-high density' :
+        density >= 4 ? 'CRITICAL - Immediate crowd management required' :
+          density >= 3 ? 'WARNING - High density, monitor carefully' :
+            density >= 2 ? 'CAUTION - Medium-high density' :
               density >= 1 ? 'MODERATE - Comfortable movement limited' :
-              'SAFE - Free movement possible'
-            }
+                'SAFE - Free movement possible'
+        }
           </div>
         </div>
       `, {
@@ -425,7 +441,7 @@ export function FacilityMap() {
         maxWidth: 300
       });
     });
-    
+
     return () => {
       densityMapRef.current?.eachLayer(layer => {
         if (layer instanceof L.TileLayer) return; // Keep the base map
@@ -437,14 +453,14 @@ export function FacilityMap() {
   // Update the safety zones based on crowd levels
   useEffect(() => {
     if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
-    
+
     // Remove existing safety zones if they exist
     safetyZonesRef.current.forEach(zone => zone.remove());
     safetyZonesRef.current = [];
-    
+
     // Don't add safety zones if they're turned off
     if (!showSafetyZones) return;
-    
+
     // Get location coordinates for each location
     const locationCoordinates: Record<string, [number, number]> = {
       "Ramkund": [20.0059, 73.7913],
@@ -453,20 +469,20 @@ export function FacilityMap() {
       "Godavari Ghat": [20.0030, 73.7900],
       "Trimbakeshwar": [19.9322, 73.5309]
     };
-    
+
     // Create safety zones for each crowd level location
     crowdLevels.forEach(level => {
       const coordinates = locationCoordinates[level.location];
       if (!coordinates) return;
-      
+
       // Calculate ratio of current crowd to capacity
       const ratio = level.currentCount / level.capacity;
-      
+
       // Determine safety level based on crowd density
       let safetyLevel: 'safe' | 'moderate' | 'crowded' | 'dangerous';
       let safetyColor: string;
       let pulsate = false;
-      
+
       if (ratio < 0.25) {
         safetyLevel = 'safe';
         safetyColor = '#10b981'; // emerald-500
@@ -482,25 +498,19 @@ export function FacilityMap() {
         safetyColor = '#ef4444'; // red-500
         pulsate = true;
       }
-      
+
       // Create a safety zone with appropriate styling
       const radius = 200 + (ratio * 200); // Size increases with crowd density
       // Use CircleOptions not CircleMarkerOptions for circles with radius in meters
-      const circleOptions: L.CircleOptions = {
+      const safetyZone = L.circle(coordinates, radius, {
         color: safetyColor,
         fillColor: safetyColor,
-        fillOpacity: 0.15,
-        weight: 3,
-      };
-      
-      // Add conditional options
-      if (pulsate) {
-        circleOptions.dashArray = '5, 10';
-        circleOptions.className = 'animate-pulse-border';
-      }
-      
-      const safetyZone = L.circle(coordinates, radius, circleOptions).addTo(mapRef.current!);
-      
+        fillOpacity: 0.25,
+        weight: 4,
+        dashArray: pulsate ? '5, 10' : undefined,
+        className: pulsate ? 'safety-zone-pulse' : undefined
+      }).addTo(mapRef.current!);
+
       // Add popup with safety information
       safetyZone.bindPopup(`
         <div class="text-sm p-2">
@@ -510,39 +520,39 @@ export function FacilityMap() {
             <div class="font-semibold" style="color: ${safetyColor}">
               ${safetyLevel.toUpperCase()}
             </div>
-            
+
             <div class="font-medium">Current Count:</div>
             <div class="font-semibold">${level.currentCount.toLocaleString()}</div>
-            
+
             <div class="font-medium">Capacity:</div>
             <div class="font-semibold">${level.capacity.toLocaleString()}</div>
-            
+
             <div class="font-medium">Occupancy:</div>
             <div class="font-semibold">${Math.round(ratio * 100)}%</div>
           </div>
-          
+
           <div class="mt-2 text-xs p-2 rounded-md" style="background-color: ${safetyColor}15; border: 1px solid ${safetyColor}30; color: ${safetyColor}">
             <div class="font-medium mb-1">Safety Recommendations:</div>
             ${
-              safetyLevel === 'safe' 
-                ? 'Safe for all visitors. Easy movement and navigation.'
-                : safetyLevel === 'moderate'
-                  ? 'Moderate crowding. Keep belongings secure and stay aware of surroundings.'
-                  : safetyLevel === 'crowded'
-                    ? 'High crowd density. Move with caution and follow official directions. Not recommended for elderly or children.'
-                    : 'DANGER ZONE. Avoid this area if possible. Follow all official instructions immediately.'
-            }
+        safetyLevel === 'safe'
+          ? 'Safe for all visitors. Easy movement and navigation.'
+          : safetyLevel === 'moderate'
+            ? 'Moderate crowding. Keep belongings secure and stay aware of surroundings.'
+            : safetyLevel === 'crowded'
+              ? 'High crowd density. Move with caution and follow official directions. Not recommended for elderly or children.'
+              : 'DANGER ZONE. Avoid this area if possible. Follow all official instructions immediately.'
+        }
           </div>
         </div>
       `, {
         className: 'safety-popup',
         maxWidth: 300
       });
-      
+
       // Store reference to the safety zone
       safetyZonesRef.current.push(safetyZone);
     });
-    
+
   }, [crowdLevels, mapRef, showSafetyZones]);
 
   // Update the heatmap based on crowd levels (integrated in main map)
@@ -554,7 +564,7 @@ export function FacilityMap() {
       heatLayerRef.current.remove();
       heatLayerRef.current = null;
     }
-    
+
     // Don't add heatmap layer if it's turned off
     if (!showHeatLayer) return;
 
@@ -571,21 +581,21 @@ export function FacilityMap() {
     const heatmapData = crowdLevels.map(level => {
       const coordinates = locationCoordinates[level.location];
       if (!coordinates) return null;
-      
+
       // Calculate intensity based on level.currentCount / level.capacity
       const ratio = level.currentCount / level.capacity;
       const intensity = ratio * 100; // Scale for better visualization
-      
+
       return [
-        coordinates[0], 
-        coordinates[1], 
+        coordinates[0],
+        coordinates[1],
         intensity
       ] as [number, number, number];
     }).filter(Boolean) as [number, number, number][];
 
     // Add some surrounding points to create a more natural heatmap effect
     const expandedHeatmapData = [...heatmapData];
-    
+
     // For each main point, add some surrounding points with lower intensity
     heatmapData.forEach(point => {
       const [lat, lng, intensity] = point;
@@ -596,7 +606,7 @@ export function FacilityMap() {
         const newLat = lat + Math.sin(direction) * offset;
         const newLng = lng + Math.cos(direction) * offset;
         const newIntensity = intensity * (0.3 + Math.random() * 0.4); // 30-70% of original intensity
-        
+
         expandedHeatmapData.push([newLat, newLng, newIntensity]);
       }
     });
@@ -611,7 +621,7 @@ export function FacilityMap() {
         ]);
       }
     });
-    
+
     // Create heat layer with the data - improved visual aesthetics
     heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
       radius: 45, // Increased size of each point in the heatmap
@@ -628,20 +638,20 @@ export function FacilityMap() {
         0.95: '#7f1d1d'  // Deep red for critical crowding
       }
     }).addTo(mapRef.current);
-    
+
     // Add location markers to heatmap for reference
     Object.entries(locationCoordinates).forEach(([location, coordinates]) => {
       const crowdLevel = crowdLevels.find(level => level.location === location);
-      
+
       if (crowdLevel) {
         // Create a marker with popup showing crowd info - enhanced visuals
         const crowdPercentage = Math.round((crowdLevel.currentCount / crowdLevel.capacity) * 100);
-        const statusColor = 
+        const statusColor =
           crowdLevel.status === 'overcrowded' ? '#b91c1c' :
-          crowdLevel.status === 'crowded' ? '#f97316' :
-          crowdLevel.status === 'moderate' ? '#f59e0b' :
-          '#22c55e';
-        
+            crowdLevel.status === 'crowded' ? '#f97316' :
+              crowdLevel.status === 'moderate' ? '#f59e0b' :
+                '#22c55e';
+
         L.marker(coordinates as [number, number], {
           icon: L.divIcon({
             className: 'crowd-marker',
@@ -654,47 +664,47 @@ export function FacilityMap() {
                     ${crowdPercentage}%
                   </div>
                 </div>
-                ${crowdLevel.status === 'overcrowded' || crowdLevel.status === 'crowded' ? 
-                  `<div class="absolute -top-1 -right-1 animate-pulse">
+                ${crowdLevel.status === 'overcrowded' || crowdLevel.status === 'crowded' ?
+              `<div class="absolute -top-1 -right-1 animate-pulse">
                     <span class="relative flex h-3 w-3">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                     </span>
-                  </div>` 
-                : ''}
+                  </div>`
+              : ''}
               </div>
             `,
             iconSize: [40, 40],
             iconAnchor: [20, 20]
           })
         }).addTo(mapRef.current!)
-        .bindPopup(`
+          .bindPopup(`
           <div class="text-sm p-2">
             <h3 class="font-bold text-[#FF7F00] text-base border-b pb-1 mb-2">${location}</h3>
             <div class="grid grid-cols-2 gap-y-2 mb-2">
               <div class="font-medium">Status:</div>
               <div class="font-semibold ${
-                crowdLevel.status === 'overcrowded' ? 'text-red-600' :
-                crowdLevel.status === 'crowded' ? 'text-orange-500' :
-                crowdLevel.status === 'moderate' ? 'text-yellow-600' :
+          crowdLevel.status === 'overcrowded' ? 'text-red-600' :
+            crowdLevel.status === 'crowded' ? 'text-orange-500' :
+              crowdLevel.status === 'moderate' ? 'text-yellow-600' :
                 'text-green-600'
-              }">${crowdLevel.status.toUpperCase()}</div>
-              
+          }">${crowdLevel.status.toUpperCase()}</div>
+
               <div class="font-medium">Current:</div>
               <div class="font-semibold">${crowdLevel.currentCount.toLocaleString()}</div>
-              
+
               <div class="font-medium">Capacity:</div>
-              <div class="font-semibold">${crowdLevel.capacity.toLocaleString()}</div>
-              
+              <div class="<div class="font-semibold">${crowdLevel.capacity.toLocaleString()}</div>
+
               <div class="font-medium">Density:</div>
               <div class="font-semibold">${crowdPercentage}%</div>
             </div>
-            
+
             <div class="bg-amber-50 p-2 rounded-md border border-amber-200 mt-2 text-xs text-amber-800">
               <div class="font-medium mb-1">Recommendations:</div>
               ${crowdLevel.recommendations}
             </div>
-            
+
             <div class="text-center text-xs text-gray-500 mt-2">
               Updates every 5 minutes
             </div>
@@ -705,7 +715,7 @@ export function FacilityMap() {
         });
       }
     });
-    
+
   }, [crowdLevels, facilities, mapRef, showHeatLayer]);
 
   // Add markers when data is available
@@ -733,17 +743,17 @@ export function FacilityMap() {
       markersRef.current.push(marker);
     });
 
-  // Add shuttle markers
-  shuttles?.forEach((shuttle) => {
-    if (selectedType && selectedType !== 'shuttle_stop') return;
+    // Add shuttle markers
+    shuttles?.forEach((shuttle) => {
+      if (selectedType && selectedType !== 'shuttle_stop') return;
 
-    const marker = L.marker(
-      [shuttle.coordinates.lat, shuttle.coordinates.lng],
-      { icon: createCustomIcon('shuttle_stop') }
-    )
-      .addTo(mapRef.current!)
-      .bindPopup(
-        `<div class="text-sm">
+      const marker = L.marker(
+        [shuttle.coordinates.lat, shuttle.coordinates.lng],
+        { icon: createCustomIcon('shuttle_stop') }
+      )
+        .addTo(mapRef.current!)
+        .bindPopup(
+          `<div class="text-sm">
           <h3 class="font-bold text-blue-600">${shuttle.routeName}</h3>
           <p><b>Current:</b> ${shuttle.currentLocation}</p>
           <p><b>Next:</b> ${shuttle.nextStop}</p>
@@ -751,42 +761,42 @@ export function FacilityMap() {
           <p><b>Capacity:</b> ${shuttle.capacity}</p>
           <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
             shuttle.status === 'on-time' ? 'bg-green-100 text-green-700' :
-            shuttle.status === 'delayed' ? 'bg-red-100 text-red-700' :
-            'bg-yellow-100 text-yellow-700'
+              shuttle.status === 'delayed' ? 'bg-red-100 text-red-700' :
+                'bg-yellow-100 text-yellow-700'
           }">${shuttle.status}</span></p>
         </div>`
-      );
-    markersRef.current.push(marker);
-  });
+        );
+      markersRef.current.push(marker);
+    });
 
-  // Add restroom markers
-  restrooms?.forEach((restroom) => {
-    if (selectedType && selectedType !== 'restroom') return;
+    // Add restroom markers
+    restrooms?.forEach((restroom) => {
+      if (selectedType && selectedType !== 'restroom') return;
 
-    const marker = L.marker(
-      [restroom.coordinates.lat, restroom.coordinates.lng],
-      { icon: createCustomIcon('restroom') }
-    )
-      .addTo(mapRef.current!)
-      .bindPopup(
-        `<div class="text-sm">
+      const marker = L.marker(
+        [restroom.coordinates.lat, restroom.coordinates.lng],
+        { icon: createCustomIcon('restroom') }
+      )
+        .addTo(mapRef.current!)
+        .bindPopup(
+          `<div class="text-sm">
           <h3 class="font-bold text-purple-600">Public Restroom</h3>
           <p><b>Location:</b> ${restroom.location}</p>
           <p><b>Nearest Stop:</b> ${restroom.nearestStop}</p>
           <p class="mt-1"><span class="px-2 py-1 rounded text-xs ${
             restroom.status === 'operational' ? 'bg-green-100 text-green-700' :
-            restroom.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
-            'bg-red-100 text-red-700'
+              restroom.status === 'maintenance' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-red-100 text-red-700'
           }">${restroom.status}</span></p>
           <div class="mt-2">
-            ${restroom.facilities.map(f => 
+            ${restroom.facilities.map(f =>
               `<span class="inline-block px-2 py-1 bg-gray-100 rounded-full text-xs mr-1 mb-1">${f}</span>`
             ).join('')}
           </div>
         </div>`
-      );
-    markersRef.current.push(marker);
-  });
+        );
+      markersRef.current.push(marker);
+    });
 
   }, [facilities, shuttles, restrooms, selectedType]);
 
@@ -828,276 +838,147 @@ export function FacilityMap() {
     return colors[type] || "#000080";
   };
 
+  // Add CSS styles for animations and hover effects
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+  .area-polygon-hover {
+    transition: all 0.3s ease;
+  }
+  .area-polygon-hover:hover {
+    filter: brightness(1.2);
+  }
+  .safety-zone-pulse {
+    animation: safety-pulse 2s infinite;
+  }
+  @keyframes safety-pulse {
+    0% {
+      stroke-opacity: 1;
+      stroke-width: 4;
+    }
+    50% {
+      stroke-opacity: 0.5;
+      stroke-width: 6;
+    }
+    100% {
+      stroke-opacity: 1;
+      stroke-width: 4;
+    }
+  }
+`;
+  document.head.appendChild(styleSheet);
+
   return (
     <div className="w-full bg-white rounded-lg shadow-md mb-8">
-      <div className="p-3 flex justify-between items-center border-b">
-        <h2 className="text-xl font-semibold text-[#FF7F00] flex items-center">
-          <span className="mr-2">🗺️</span>
-          Kumbh Mela Map
-        </h2>
-        
-        <div className="flex gap-2">
-          {/* Main map toggles */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => toggleViewMode('heatmap')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-                showHeatLayer ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
-              }`}
-            >
-              {showHeatLayer ? (
-                <>
-                  <Users className="h-4 w-4" />
-                  <span>Hide Heatmap</span>
-                </>
-              ) : (
-                <>
-                  <MapPin className="h-4 w-4" />
-                  <span>Show Heatmap</span>
-                </>
-              )}
-            </button>
-            
-            <button
-              onClick={() => toggleViewMode('safety')}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm ${
-                showSafetyZones ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-800 border border-gray-200'
-              }`}
-            >
-              {showSafetyZones ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
-                  </svg>
-                  <span>Hide Safety Zones</span>
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M12 8v8"></path>
-                    <path d="M8 12h8"></path>
-                  </svg>
-                  <span>Show Safety Zones</span>
-                </>
-              )}
-            </button>
-          </div>
-          
-          {/* Auxiliary map buttons */}
-          <div className="flex border rounded-md overflow-hidden">
+      <div className="p-4 flex flex-col space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-[#FF7F00] flex items-center">
+            <span className="mr-2">🗺️</span>
+            Kumbh Mela Map
+          </h2>
+
+          <div className="flex gap-3">
             <button
               onClick={() => toggleViewMode('density')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
-                showAuxiliaryMap && auxiliaryMapType === 'density' 
-                  ? 'bg-indigo-100 text-indigo-800' 
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeViewMode === 'density'
+                  ? 'bg-indigo-100 text-indigo-800 border border-indigo-300 shadow-inner'
+                  : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                <circle cx="10" cy="14" r="2"></circle>
-                <circle cx="16" cy="16" r="2"></circle>
-              </svg>
-              <span>Density</span>
+              <Users className="h-4 w-4" />
+              Density View
             </button>
-            
+
             <button
               onClick={() => toggleViewMode('area')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm ${
-                showAuxiliaryMap && auxiliaryMapType === 'area' 
-                  ? 'bg-violet-100 text-violet-800' 
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeViewMode === 'area'
+                  ? 'bg-violet-100 text-violet-800 border border-violet-300 shadow-inner'
+                  : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
-                <path d="M10 2v8"></path>
-                <path d="M2 10h16"></path>
-              </svg>
-              <span>Areas</span>
+              <MapPin className="h-4 w-4" />
+              Area View
+            </button>
+
+            <button
+              onClick={() => toggleViewMode('safety')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeViewMode === 'safety'
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-inner'
+                  : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
+              }`}
+            >
+              <AlertTriangle className="h-4 w-4" />
+              Safety Zones
             </button>
           </div>
         </div>
-      </div>
-      
-      {/* Main map section (facilities or heatmap) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="w-full">
-          <div className="p-2 border-b flex flex-wrap gap-2">
-            <button 
-              className={`text-xs px-3 py-1 rounded-full ${selectedType === null ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-              onClick={() => handleFilterClick(null)}
-            >
-              All
-            </button>
-            {facilityTypes.map(type => (
-              <button 
-                key={type}
-                className={`text-xs px-3 py-1 rounded-full flex items-center ${selectedType === type ? 'bg-[#FF7F00] text-white' : 'bg-gray-200'}`}
-                onClick={() => handleFilterClick(type)}
-              >
-                <span 
-                  className="inline-block w-2 h-2 rounded-full mr-1"
-                  style={{ backgroundColor: getTypeColor(type) }}
-                ></span>
-                {getTypeName(type)}
-              </button>
-            ))}
-          </div>
 
-          {showHeatLayer && (
-            <div className="p-2 border-b">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-sm font-medium mb-1">Crowd Density</div>
-                  <div className="flex items-center mt-1 text-xs text-gray-600">
-                    <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                    <span>Click markers for details</span>
-                  </div>
-                </div>
-                
-                {/* Enhanced gradient legend */}
-                <div className="flex flex-col items-end">
-                  <div className="h-6 w-64 rounded-md mb-1" 
-                    style={{ 
-                      background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
-                    }}>
-                  </div>
-                  <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                    <span>0%</span>
-                    <span>20%</span>
-                    <span>40%</span>
-                    <span>60%</span>
-                    <span>80%</span>
-                    <span>100%</span>
-                  </div>
-                  <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                    <span className="bg-green-100 text-green-800 px-1 rounded">Safe</span>
-                    <span className="bg-yellow-100 text-yellow-800 px-1 rounded">Moderate</span>
-                    <span className="bg-orange-100 text-orange-800 px-1 rounded">Crowded</span>
-                    <span className="bg-red-100 text-red-800 px-1 rounded">Critical</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                <Users className="h-3 w-3 mr-1" />
-                <span>Data updates in real-time every 10 seconds. Last updated: {new Date().toLocaleTimeString()}</span>
-              </div>
-            </div>
-          )}
-          
+        {/* Main map container */}
+        <div className="h-[600px] rounded-lg overflow-hidden border-2 border-gray-200">
           <div
             ref={setMapContainer}
-            className="w-full h-[400px] rounded-b-lg z-0"
+            className="w-full h-full"
           />
         </div>
-        
-        {/* Auxiliary map (density or area) */}
-        {showAuxiliaryMap && (
-          <div className="w-full">
-            {auxiliaryMapType === 'density' ? (
+
+        {/* Legend */}
+        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+          <h3 className="text-sm font-semibold mb-2">Map Legend</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {activeViewMode === 'density' && (
               <>
-                <div className="p-2 border-b">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm font-medium mb-1">Population Density Map</div>
-                      <div className="flex items-center mt-1 text-xs text-gray-600">
-                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                        <span>Shows people per square meter across locations</span>
-                      </div>
-                    </div>
-                    
-                    {/* Density map legend */}
-                    <div className="flex flex-col items-end">
-                      <div className="h-6 w-64 rounded-md mb-1" 
-                        style={{ 
-                          background: 'linear-gradient(to right, #c7d2fe, #a5b4fc, #818cf8, #6366f1, #4f46e5, #4338ca, #3730a3)'
-                        }}>
-                      </div>
-                      <div className="w-64 flex justify-between text-[10px] text-gray-600 px-1">
-                        <span>0.1</span>
-                        <span>0.5</span>
-                        <span>1.0</span>
-                        <span>2.0</span>
-                        <span>3.0</span>
-                        <span>4.0+</span>
-                      </div>
-                      <div className="w-64 flex justify-between text-[10px] mt-1 px-1">
-                        <span className="bg-indigo-50 text-indigo-800 px-1 rounded">Low</span>
-                        <span className="bg-indigo-100 text-indigo-800 px-1 rounded">Medium</span>
-                        <span className="bg-indigo-200 text-indigo-800 px-1 rounded">Dense</span>
-                        <span className="bg-indigo-300 text-indigo-900 px-1 rounded">Critical</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"></path>
-                      <circle cx="10" cy="14" r="2"></circle>
-                      <circle cx="16" cy="16" r="2"></circle>
-                    </svg>
-                    <span>Density measured in people per square meter. Real-time updates every 10 seconds.</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#312e81]" />
+                  <span className="text-sm">Very High Density</span>
                 </div>
-                
-                <div
-                  ref={setDensityMapContainer}
-                  className="w-full h-[400px] rounded-b-lg z-0"
-                />
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#6366f1]" />
+                  <span className="text-sm">Medium Density</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#93c5fd]" />
+                  <span className="text-sm">Low Density</span>
+                </div>
               </>
-            ) : (
+            )}
+
+            {activeViewMode === 'safety' && (
               <>
-                <div className="p-2 border-b">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="text-sm font-medium mb-1">Area Coverage Map</div>
-                      <div className="flex items-center mt-1 text-xs text-gray-600">
-                        <AlertTriangle className="h-3 w-3 text-amber-500 mr-1" />
-                        <span>Boundary areas of Kumbh Mela zones</span>
-                      </div>
-                    </div>
-                    
-                    {/* Area map legend */}
-                    <div className="mt-1 text-xs space-y-1">
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-violet-600 bg-violet-200 opacity-40"></span>
-                        <span>Main Ceremonial Area</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-orange-600 bg-orange-200 opacity-40"></span>
-                        <span>Accomodation Zone</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-teal-600 bg-teal-200 opacity-40"></span>
-                        <span>Parking & Transport Zone</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="inline-block w-3 h-3 border border-red-600 bg-red-200 opacity-40"></span>
-                        <span>Restricted Area</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-100 text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <path d="M18 14c0 5.657-4.343 8-8 8s-8-2.343-8-8a8 8 0 0 1 16 0Z"></path>
-                    </svg>
-                    <span>Area boundaries show different zones and their specific purposes at the Kumbh Mela.</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-red-500" />
+                  <span className="text-sm">High Risk Zone</span>
                 </div>
-                
-                <div
-                  ref={setAreaMapContainer}
-                  className="w-full h-[400px] rounded-b-lg z-0"
-                />
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                  <span className="text-sm">Caution Zone</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-green-500" />
+                  <span className="text-sm">Safe Zone</span>
+                </div>
+              </>
+            )}
+
+            {activeViewMode === 'area' && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#7c3aed]" />
+                  <span className="text-sm">Ceremonial Area</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#ea580c]" />
+                  <span className="text-sm">Accommodation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-[#0d9488]" />
+                  <span className="text-sm">Transport Zone</span>
+                </div>
               </>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
