@@ -184,20 +184,26 @@ const getEnhancedHeatPattern = (location: string, crowdLevel: number, hour: numb
   }
 };
 
-// Dynamic area boundary calculation
-const calculateDynamicBoundary = (center: [number, number], crowdDensity: number): L.LatLngExpression[] => {
+// Update the dynamic area boundary calculation to be more realistic
+const calculateDynamicBoundary = (center: L.LatLngExpression, crowdDensity: number): L.LatLngExpression[] => {
   const baseRadius = 0.002; // Base radius in degrees
   const points: L.LatLngExpression[] = [];
-  const numPoints = 8;
+  const numPoints = 12; // Increased number of points for smoother boundaries
 
-  // Create irregular polygon based on crowd density
+  // Create irregular polygon based on crowd density and time-based factors
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const timeOffset = (minute / 60) * Math.PI * 2; // Creates movement over time
+
   for (let i = 0; i < numPoints; i++) {
-    const angle = (Math.PI * 2 * i) / numPoints;
-    const radiusVariation = 0.7 + Math.random() * 0.6; // 70-130% of base radius
+    const angle = (Math.PI * 2 * i) / numPoints + timeOffset;
+    // More dynamic radius variation based on time and crowd density
+    const radiusVariation = 0.7 + Math.sin(angle + hour) * 0.3 + Math.random() * 0.3;
     const adjustedRadius = baseRadius * (1 + crowdDensity) * radiusVariation;
 
-    const lat = center[0] + Math.sin(angle) * adjustedRadius;
-    const lng = center[1] + Math.cos(angle) * adjustedRadius;
+    const lat = (center as [number, number])[0] + Math.sin(angle) * adjustedRadius;
+    const lng = (center as [number, number])[1] + Math.cos(angle) * adjustedRadius;
     points.push([lat, lng]);
   }
 
@@ -206,32 +212,78 @@ const calculateDynamicBoundary = (center: [number, number], crowdDensity: number
   return points;
 };
 
-//Helper function to get flow indicators (arrows)
-const getFlowIndicators = (coordinates: [number, number], location: string, hour: number): [[number, number], [number, number]][] => {
-  const indicators: [[number, number], [number, number]][] = [];
+// Enhanced flow indicators with more realistic patterns
+const getFlowIndicators = (coordinates: [number, number], location: string, hour: number): L.LatLngExpression[][] => {
+  const indicators: L.LatLngExpression[][] = [];
   const baseDistance = 0.001;
-  const numIndicators = 3;
+  const numIndicators = 5; // Increased number of indicators
 
-  //Simulate flow based on time of day and location
+  // Get minute-based variation for smooth transitions
+  const minute = new Date().getMinutes();
+  const timeOffset = (minute / 60) * Math.PI;
+
   for (let i = 0; i < numIndicators; i++) {
     let direction: [number, number];
+    const distanceFactor = 1 + Math.sin(timeOffset + (i / numIndicators) * Math.PI) * 0.3;
 
-    //Example flow patterns (adjust based on actual data)
+    // Enhanced flow patterns based on location and time
     switch (location) {
       case "Ramkund":
-        direction = hour < 12 ? [0, baseDistance * (i + 1)] : [0, -baseDistance * (i + 1)];
+        if (hour >= 4 && hour <= 9) {
+          // Morning flow towards the ghat
+          direction = [0, baseDistance * distanceFactor];
+        } else if (hour >= 17 && hour <= 20) {
+          // Evening flow away from ghat
+          direction = [0, -baseDistance * distanceFactor];
+        } else {
+          // Circular movement during other times
+          const angle = (i / numIndicators) * Math.PI * 2 + timeOffset;
+          direction = [
+            Math.sin(angle) * baseDistance * distanceFactor,
+            Math.cos(angle) * baseDistance * distanceFactor
+          ];
+        }
         break;
+
       case "Kalaram Temple":
-        direction = [baseDistance * (i + 1), 0];
+        if (hour >= 6 && hour <= 11) {
+          // Morning prayer time flow
+          direction = [baseDistance * distanceFactor, baseDistance * distanceFactor * 0.5];
+        } else {
+          // Radial flow pattern
+          const angle = (i / numIndicators) * Math.PI + timeOffset;
+          direction = [
+            Math.cos(angle) * baseDistance * distanceFactor,
+            Math.sin(angle) * baseDistance * distanceFactor
+          ];
+        }
         break;
+
       case "Tapovan":
-        direction = [-baseDistance * (i + 1), 0];
+        // Spiral flow pattern
+        const angle = (i / numIndicators) * Math.PI * 2 + timeOffset;
+        const spiralFactor = 1 + (i / numIndicators) * 0.5;
+        direction = [
+          Math.cos(angle) * baseDistance * distanceFactor * spiralFactor,
+          Math.sin(angle) * baseDistance * distanceFactor * spiralFactor
+        ];
         break;
+
       default:
-        direction = [0, baseDistance * (i + 1)];
+        // Default circular flow
+        const defaultAngle = (i / numIndicators) * Math.PI * 2 + timeOffset;
+        direction = [
+          Math.sin(defaultAngle) * baseDistance * distanceFactor,
+          Math.cos(defaultAngle) * baseDistance * distanceFactor
+        ];
     }
-    indicators.push([coordinates, [coordinates[0] + direction[0], coordinates[1] + direction[1]]]);
+
+    indicators.push([
+      coordinates,
+      [coordinates[0] + direction[0], coordinates[1] + direction[1]]
+    ]);
   }
+
   return indicators;
 };
 
@@ -726,53 +778,60 @@ export function FacilityMap() {
   useEffect(() => {
     if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
 
-    // Remove existing layers
-    densityMapRef.current?.eachLayer(layer => {
-      if (layer instanceof L.TileLayer) return;
-      layer.remove();
-    });
+    // Set up interval for continuous updates
+    const updateInterval = setInterval(() => {
+      // Clear existing layers except base tile layer
+      densityMapRef.current?.eachLayer(layer => {
+        if (layer instanceof L.TileLayer) return;
+        layer.remove();
+      });
 
-    const hour = new Date().getHours();
+      const hour = new Date().getHours();
+      const minute = new Date().getMinutes();
 
-    crowdLevels.forEach(level => {
-      const coordinates = locationCoordinates[level.location];
-      if (!coordinates) return;
+      crowdLevels.forEach(level => {
+        const coordinates = locationCoordinates[level.location];
+        if (!coordinates) return;
 
-      // Get simulated crowd count
-      const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
-      const areaSize = locationAreas[level.location] || 5000;
-      const density = simulatedCount / areaSize;
+        // Enhanced crowd simulation with time-based variations
+        const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
+        const areaSize = locationAreas[level.location] || 5000;
+        const density = simulatedCount / areaSize;
 
-      // Create dynamic boundary
-      const boundaryPoints = calculateDynamicBoundary(coordinates, density);
+        // Create dynamic boundary with time-based movement
+        const boundaryPoints = calculateDynamicBoundary(coordinates, density);
 
-      // Create density zone with dynamic boundary
-      L.polygon(boundaryPoints, {
-        color: getDensityColor(density).color,
-        fillColor: getDensityColor(density).color,
-        fillOpacity: 0.3 + (density * 0.1),
-        weight: 2,
-        className: 'density-zone'
-      }).addTo(densityMapRef.current!);
+        // Add animated density zone
+        const densityZone = L.polygon(boundaryPoints, {
+          color: getDensityColor(density).color,
+          fillColor: getDensityColor(density).color,
+          fillOpacity: 0.3 + (density * 0.1) + Math.sin(minute / 60 * Math.PI) * 0.1,
+          weight: 2,
+          className: 'density-zone animate-pulse-slow'
+        }).addTo(densityMapRef.current!);
 
-      // Add flow indicators during peak hours
-      if (getTimeFactor(hour, level.location) > 1.3) {
-        // Add arrows showing crowd movement
-        const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
-        arrowPoints.forEach(([start, end]) => {
-          L.polyline([start, end], {
-            color: getDensityColor(density).color,
-            weight: 2,
-            opacity: 0.7,
-            dashArray: '5,10',
-            arrows: true
-          }).addTo(densityMapRef.current!);
-        });
-      }
+        // Add dynamic flow indicators
+        if (getTimeFactor(hour, level.location) > 1.3) {
+          const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
+          arrowPoints.forEach(([start, end], index) => {
+            const opacity = 0.7 - (index / arrowPoints.length) * 0.5;
+            L.polyline([start, end], {
+              color: getDensityColor(density).color,
+              weight: 2,
+              opacity: opacity,
+              dashArray: '5,10'
+            }).addTo(densityMapRef.current!);
+          });
+        }
 
-      // Add enhanced markers with real-time information
-      addEnhancedDensityMarker(densityMapRef.current!, coordinates, level, simulatedCount, density, areaSize);
-    });
+        // Add enhanced density marker
+        addEnhancedDensityMarker(densityMapRef.current!, coordinates, level, simulatedCount, density, areaSize);
+      });
+    }, 2000); // Update every 2 seconds for smooth animations
+
+    return () => {
+      clearInterval(updateInterval);
+    };
   }, [crowdLevels, densityMapRef]);
 
   // Update the safety zones based on crowd levels
