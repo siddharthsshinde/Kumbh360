@@ -798,8 +798,14 @@ export function FacilityMap() {
 
     // Set up interval for continuous updates
     const updateInterval = setInterval(() => {
+      // Guard against null references during unmount/remount
+      if (!areaMapRef.current) {
+        clearInterval(updateInterval);
+        return;
+      }
+      
       // Clear existing layers
-      areaMapRef.current?.eachLayer(layer => {
+      areaMapRef.current.eachLayer(layer => {
         if (layer instanceof L.TileLayer) return;
         layer.remove();
       });
@@ -810,108 +816,113 @@ export function FacilityMap() {
       const minute = now.getMinutes();
       const timeOffset = (minute / 60) * Math.PI * 2;
 
-      // Get updated zones with current time-based states
-      const zones = getUpdatedZones(hour, timeOffset);
+      try {
+        // Get updated zones with current time-based states
+        const zones = getUpdatedZones(hour, timeOffset);
 
-      // Add dynamic polygons for each zone
-      zones.forEach(zone => {
-        // Calculate dynamic boundary points
-        const boundaryPoints = calculateAreaBoundary(zone.basePoints, timeOffset, zone.crowdFactor);
+        // Add dynamic polygons for each zone
+        zones.forEach(zone => {
+          // Calculate dynamic boundary points
+          const boundaryPoints = calculateAreaBoundary(zone.basePoints, timeOffset, zone.crowdFactor);
 
-        // Create polygon with dynamic properties
-        const polygon = L.polygon(boundaryPoints, {
-          color: zone.color,
-          fillColor: zone.color,
-          fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
-          weight: 2,
-          className: 'area-zone animate-pulse-slow'
-        }).addTo(areaMapRef.current!);
+          // Create polygon with dynamic properties
+          const polygon = L.polygon(boundaryPoints, {
+            color: zone.color,
+            fillColor: zone.color,
+            fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
+            weight: 2,
+            className: 'area-zone animate-pulse-slow'
+          }).addTo(areaMapRef.current!);
 
-        // Add animated label
-        const labelOpacity = 0.7 + Math.sin(timeOffset) * 0.3;
-        L.marker(zone.center, {
-          icon: L.divIcon({
-            className: 'area-label',
-            html: `
-            <div class="px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-lg transform transition-all duration-500" 
-                 style="background-color: ${zone.color}; white-space: nowrap; opacity: ${labelOpacity}">
-              ${zone.name}
-              <span class="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-[10px]">
-                ${zone.status}
-              </span>
-            </div>
-          `,
-            iconSize: [150, 30],
-            iconAnchor: [75, 15]
-          })
-        }).addTo(areaMapRef.current!);
+          // Add animated label
+          const labelOpacity = 0.7 + Math.sin(timeOffset) * 0.3;
+          L.marker(zone.center, {
+            icon: L.divIcon({
+              className: 'area-label',
+              html: `
+              <div class="px-3 py-1.5 rounded-lg text-white text-xs font-semibold shadow-lg transform transition-all duration-500" 
+                   style="background-color: ${zone.color}; white-space: nowrap; opacity: ${labelOpacity}">
+                ${zone.name}
+                <span class="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-[10px]">
+                  ${zone.status}
+                </span>
+              </div>
+            `,
+              iconSize: [150, 30],
+              iconAnchor: [75, 15]
+            })
+          }).addTo(areaMapRef.current);
 
-        // Add interactive popup
-        polygon.bindPopup(`
-        <div class="text-sm p-4">
-          <h3 class="font-bold text-lg border-b pb-2 mb-3" style="color: ${zone.color}">${zone.name}</h3>
+          // Add interactive popup
+          polygon.bindPopup(`
+          <div class="text-sm p-4">
+            <h3 class="font-bold text-lg border-b pb-2 mb-3" style="color: ${zone.color}">${zone.name}</h3>
 
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Status</div>
-              <div class="font-semibold">${zone.status}</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Occupancy</div>
-              <div class="font-semibold">${Math.round(zone.crowdFactor * 100)}%</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Area</div>
-              <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
-            </div>
-            <div class="bg-gray-50 p-2 rounded">
-              <div class="text-xs text-gray-500">Update Time</div>
-              <div class="font-semibold">${now.toLocaleTimeString()}</div>
-            </div>
-          </div>
-
-          <div class="rounded-lg p-3" style="background: ${zone.color}10; border: 1px solid ${zone.color}40">
-            <div class="font-medium mb-1" style="color: ${zone.color}">Access Information:</div>
-            <div class="text-sm" style="color: ${zone.color}">
-              ${getZoneAccessInfo(zone.name, hour)}
-            </div>
-          </div>
-
-          ${zone.crowdFactor > 0.8 ? `
-            <div class="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
-              <div class="font-medium text-red-700 mb-1">High Occupancy Alert:</div>
-              <div class="text-red-600">
-                • Follow crowd management directions<br>
-                • Use alternative routes if possible<br>
-                • Emergency exits marked in green
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-gray-50 p-2 rounded">
+                <div class="text-xs text-gray-500">Status</div>
+                <div class="font-semibold">${zone.status}</div>
+              </div>
+              <div class="bg-gray-50 p-2 rounded">
+                <div class="text-xs text-gray-500">Occupancy</div>
+                <div class="font-semibold">${Math.round(zone.crowdFactor * 100)}%</div>
+              </div>
+              <div class="bg-gray-50 p-2 rounded">
+                <div class="text-xs text-gray-500">Area</div>
+                <div class="font-semibold">${(Math.random() * 3 + 1).toFixed(1)} km²</div>
+              </div>
+              <div class="bg-gray-50 p-2 rounded">
+                <div class="text-xs text-gray-500">Update Time</div>
+                <div class="font-semibold">${now.toLocaleTimeString()}</div>
               </div>
             </div>
-          ` : ''}
-        </div>
-      `, {
-        className: 'area-popup',
-        maxWidth: 350
-      });
-    });
 
-    // Add animated connection paths between zones
-    zones.forEach((zone, index) => {
-      if (index < zones.length - 1) {
-        const nextZone = zones[index + 1];
-        L.polyline([zone.center, nextZone.center], {
-          color: '#FF7F00',
-          weight: 2,
-          opacity: 0.5 + Math.sin(timeOffset) * 0.3,
-          dashArray: '5, 8',
-          className: 'connection-path animate-pulse-slow'
-        }).addTo(areaMapRef.current!);
+            <div class="rounded-lg p-3" style="background: ${zone.color}10; border: 1px solid ${zone.color}40">
+              <div class="font-medium mb-1" style="color: ${zone.color}">Access Information:</div>
+              <div class="text-sm" style="color: ${zone.color}">
+                ${getZoneAccessInfo(zone.name, hour)}
+              </div>
+            </div>
+
+            ${zone.crowdFactor > 0.8 ? `
+              <div class="mt-3 p-2 bg-red-50 rounded border border-red-100 text-xs">
+                <div class="font-medium text-red-700 mb-1">High Occupancy Alert:</div>
+                <div class="text-red-600">
+                  • Follow crowd management directions<br>
+                  • Use alternative routes if possible<br>
+                  • Emergency exits marked in green
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `, {
+          className: 'area-popup',
+          maxWidth: 350
+        });
+        });
+
+        // Add animated connection paths between zones
+        if (areaMapRef.current) {
+          zones.forEach((zone, index) => {
+            if (index < zones.length - 1) {
+              const nextZone = zones[index + 1];
+              L.polyline([zone.center, nextZone.center], {
+                color: '#FF7F00',
+                weight: 2,
+                opacity: 0.5 + Math.sin(timeOffset) * 0.3,
+                dashArray: '5, 8',
+                className: 'connection-path animate-pulse-slow'
+              }).addTo(areaMapRef.current!);
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error updating area map:", error);
       }
-    });
+    }, 1000); // Update every second for smooth animations
 
-  }, 1000); // Update every second for smooth animations
-
-  return () => clearInterval(updateInterval);
-}, [areaMapRef]);
+    return () => clearInterval(updateInterval);
+  }, [areaMapRef, areaMapContainer]);
 
 // Generate a grid of cells around a location
 const generateDensityGrid = (
@@ -1018,80 +1029,95 @@ useEffect(() => {
   if (!densityMapRef.current || !crowdLevels || crowdLevels.length === 0) return;
 
   const updateInterval = setInterval(() => {
-    // Clear existing layers
-    densityMapRef.current?.eachLayer(layer => {
-      if (layer instanceof L.TileLayer) return;
-      layer.remove();
-    });
-
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const timeOffset = (minute / 60) * Math.PI * 2;
-
-    crowdLevels.forEach(level => {
-      const coordinates = locationCoordinates[level.location];
-      if (!coordinates) return;
-
-      // Calculate real-time density
-      const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
-      const areaSize = locationAreas[level.location] || 5000;
-      const density = simulatedCount / areaSize;
-      
-      // Generate grid cells with density values
-      const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
-      
-      // Render each grid cell with appropriate color based on density
-      gridCells.forEach(({ cell, density }) => {
-        const { color } = getDensityColor(density);
-        
-        // Create a pulsing effect based on time
-        const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
-        
-        // Add grid cell with color intensity based on density
-        L.polygon(cell, {
-          color: 'rgba(255,255,255,0.3)',
-          fillColor: color,
-          fillOpacity: 0.3 + (density * 0.15) + pulseEffect,
-          weight: 1,
-          className: 'density-grid-cell'
-        }).addTo(densityMapRef.current!)
-        .bindPopup(`
-          <div class="text-xs p-2">
-            <div class="font-semibold mb-1">${level.location} Area</div>
-            <div>Density: ${density.toFixed(2)} people/m²</div>
-          </div>
-        `);
+    // Guard against null references during unmount/remount
+    if (!densityMapRef.current) {
+      clearInterval(updateInterval);
+      return;
+    }
+    
+    try {
+      // Clear existing layers
+      densityMapRef.current.eachLayer(layer => {
+        if (layer instanceof L.TileLayer) return;
+        layer.remove();
       });
-      
-      // Add flow indicators during peak hours
-      if (getTimeFactor(hour, level.location) > 1.3) {
-        const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
-        arrowPoints.forEach(([start, end], index) => {
-          const opacity = 0.7 - (index / arrowPoints.length) * 0.5;
-          L.polyline([start, end], {
-            color: getDensityColor(density).color,
-            weight: 2,
-            opacity: opacity,
-            dashArray: '5,10'
-          }).addTo(densityMapRef.current!);
-        });
-      }
 
-      // Add enhanced density marker at the location center
-      addEnhancedDensityMarker(
-        densityMapRef.current!,
-        coordinates,
-        level,
-        simulatedCount,
-        density,
-        areaSize
-      );
-    });
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const timeOffset = (minute / 60) * Math.PI * 2;
+
+      crowdLevels.forEach(level => {
+        const coordinates = locationCoordinates[level.location];
+        if (!coordinates) return;
+
+        // Calculate real-time density
+        const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
+        const areaSize = locationAreas[level.location] || 5000;
+        const density = simulatedCount / areaSize;
+        
+        // Generate grid cells with density values
+        const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
+        
+        // Render each grid cell with appropriate color based on density
+        gridCells.forEach(({ cell, density }) => {
+          const { color } = getDensityColor(density);
+          
+          // Create a pulsing effect based on time
+          const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
+          
+          // Add grid cell with color intensity based on density
+          if (densityMapRef.current) {
+            L.polygon(cell, {
+              color: 'rgba(255,255,255,0.3)',
+              fillColor: color,
+              fillOpacity: 0.3 + (density * 0.15) + pulseEffect,
+              weight: 1,
+              className: 'density-grid-cell'
+            }).addTo(densityMapRef.current)
+            .bindPopup(`
+              <div class="text-xs p-2">
+                <div class="font-semibold mb-1">${level.location} Area</div>
+                <div>Density: ${density.toFixed(2)} people/m²</div>
+                <div class="mt-1 text-gray-500 text-[10px]">Updated: ${now.toLocaleTimeString()}</div>
+              </div>
+            `);
+          }
+        });
+        
+        // Add flow indicators during peak hours
+        if (getTimeFactor(hour, level.location) > 1.3 && densityMapRef.current) {
+          const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
+          arrowPoints.forEach(([start, end], index) => {
+            const opacity = 0.7 - (index / arrowPoints.length) * 0.5;
+            L.polyline([start, end], {
+              color: getDensityColor(density).color,
+              weight: 2,
+              opacity: opacity,
+              dashArray: '5,10'
+            }).addTo(densityMapRef.current);
+          });
+        }
+
+        // Add enhanced density marker at the location center
+        if (densityMapRef.current) {
+          addEnhancedDensityMarker(
+            densityMapRef.current,
+            coordinates,
+            level,
+            simulatedCount,
+            density,
+            areaSize
+          );
+        }
+      });
+    } catch (error) {
+      console.error("Error updating density grid:", error);
+    }
   }, 1000); // Update every second for smooth animations
 
   return () => clearInterval(updateInterval);
-}, [crowdLevels, densityMapRef]);
+}, [crowdLevels, densityMapRef, densityMapContainer]);
 
 // Update the safety zones based on crowd levels
 useEffect(() => {
