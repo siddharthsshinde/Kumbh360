@@ -1,28 +1,19 @@
-
 import * as React from "react"
 
-export const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  '2xl': 1536
-}
-
-export function useBreakpoint(breakpoint: keyof typeof BREAKPOINTS) {
-  const [matches, setMatches] = React.useState<boolean | undefined>(undefined)
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(min-width: ${BREAKPOINTS[breakpoint]}px)`)
-    const onChange = () => setMatches(mql.matches)
-    mql.addEventListener("change", onChange)
-    setMatches(mql.matches)
-    return () => mql.removeEventListener("change", onChange)
-  }, [breakpoint])
-
-  return matches
-}
+const MOBILE_BREAKPOINT = 768
 
 export function useIsMobile() {
-  return !useBreakpoint('md')
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    mql.addEventListener("change", onChange)
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  return !!isMobile
 }
