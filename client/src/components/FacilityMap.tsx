@@ -508,7 +508,7 @@ interface AreaZone {
   crowdFactor: number;
 }
 
-// Helper functions for area map
+// Function to get access information for zones
 const getZoneAccessInfo = (zoneName: string, hour: number): string => {
   switch (zoneName) {
     case "Main Ceremonial Area":
@@ -614,6 +614,57 @@ const defineKumbhZones = (hour: number, timeOffset: number): AreaZone[] => {
       crowdFactor: 0.3
     }
   ];
+};
+
+// Function to get updated zones based on current time
+const getUpdatedZones = (hour: number, timeOffset: number): AreaZone[] => {
+  // Get the base zones
+  const baseZones = defineKumbhZones(hour, timeOffset);
+  
+  // Time-specific updates to crowd factors
+  if (hour >= 5 && hour <= 8) {
+    // Early morning - Ceremony areas are busier
+    baseZones[0].crowdFactor = 0.9 + Math.sin(timeOffset) * 0.1;
+    baseZones[0].status = "High Occupancy - Morning Ceremonies";
+  } else if (hour >= 17 && hour <= 20) {
+    // Evening ceremonies
+    baseZones[0].crowdFactor = 0.95;
+    baseZones[0].status = "Very High Occupancy - Evening Ceremonies";
+  }
+  
+  // For special days like main bathing days - We'd use real data for this in a production app
+  const isSpecialDay = new Date().getDate() === 15; // Example: 15th of every month is a special day
+  if (isSpecialDay) {
+    baseZones.forEach(zone => {
+      if (zone.name === "Main Ceremonial Area") {
+        zone.crowdFactor = Math.min(1.0, zone.crowdFactor * 1.3);
+        zone.status = "CRITICAL OCCUPANCY - Special Ceremony Day";
+      } else if (zone.name === "Parking & Transport Zone") {
+        zone.crowdFactor = Math.min(1.0, zone.crowdFactor * 1.4);
+        zone.status = "OVERCROWDED - Limited Parking";
+      }
+    });
+  }
+  
+  // Add more refined time-based crowd movement patterns
+  const minute = new Date().getMinutes();
+  const isQuarterHour = minute >= 0 && minute <= 15;
+  const isHalfHour = minute >= 15 && minute <= 30;
+  const isThreeQuarterHour = minute >= 30 && minute <= 45;
+  
+  if (isQuarterHour && (hour === 7 || hour === 17)) {
+    // People moving from accommodation to ceremonial areas
+    baseZones[1].crowdFactor *= 0.8; // Accommodation emptying
+    baseZones[0].crowdFactor = Math.min(1.0, baseZones[0].crowdFactor * 1.1); // Ceremonial filling
+    baseZones[2].crowdFactor = Math.min(1.0, baseZones[2].crowdFactor * 1.2); // Transport busy
+  } else if (isHalfHour && (hour === 9 || hour === 19)) {
+    // People moving from ceremonial to accommodation/parking
+    baseZones[0].crowdFactor *= 0.9; // Ceremonial emptying
+    baseZones[1].crowdFactor = Math.min(1.0, baseZones[1].crowdFactor * 1.05); // Accommodation filling
+    baseZones[2].crowdFactor = Math.min(1.0, baseZones[2].crowdFactor * 1.15); // Transport busy
+  }
+  
+  return baseZones;
 };
 
 export function FacilityMap() {
