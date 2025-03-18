@@ -317,84 +317,148 @@ const getBaseZones = (): AreaZone[] => {
   ];
 };
 
-// Update crowd factors based on time of day
-const getUpdatedZones = (hour: number, timeOffset: number): AreaZone[] => {
+// Update crowd factors based on time of day and real crowd data
+const getUpdatedZones = (hour: number, timeOffset: number, crowdLevels?: CrowdLevel[]): AreaZone[] => {
   const baseZones = getBaseZones();
   
   // Apply time-based crowd factor adjustments
   baseZones.forEach(zone => {
     // Base time-of-day adjustment
+    let baseCrowdFactor = 0.5; // Default base crowd factor
+    
+    // If we have real crowd data, incorporate it
+    if (crowdLevels && crowdLevels.length > 0) {
+      // Find the nearest crowd level location to use for this zone
+      let nearestLocation = '';
+      let minDistance = Infinity;
+      let crowdRatio = 0;
+      
+      // Map zone names to crowd level locations
+      const zoneToLocationMap: Record<string, string> = {
+        "Main Ceremonial Area": "Ramkund",
+        "Accommodation Zone": "Tapovan",
+        "Transport & Parking Zone": "Nashik Road Station",
+        "Restricted Area": "Kalaram Temple"
+      };
+      
+      const mappedLocation = zoneToLocationMap[zone.name];
+      
+      if (mappedLocation) {
+        // Find this location in crowd levels
+        const crowdInfo = crowdLevels.find(cl => cl.location === mappedLocation);
+        if (crowdInfo) {
+          // Calculate real-time density based on current count and capacity
+          const simulatedCount = simulateRealisticCrowds(crowdInfo.location, crowdInfo.currentCount);
+          crowdRatio = simulatedCount / crowdInfo.capacity;
+          baseCrowdFactor = Math.min(1, crowdRatio * 1.2); // Scale appropriately
+        }
+      } else {
+        // Use the nearest available crowd level data
+        crowdLevels.forEach(cl => {
+          if (locationCoordinates[cl.location]) {
+            const locationCoord = locationCoordinates[cl.location];
+            const zoneCoord = zone.center;
+            
+            // Simple distance calculation
+            const dx = locationCoord[0] - zoneCoord[0];
+            const dy = locationCoord[1] - zoneCoord[1];
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            
+            if (distance < minDistance) {
+              minDistance = distance;
+              nearestLocation = cl.location;
+              
+              // Calculate crowd ratio
+              const simulatedCount = simulateRealisticCrowds(cl.location, cl.currentCount);
+              crowdRatio = simulatedCount / cl.capacity;
+              baseCrowdFactor = Math.min(1, crowdRatio * 1.2); // Scale appropriately
+            }
+          }
+        });
+      }
+    }
+    
+    // Apply time-of-day adjustments on top of the base crowd factor
     if (hour >= 5 && hour <= 9) {
       // Morning peak for ceremonial areas
       if (zone.name === "Main Ceremonial Area") {
-        zone.crowdFactor = 0.8 + (Math.sin(timeOffset) * 0.15);
+        zone.crowdFactor = baseCrowdFactor * (0.8 + (Math.sin(timeOffset) * 0.15));
         zone.status = "Peak Hours";
       }
       // Morning activity for accommodation
       else if (zone.name === "Accommodation Zone") {
-        zone.crowdFactor = 0.6 + (Math.sin(timeOffset) * 0.1);
+        zone.crowdFactor = baseCrowdFactor * (0.6 + (Math.sin(timeOffset) * 0.1));
         zone.status = "Active";
       }
       // High transport activity in morning
       else if (zone.name === "Transport & Parking Zone") {
-        zone.crowdFactor = 0.7 + (Math.sin(timeOffset) * 0.2);
+        zone.crowdFactor = baseCrowdFactor * (0.7 + (Math.sin(timeOffset) * 0.2));
         zone.status = "High Flow";
       }
     }
     else if (hour >= 10 && hour <= 15) {
       // Midday adjustment - ceremonial areas busy
       if (zone.name === "Main Ceremonial Area") {
-        zone.crowdFactor = 0.7 + (Math.sin(timeOffset) * 0.1);
+        zone.crowdFactor = baseCrowdFactor * (0.7 + (Math.sin(timeOffset) * 0.1));
         zone.status = "Active";
       }
       // Accommodation quieter during day
       else if (zone.name === "Accommodation Zone") {
-        zone.crowdFactor = 0.4 + (Math.sin(timeOffset) * 0.1);
+        zone.crowdFactor = baseCrowdFactor * (0.4 + (Math.sin(timeOffset) * 0.1));
         zone.status = "Moderate Activity";
       }
       // Transport moderate during day
       else if (zone.name === "Transport & Parking Zone") {
-        zone.crowdFactor = 0.5 + (Math.sin(timeOffset) * 0.1);
+        zone.crowdFactor = baseCrowdFactor * (0.5 + (Math.sin(timeOffset) * 0.1));
         zone.status = "Moderate Flow";
       }
     }
     else if (hour >= 16 && hour <= 20) {
       // Evening peak for ceremonial areas
       if (zone.name === "Main Ceremonial Area") {
-        zone.crowdFactor = 0.9 + (Math.sin(timeOffset) * 0.1);
+        zone.crowdFactor = baseCrowdFactor * (0.9 + (Math.sin(timeOffset) * 0.1));
         zone.status = "Evening Aarti";
       }
       // Evening return to accommodation
       else if (zone.name === "Accommodation Zone") {
-        zone.crowdFactor = 0.8 + (Math.sin(timeOffset) * 0.15);
+        zone.crowdFactor = baseCrowdFactor * (0.8 + (Math.sin(timeOffset) * 0.15));
         zone.status = "High Occupancy";
       }
       // High transport activity in evening
       else if (zone.name === "Transport & Parking Zone") {
-        zone.crowdFactor = 0.7 + (Math.sin(timeOffset) * 0.15);
+        zone.crowdFactor = baseCrowdFactor * (0.7 + (Math.sin(timeOffset) * 0.15));
         zone.status = "High Flow";
       }
     }
     else {
       // Night time has reduced activity
       if (zone.name === "Main Ceremonial Area") {
-        zone.crowdFactor = 0.3 + (Math.sin(timeOffset) * 0.05);
+        zone.crowdFactor = baseCrowdFactor * (0.3 + (Math.sin(timeOffset) * 0.05));
         zone.status = "Quiet Hours";
       }
       else if (zone.name === "Accommodation Zone") {
-        zone.crowdFactor = 0.7 + (Math.sin(timeOffset) * 0.05);
+        zone.crowdFactor = baseCrowdFactor * (0.7 + (Math.sin(timeOffset) * 0.05));
         zone.status = "Rest Hours";
       }
       else if (zone.name === "Transport & Parking Zone") {
-        zone.crowdFactor = 0.2 + (Math.sin(timeOffset) * 0.05);
+        zone.crowdFactor = baseCrowdFactor * (0.2 + (Math.sin(timeOffset) * 0.05));
         zone.status = "Low Activity";
       }
     }
     
     // Restricted area always has controlled access
     if (zone.name === "Restricted Area") {
-      zone.crowdFactor = 0.3 + (Math.sin(timeOffset) * 0.05);
+      zone.crowdFactor = baseCrowdFactor * (0.3 + (Math.sin(timeOffset) * 0.05));
       zone.status = "Limited Access";
+    }
+    
+    // Update status based on crowd factor
+    if (zone.crowdFactor > 0.9) {
+      zone.status = "CRITICAL - Extremely Crowded";
+    } else if (zone.crowdFactor > 0.75) {
+      zone.status = "ALERT - Very Crowded";
+    } else if (zone.crowdFactor > 0.6) {
+      zone.status = "High Occupancy";
     }
   });
   
@@ -606,6 +670,7 @@ export function FacilityMap() {
         const minute = now.getMinutes();
         const timeOffset = (minute / 60) * Math.PI * 2;
 
+        // Create density heatmap using the same coordinates as safety zones
         crowdLevels.forEach(level => {
           const coordinates = locationCoordinates[level.location];
           if (!coordinates) return;
@@ -615,37 +680,82 @@ export function FacilityMap() {
           const areaSize = locationAreas[level.location] || 5000;
           const density = simulatedCount / areaSize;
           
-          // Generate grid cells with density values
-          const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
+          // Get color based on density
+          const { color, label } = getDensityColor(density);
           
-          // Render each grid cell with appropriate color based on density
-          gridCells.forEach(({ cell, density }) => {
-            const { color } = getDensityColor(density);
+          // Get location-specific thresholds (reusing from safety zones)
+          const thresholds = getSafetyThresholds(level.location);
+          const ratio = simulatedCount / level.capacity;
+          
+          // Dynamic radius based on location and crowd level (similar to safety zones)
+          const baseRadius = 200;
+          const locationMultiplier = level.location === "Ramkund" ? 1.2 :
+            level.location === "Tapovan" ? 1.5 : 1;
+          const radius = (baseRadius + (ratio * 200)) * locationMultiplier;
+          
+          // Create pulsing circle with real-time density data
+          if (mapRef.current) {
+            // Main density circle
+            const densityCircle = L.circle(coordinates, {
+              color: color,
+              fillColor: color,
+              fillOpacity: 0.2 + (ratio * 0.2), // Opacity increases with crowd density
+              weight: 2,
+              radius: radius,
+              className: 'density-grid-cell'
+            }).addTo(mapRef.current);
             
-            // Create a pulsing effect based on time
-            const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
+            // Add detailed popup with density information
+            densityCircle.bindPopup(`
+              <div class="text-xs p-2">
+                <div class="font-semibold mb-1">${level.location} Area</div>
+                <div>Current Count: ${simulatedCount.toLocaleString()} people</div>
+                <div>Capacity: ${level.capacity.toLocaleString()}</div>
+                <div>Density: ${density.toFixed(2)} people/m²</div>
+                <div>Status: <span class="font-medium" style="color:${color}">${label}</span></div>
+                <div class="mt-1 text-gray-500 text-[10px]">Updated: ${now.toLocaleTimeString()}</div>
+              </div>
+            `);
             
-            // Add grid cell with color intensity based on density
-            if (mapRef.current) {
-              const polygon = L.polygon(cell as L.LatLngExpression[], {
-                color: 'rgba(255,255,255,0.3)',
-                fillColor: color,
-                fillOpacity: 0.3 + (density * 0.15) + pulseEffect,
-                weight: 1,
-                className: 'density-grid-cell'
-              }).addTo(mapRef.current);
+            densityGridLayersRef.current.push(densityCircle);
+            
+            // Add inner circle for higher density areas
+            const innerCircle = L.circle(coordinates, {
+              color: color,
+              fillColor: color,
+              fillOpacity: 0.3 + (ratio * 0.3),
+              weight: 1,
+              radius: radius * 0.6,
+            }).addTo(mapRef.current);
+            
+            densityGridLayersRef.current.push(innerCircle);
+          }
+          
+          // Generate grid cells with density values for a more detailed view in high-density areas
+          if (ratio > thresholds.moderate) {
+            const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
+            
+            // Render each grid cell with appropriate color based on density
+            gridCells.forEach(({ cell, density }) => {
+              const { color } = getDensityColor(density);
               
-              polygon.bindPopup(`
-                <div class="text-xs p-2">
-                  <div class="font-semibold mb-1">${level.location} Area</div>
-                  <div>Density: ${density.toFixed(2)} people/m²</div>
-                  <div class="mt-1 text-gray-500 text-[10px]">Updated: ${now.toLocaleTimeString()}</div>
-                </div>
-              `);
+              // Create a pulsing effect based on time
+              const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
               
-              densityGridLayersRef.current.push(polygon);
-            }
-          });
+              // Add grid cell with color intensity based on density
+              if (mapRef.current) {
+                const polygon = L.polygon(cell as L.LatLngExpression[], {
+                  color: 'rgba(255,255,255,0.3)',
+                  fillColor: color,
+                  fillOpacity: 0.2 + (density * 0.15) + pulseEffect,
+                  weight: 1,
+                  className: 'density-grid-cell'
+                }).addTo(mapRef.current);
+                
+                densityGridLayersRef.current.push(polygon);
+              }
+            });
+          }
           
           // Add flow indicators during peak hours
           if (getTimeFactor(hour, level.location) > 1.3 && mapRef.current) {
