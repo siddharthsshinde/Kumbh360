@@ -855,7 +855,11 @@ export function FacilityMap(): JSX.Element {
               iconSize: [150, 30],
               iconAnchor: [75, 15]
             })
-          }).addTo(mapRef.current);
+          });
+          
+          if (mapRef.current) {
+            marker.addTo(mapRef.current);
+          }
           
           areaZoneLayersRef.current.push(marker);
 
