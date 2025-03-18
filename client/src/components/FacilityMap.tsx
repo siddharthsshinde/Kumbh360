@@ -1349,7 +1349,7 @@ export function FacilityMap(): JSX.Element {
         }
       });
     }
-  }, [facilities, shuttles, restrooms, selectedType, mapRef]);
+  }, [facilities, shuttles, restrooms, selectedType, mapRef, createCustomIcon]);
 
   // Safety zones effect
   useEffect(() => {
@@ -1471,7 +1471,7 @@ export function FacilityMap(): JSX.Element {
         maxWidth: 350
       });
     });
-  }, [crowdLevels, mapRef, showSafetyZones]);
+  }, [crowdLevels, mapRef, showSafetyZones, getLocationSpecificAdvisory, getSafetyThresholds, simulateRealisticCrowds, locationCoordinates]);
 
   // Get the different facility types for filters
   const facilityTypes = facilities
