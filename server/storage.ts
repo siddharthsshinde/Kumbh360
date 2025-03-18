@@ -9,6 +9,24 @@ interface CrowdMigrationPattern {
   timeRange: [number, number]; // [startHour, endHour]
 }
 
+// Define UserQuery type
+interface UserQuery {
+  id: number;
+  query: string;
+  response: string;
+  sources: string[];
+  timestamp: string;
+  feedback: number | null;
+}
+
+// Define KnowledgeBase type (assuming a structure - adjust as needed)
+interface KnowledgeBase {
+  id: number;
+  topic: string;
+  content: string;
+}
+
+
 export interface IStorage {
   getAllFacilities(): Promise<Facility[]>;
   getAllEmergencyContacts(): Promise<EmergencyContact[]>;
@@ -53,6 +71,14 @@ export interface IStorage {
     coordinates: { lat: number; lng: number };
     facilities?: string[];
   }[]>;
+  storeUserQuery(data: {
+    query: string;
+    response: string;
+    sources: string[];
+    feedback: number | null;
+  }): Promise<number>; // Returns the query ID
+  updateQueryFeedback(queryId: number, feedback: number): Promise<void>;
+  getKnowledgeBase(topic?: string): Promise<KnowledgeBase[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -174,21 +200,21 @@ export class MemStorage implements IStorage {
   private currentUpdateIndex = 0;
   private updateInterval: NodeJS.Timeout | null = null;
   private lastDataRefresh: number = Date.now();
-  
+
   // Track dynamic movement of crowds between locations
   private crowdMigrationPatterns: CrowdMigrationPattern[] = [
     // Pattern 1: Morning ritual flow - Godavari to Ramkund to Kalaram
     { from: "Godavari Ghat", to: "Ramkund", flowRate: 0.15, timeRange: [4, 10] },
     { from: "Ramkund", to: "Kalaram Temple", flowRate: 0.2, timeRange: [5, 11] },
-    
+
     // Pattern 2: Midday visitor circulation
     { from: "Kalaram Temple", to: "Tapovan", flowRate: 0.1, timeRange: [11, 15] },
     { from: "Tapovan", to: "Godavari Ghat", flowRate: 0.15, timeRange: [12, 16] },
-    
+
     // Pattern 3: Evening ceremonies
     { from: "Tapovan", to: "Ramkund", flowRate: 0.25, timeRange: [16, 20] },
     { from: "Godavari Ghat", to: "Ramkund", flowRate: 0.3, timeRange: [16, 20] },
-    
+
     // Pattern 4: Night dispersal
     { from: "Ramkund", to: "Godavari Ghat", flowRate: 0.15, timeRange: [20, 23] },
     { from: "Kalaram Temple", to: "Godavari Ghat", flowRate: 0.1, timeRange: [19, 23] }
@@ -396,6 +422,10 @@ export class MemStorage implements IStorage {
     }
   ];
 
+  private knowledgeBaseItems: KnowledgeBase[] = [];
+  private userQueriesData: UserQuery[] = [];
+  private queryIdCounter = 1;
+
   constructor() {
     this.initCrowdLevels();
     this.initNewsData();
@@ -453,24 +483,32 @@ export class MemStorage implements IStorage {
       this.updateDynamicCrowdData();
       this.lastDataRefresh = now;
     }
-    
+
     return this.crowdLevels;
   }
-  
+
   private updateDynamicCrowdData() {
     const update = this.crowdUpdates[this.currentUpdateIndex];
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
-    // Different base utilization for each location
-    const locationBaseUtilization = {
-      "Ramkund": 0.7, // Typically more crowded
-      "Kalaram Temple": 0.4, // Moderate crowds
-      "Tapovan": 0.85, // Most crowded
-      "Godavari Ghat": 0.3 // Least crowded
+    // Add type for location keys
+    type LocationKey = "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
+    type CrowdStatus = "safe" | "moderate" | "crowded" | "overcrowded";
+
+    // Different base utilization for each location with proper typing
+    const locationBaseUtilization: Record<LocationKey, number> = {
+      "Ramkund": 0.7,
+      "Kalaram Temple": 0.4,
+      "Tapovan": 0.85,
+      "Godavari Ghat": 0.3
     };
 
     // Location-specific patterns and recommendations
-    const locationPatterns = {
+    const locationPatterns: Record<LocationKey, {
+      peakHours: number[];
+      capacity: number;
+      recommendations: Record<CrowdStatus, string>;
+    }> = {
       "Ramkund": {
         peakHours: [6, 7, 8, 17, 18, 19],
         capacity: 12000,
@@ -514,66 +552,62 @@ export class MemStorage implements IStorage {
     };
 
     // Create data structure to track crowd numbers
-    const crowdNumbers: Record<string, number> = {
+    const crowdNumbers: Record<LocationKey, number> = {
       "Ramkund": 0,
       "Kalaram Temple": 0,
       "Tapovan": 0,
       "Godavari Ghat": 0
     };
-    
-    // First calculate base crowd levels
+
+    // Calculate base crowd levels with proper typing
     Object.entries(locationPatterns).forEach(([location, pattern]) => {
-      const baseUtilization = locationBaseUtilization[location];
+      const key = location as LocationKey;
+      const baseUtilization = locationBaseUtilization[key];
       const currentHour = new Date().getHours();
       const isPeakHour = pattern.peakHours.includes(currentHour);
 
-      // Add location-specific variation
       let utilization = baseUtilization + (Math.random() * 0.2 - 0.1);
       if (isPeakHour) {
         utilization = Math.min(utilization * 1.3, 1);
       }
-      
-      // Calculate base crowd count
-      crowdNumbers[location] = Math.floor(pattern.capacity * utilization);
+
+      crowdNumbers[key] = Math.floor(pattern.capacity * utilization);
     });
-    
+
     // Now apply crowd migrations based on time of day
     const currentHour = new Date().getHours();
-    
+
     // Find applicable migration patterns for current hour
     this.crowdMigrationPatterns.forEach(pattern => {
       const [startHour, endHour] = pattern.timeRange;
-      
+
       // Check if this migration pattern applies to current time
       if (currentHour >= startHour && currentHour <= endHour) {
         // Calculate number of people moving from source to destination
         const movingCount = Math.floor(crowdNumbers[pattern.from] * pattern.flowRate);
-        
+
         // Remove people from source location
         crowdNumbers[pattern.from] -= movingCount;
-        
+
         // Add people to destination location
         crowdNumbers[pattern.to] += movingCount;
       }
     });
-    
-    // Add randomness to ensure dynamic changes even in the same hour
+
     Object.keys(crowdNumbers).forEach(location => {
-      // Add +/- 5% random variation
-      const variation = Math.floor(crowdNumbers[location] * (Math.random() * 0.1 - 0.05));
-      crowdNumbers[location] += variation;
-      
-      // Ensure we don't go below 0
-      crowdNumbers[location] = Math.max(0, crowdNumbers[location]);
+      const key = location as LocationKey;
+      const variation = Math.floor(crowdNumbers[key] * (Math.random() * 0.1 - 0.05));
+      crowdNumbers[key] += variation;
+      crowdNumbers[key] = Math.max(0, crowdNumbers[key]);
     });
 
-    // Calculate different statuses for each location
+    // Calculate different statuses for each location with proper typing
     const newLevels = Object.entries(locationPatterns).map(([location, pattern], index) => {
-      const currentCount = crowdNumbers[location];
+      const key = location as LocationKey;
+      const currentCount = crowdNumbers[key];
       const utilization = currentCount / pattern.capacity;
-      
-      // Determine status based on adjusted utilization
-      let status;
+
+      let status: CrowdStatus;
       if (utilization > 0.75) status = "overcrowded";
       else if (utilization > 0.5) status = "crowded";
       else if (utilization > 0.25) status = "moderate";
@@ -581,7 +615,7 @@ export class MemStorage implements IStorage {
 
       return {
         id: index + 1,
-        location,
+        location: key,
         level: Math.ceil(utilization * 5),
         capacity: pattern.capacity,
         currentCount,
@@ -676,6 +710,41 @@ export class MemStorage implements IStorage {
                 "operational" as const
       };
     });
+  }
+  async storeUserQuery(data: {
+    query: string;
+    response: string;
+    sources: string[];
+    feedback: number | null;
+  }): Promise<number> {
+    const queryId = this.queryIdCounter++;
+
+    this.userQueriesData.push({
+      id: queryId,
+      query: data.query,
+      response: data.response,
+      sources: data.sources,
+      timestamp: new Date().toISOString(),
+      feedback: data.feedback
+    });
+
+    return queryId;
+  }
+
+  async updateQueryFeedback(queryId: number, feedback: number): Promise<void> {
+    const query = this.userQueriesData.find(q => q.id === queryId);
+    if (query) {
+      query.feedback = feedback;
+    }
+  }
+
+  async getKnowledgeBase(topic?: string): Promise<KnowledgeBase[]> {
+    if (topic) {
+      return this.knowledgeBaseItems.filter(item =>
+        item.topic.toLowerCase().includes(topic.toLowerCase())
+      );
+    }
+    return this.knowledgeBaseItems;
   }
 }
 

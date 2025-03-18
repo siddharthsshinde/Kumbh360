@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import type { WeatherData } from "@shared/types";
+import type { WeatherData, GeminiRequest } from "@shared/schema";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
@@ -82,6 +83,72 @@ export async function registerRoutes(app: Express) {
       };
 
       res.json(mockWeather);
+    }
+  });
+
+  // New route for NLP queries using Gemini
+  app.post("/api/nlp/query", async (req, res) => {
+    try {
+      const { query } = req.body;
+
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ error: "Query is required" });
+      }
+
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBon0OTRkC6324gW3BYpc1ziCCPbjuv0fQ";
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+      // Create chat context with system prompt
+      const prompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Answer questions about locations, crowd management, facilities, and religious aspects of the event. Be precise and respectful.
+
+Query: ${query}`;
+
+      try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        // Store the query and response
+        await storage.storeUserQuery({
+          query,
+          response: text,
+          sources: [], // Gemini doesn't provide source citations directly
+          feedback: null
+        });
+
+        // Return the response to the client
+        res.json({
+          answer: text,
+          sources: []
+        });
+
+      } catch (error) {
+        console.error("Gemini API error:", error);
+        throw new Error("Failed to generate response");
+      }
+
+    } catch (error) {
+      console.error("NLP Query error:", error);
+      res.status(500).json({ error: "Failed to process NLP query" });
+    }
+  });
+
+  // Route to submit feedback for an answer
+  app.post("/api/nlp/feedback", async (req, res) => {
+    try {
+      const { queryId, feedback } = req.body;
+
+      if (!queryId || typeof feedback !== "number" || feedback < 1 || feedback > 5) {
+        return res.status(400).json({ error: "Valid queryId and feedback (1-5) are required" });
+      }
+
+      await storage.updateQueryFeedback(queryId, feedback);
+      res.json({ success: true });
+
+    } catch (error) {
+      console.error("Feedback submission error:", error);
+      res.status(500).json({ error: "Failed to submit feedback" });
     }
   });
 

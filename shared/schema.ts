@@ -1,7 +1,8 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Existing tables remain unchanged
 export const facilities = pgTable("facilities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -32,6 +33,26 @@ export const crowdLevels = pgTable("crowd_levels", {
   recommendations: text("recommendations").notNull(),
 });
 
+// New tables for NLP enhancement
+export const knowledgeBase = pgTable("knowledge_base", {
+  id: serial("id").primaryKey(),
+  topic: text("topic").notNull(),
+  content: text("content").notNull(),
+  source: text("source"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  confidence: integer("confidence"), // 0-100
+  verified: boolean("verified").default(false),
+});
+
+export const userQueries = pgTable("user_queries", {
+  id: serial("id").primaryKey(),
+  query: text("query").notNull(),
+  response: text("response").notNull(),
+  sources: jsonb("sources").notNull(), // Array of source URLs
+  timestamp: timestamp("timestamp").defaultNow(),
+  feedback: integer("feedback"), // User feedback score (1-5)
+});
+
 // Define the location type
 export const locationSchema = z.object({
   lat: z.number(),
@@ -40,10 +61,45 @@ export const locationSchema = z.object({
 
 export type Location = z.infer<typeof locationSchema>;
 
+// Existing schemas
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true });
 export const insertEmergencyContactSchema = createInsertSchema(emergencyContacts).omit({ id: true });
 export const insertCrowdLevelSchema = createInsertSchema(crowdLevels).omit({ id: true });
 
+// New schemas for NLP features
+export const insertKnowledgeBaseSchema = createInsertSchema(knowledgeBase).omit({ id: true, lastUpdated: true });
+export const insertUserQuerySchema = createInsertSchema(userQueries).omit({ id: true, timestamp: true });
+
+// Existing types
 export type Facility = typeof facilities.$inferSelect;
 export type EmergencyContact = typeof emergencyContacts.$inferSelect;
 export type CrowdLevel = typeof crowdLevels.$inferSelect;
+
+// New types
+export type KnowledgeBase = typeof knowledgeBase.$inferSelect;
+export type UserQuery = typeof userQueries.$inferSelect;
+
+// Gemini API types
+export const geminiMessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  parts: z.array(z.object({
+    text: z.string()
+  }))
+});
+
+export const geminiRequestSchema = z.object({
+  contents: z.array(z.object({
+    parts: z.array(z.object({
+      text: z.string()
+    }))
+  })),
+  generationConfig: z.object({
+    temperature: z.number().optional(),
+    topK: z.number().optional(),
+    topP: z.number().optional(),
+    maxOutputTokens: z.number().optional(),
+  }).optional()
+});
+
+export type GeminiMessage = z.infer<typeof geminiMessageSchema>;
+export type GeminiRequest = z.infer<typeof geminiRequestSchema>;
