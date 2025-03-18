@@ -651,10 +651,60 @@ export function FacilityMap(): JSX.Element {
       }
     };
   }, [mapContainer]);
-
-  // Handle density grid visualization on main map
+  
+  // Connect to WebSocket for real-time density updates
   useEffect(() => {
-    if (!mapRef.current || !crowdLevels || crowdLevels.length === 0) return;
+    // Create WebSocket connection
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}`;
+    
+    if (!wsRef.current) {
+      console.log('Connecting to WebSocket for density updates...');
+      wsRef.current = new WebSocket(wsUrl);
+      
+      // Handle connection open
+      wsRef.current.onopen = () => {
+        console.log('WebSocket connection established');
+      };
+      
+      // Handle incoming messages
+      wsRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'initial_density' || data.type === 'density_update') {
+            console.log('Received density data:', data.type);
+            setDensityData(data.data);
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket message:', error);
+        }
+      };
+      
+      // Handle errors
+      wsRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+      
+      // Handle connection close
+      wsRef.current.onclose = () => {
+        console.log('WebSocket connection closed');
+        wsRef.current = null;
+      };
+    }
+    
+    // Clean up WebSocket on component unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, []);
+
+  // Handle density grid visualization based on WebSocket data
+  useEffect(() => {
+    if (!mapRef.current) return;
     
     // Clear existing density grid layers
     densityGridLayersRef.current.forEach(layer => layer.remove());
@@ -662,30 +712,148 @@ export function FacilityMap(): JSX.Element {
     
     // Only proceed if density grid is enabled
     if (!showDensityGrid) return;
+    
+    // Guard against missing data
+    if (!crowdLevels || crowdLevels.length === 0) return;
 
-    const updateInterval = setInterval(() => {
-      // Guard against null references
-      if (!mapRef.current) {
-        clearInterval(updateInterval);
-        return;
-      }
+    try {
+      const now = new Date();
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const timeOffset = (minute / 60) * Math.PI * 2;
+        
+      console.log("Rendering density grid");
       
-      try {
-        // Clear existing density grid layers
-        densityGridLayersRef.current.forEach(layer => layer.remove());
-        densityGridLayersRef.current = [];
-
-        const now = new Date();
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        const timeOffset = (minute / 60) * Math.PI * 2;
-
-        // Create density heatmap using the same coordinates as safety zones
+      // Render density data from WebSocket if available
+      if (densityData && densityData.grid && densityData.grid.length > 0) {
+        console.log("Using WebSocket density data with", densityData.grid.length, "cells");
+        
+        // Create a map of location IDs to their names for lookup
+        const locationIdMap: Record<number, string> = {};
+        if (densityData.keyLocations) {
+          Object.entries(densityData.keyLocations).forEach(([name, _]) => {
+            const index = Object.keys(densityData.keyLocations).indexOf(name);
+            locationIdMap[index] = name;
+          });
+        }
+        
+        // Group density grid data by locationId for more organized visualization
+        const gridByLocation: Record<number, any[]> = {};
+        
+        densityData.grid.forEach((cell: any) => {
+          if (!gridByLocation[cell.locationId]) {
+            gridByLocation[cell.locationId] = [];
+          }
+          gridByLocation[cell.locationId].push(cell);
+        });
+        
+        // Process each location group
+        Object.entries(gridByLocation).forEach(([locationId, cells]) => {
+          const locationName = locationIdMap[parseInt(locationId)] || `Area ${locationId}`;
+          const locationCoord = locationCoordinates[locationName];
+          
+          if (!locationCoord) return;
+          
+          // Find the related crowd level for this location
+          const levelData = crowdLevels.find(level => level.location === locationName);
+          
+          if (!levelData) return;
+          
+          // Draw a circle for the overall location density
+          const avgDensity = cells.reduce((sum, cell) => sum + cell.density, 0) / cells.length;
+          const { color, label } = getDensityColor(avgDensity / 100); // Normalize to 0-1 range
+          
+          if (mapRef.current) {
+            // Draw the main location circle
+            const densityCircle = L.circle(locationCoord, {
+              color: color,
+              fillColor: color,
+              fillOpacity: 0.2 + (avgDensity / 100 * 0.3),
+              weight: 2,
+              radius: 250 + (avgDensity * 2),
+              className: 'density-location-circle'
+            }).addTo(mapRef.current);
+            
+            densityCircle.bindPopup(`
+              <div class="text-xs p-2">
+                <div class="font-semibold mb-1">${locationName}</div>
+                <div>Average Density: ${(avgDensity / 100).toFixed(2)} people/m²</div>
+                <div>Status: <span class="font-medium" style="color:${color}">${label}</span></div>
+                <div>Grid Cells: ${cells.length}</div>
+                <div class="mt-1 text-gray-500 text-[10px]">
+                  Updated: ${new Date(densityData.timestamp).toLocaleTimeString()}
+                </div>
+              </div>
+            `);
+            
+            densityGridLayersRef.current.push(densityCircle);
+            
+            // Add detailed grid cells for each location
+            cells.forEach((cell) => {
+              if (!cell.metadata) return;
+              
+              // Create grid cell polygons
+              const centerLat = cell.metadata.lat;
+              const centerLng = cell.metadata.lng;
+              
+              if (!centerLat || !centerLng) return;
+              
+              // Create a small polygon centered at the cell coordinates
+              const halfSize = 0.0005; // Approximately 50 meters
+              const cellCoords = [
+                [centerLat - halfSize, centerLng - halfSize],
+                [centerLat - halfSize, centerLng + halfSize],
+                [centerLat + halfSize, centerLng + halfSize],
+                [centerLat + halfSize, centerLng - halfSize]
+              ];
+              
+              // Apply a time-based pulse effect
+              const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
+              const intensity = (cell.density / 100) + pulseEffect;
+              
+              const cellColor = cell.metadata.color || color;
+              
+              const polygon = L.polygon(cellCoords, {
+                color: 'rgba(255,255,255,0.3)',
+                fillColor: cellColor,
+                fillOpacity: 0.1 + (intensity * 0.3),
+                weight: 1
+              }).addTo(mapRef.current);
+              
+              // Add class for styling
+              if (polygon.getElement()) {
+                polygon.getElement()?.classList.add('density-grid-cell');
+              }
+              
+              densityGridLayersRef.current.push(polygon);
+            });
+            
+            // Add flow arrows for high density areas
+            if (avgDensity > 60) {
+              const arrowPoints = getFlowIndicators(locationCoord, locationName, hour);
+              arrowPoints.forEach(([start, end], index) => {
+                const opacity = 0.7 - (index / arrowPoints.length) * 0.5;
+                const polyline = L.polyline([start, end], {
+                  color: color,
+                  weight: 2,
+                  opacity: opacity,
+                  dashArray: '5,10'
+                }).addTo(mapRef.current!);
+                
+                densityGridLayersRef.current.push(polyline);
+              });
+            }
+          }
+        });
+      } else {
+        // Fallback to using crowd level data if WebSocket data isn't available
+        console.log("Using fallback density visualization");
+        
         crowdLevels.forEach(level => {
           const coordinates = locationCoordinates[level.location];
           if (!coordinates) return;
-
-          // Calculate real-time density
+          
+          // Calculate density from crowd level data
           const simulatedCount = simulateRealisticCrowds(level.location, level.currentCount);
           const areaSize = locationAreas[level.location] || 5000;
           const density = simulatedCount / areaSize;
@@ -693,107 +861,83 @@ export function FacilityMap(): JSX.Element {
           // Get color based on density
           const { color, label } = getDensityColor(density);
           
-          // Get location-specific thresholds (reusing from safety zones)
+          // Get thresholds specific to this location
           const thresholds = getSafetyThresholds(level.location);
           const ratio = simulatedCount / level.capacity;
           
-          // Dynamic radius based on location and crowd level (similar to safety zones)
-          const baseRadius = 200;
-          const locationMultiplier = level.location === "Ramkund" ? 1.2 :
-            level.location === "Tapovan" ? 1.5 : 1;
-          const radius = (baseRadius + (ratio * 200)) * locationMultiplier;
-          
-          // Create pulsing circle with real-time density data
+          // Draw the density circle for this location
           if (mapRef.current) {
-            // Main density circle
+            const radius = 200 + (ratio * 200);
+            
             const densityCircle = L.circle(coordinates, {
               color: color,
               fillColor: color,
-              fillOpacity: 0.2 + (ratio * 0.2), // Opacity increases with crowd density
+              fillOpacity: 0.2 + (ratio * 0.2),
               weight: 2,
               radius: radius,
               className: 'density-grid-cell'
             }).addTo(mapRef.current);
             
-            // Add detailed popup with density information
             densityCircle.bindPopup(`
               <div class="text-xs p-2">
                 <div class="font-semibold mb-1">${level.location} Area</div>
-                <div>Current Count: ${simulatedCount.toLocaleString()} people</div>
+                <div>Estimated Count: ${simulatedCount.toLocaleString()} people</div>
                 <div>Capacity: ${level.capacity.toLocaleString()}</div>
                 <div>Density: ${density.toFixed(2)} people/m²</div>
                 <div>Status: <span class="font-medium" style="color:${color}">${label}</span></div>
                 <div class="mt-1 text-gray-500 text-[10px]">Updated: ${now.toLocaleTimeString()}</div>
+                <div class="mt-1 text-amber-600 text-[10px]">(WebSocket data unavailable)</div>
               </div>
             `);
             
             densityGridLayersRef.current.push(densityCircle);
             
-            // Add inner circle for higher density areas
-            const innerCircle = L.circle(coordinates, {
-              color: color,
-              fillColor: color,
-              fillOpacity: 0.3 + (ratio * 0.3),
-              weight: 1,
-              radius: radius * 0.6,
-            }).addTo(mapRef.current);
-            
-            densityGridLayersRef.current.push(innerCircle);
-          }
-          
-          // Generate grid cells with density values for a more detailed view in high-density areas
-          if (ratio > thresholds.moderate) {
-            const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
-            
-            // Render each grid cell with appropriate color based on density
-            gridCells.forEach(({ cell, density }) => {
-              const { color } = getDensityColor(density);
+            // Generate grid cells for areas with moderate or higher crowd levels
+            if (ratio > thresholds.moderate) {
+              const gridCells = generateDensityGrid(coordinates, simulatedCount, areaSize, level.location);
               
-              // Create a pulsing effect based on time
-              const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
-              
-              // Add grid cell with color intensity based on density
-              if (mapRef.current) {
+              gridCells.forEach(({ cell, density }) => {
+                const { color } = getDensityColor(density);
+                const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
+                
                 const polygon = L.polygon(cell as L.LatLngExpression[], {
                   color: 'rgba(255,255,255,0.3)',
                   fillColor: color,
                   fillOpacity: 0.2 + (density * 0.15) + pulseEffect,
                   weight: 1
-                }).addTo(mapRef.current);
+                }).addTo(mapRef.current!);
                 
-                // Add class using DOM methods instead
                 if (polygon.getElement()) {
                   polygon.getElement()?.classList.add('density-grid-cell');
                 }
                 
                 densityGridLayersRef.current.push(polygon);
-              }
-            });
-          }
-          
-          // Add flow indicators during peak hours
-          if (getTimeFactor(hour, level.location) > 1.3 && mapRef.current) {
-            const arrowPoints = getFlowIndicators(coordinates, level.location, hour);
-            arrowPoints.forEach(([start, end], index) => {
-              const opacity = 0.7 - (index / arrowPoints.length) * 0.5;
-              const polyline = L.polyline([start, end], {
-                color: getDensityColor(density).color,
-                weight: 2,
-                opacity: opacity,
-                dashArray: '5,10'
-              }).addTo(mapRef.current!);
-              
-              densityGridLayersRef.current.push(polyline);
-            });
+              });
+            }
           }
         });
-      } catch (error) {
-        console.error("Error updating density grid:", error);
       }
-    }, 10000); // Update every 10 seconds for real-time visualization
-
+    } catch (error) {
+      console.error("Error rendering density grid:", error);
+    }
+    
+    // Set up interval for periodic updates
+    const updateInterval = setInterval(() => {
+      if (!mapRef.current || !showDensityGrid) {
+        clearInterval(updateInterval);
+        return;
+      }
+      
+      // Re-render with latest data by triggering state update
+      setDensityData((prevData: any) => {
+        // Create a shallow copy to trigger a re-render
+        if (prevData) return { ...prevData, timestamp: new Date().toISOString() };
+        return prevData;
+      });
+    }, 10000);
+    
     return () => clearInterval(updateInterval);
-  }, [crowdLevels, showDensityGrid, mapRef]);
+  }, [mapRef, showDensityGrid, densityData, crowdLevels]);
 
   // Handle area zones visualization on main map
   useEffect(() => {
