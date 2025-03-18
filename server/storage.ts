@@ -144,6 +144,10 @@ interface GridMetadata {
   lat: number;
   lng: number;
   color: string;
+  nearestLocation?: string;
+  distanceToNearest?: number;
+  intensity?: number;
+  timestamp: string;
 }
 
 export class MemStorage implements IStorage {
@@ -509,15 +513,22 @@ export class MemStorage implements IStorage {
   ];
 
   private densityGridData: DensityGrid[] = [];
+  private readonly keyLocations = {
+    "Ramkund": { lat: 20.0059, lng: 73.7913, radius: 0.5 },
+    "Tapovan": { lat: 20.0116, lng: 73.7938, radius: 0.3 },
+    "Kalaram Temple": { lat: 20.0064, lng: 73.7904, radius: 0.4 },
+    "Trimbakeshwar": { lat: 19.9322, lng: 73.5309, radius: 0.6 }
+  };
+
   private gridConfig: GridConfig = {
-    gridSize: 50, // 50x50 grid
+    gridSize: 100, // Increased for better resolution
     boundaries: {
       north: 20.0116, // Tapovan
       south: 19.9322, // Trimbakeshwar
       east: 73.7938, // Tapovan
       west: 73.5309, // Trimbakeshwar
     },
-    resolution: 100, // 100 meters per cell
+    resolution: 50, // Reduced for finer granularity
   };
 
   constructor() {
@@ -801,7 +812,7 @@ export class MemStorage implements IStorage {
         ...restroom,
         status: random > 0.8 ? "maintenance" as const :
           random > 0.95 ? "closed" as const :
-            "operational" as const
+                        "operational" as const
       };
     });
   }
@@ -980,36 +991,50 @@ export class MemStorage implements IStorage {
         // Find nearest crowd levels and calculate density
         let totalDensity = 0;
         let totalWeight = 0;
+        let nearestLocation = '';
+        let minDistance = Infinity;
 
-        crowdLevels.forEach(level => {
-          const location = this.facilities.find(f => f.name === level.location);
-          if (location && location.location) {
-            const facilityLocation = location.location as Location;
-            // Calculate distance to cell center
-            const dlat = lat - facilityLocation.lat;
-            const dlng = lng - facilityLocation.lng;
-            const distance = Math.sqrt(dlat * dlat + dlng * dlng);
+        // Check influence from key locations
+        for (const [locationName, locationData] of Object.entries(this.keyLocations)) {
+          const dlat = lat - locationData.lat;
+          const dlng = lng - locationData.lng;
+          const distance = Math.sqrt(dlat * dlat + dlng * dlng);
 
-            // Use inverse square for weight
-            const weight = 1 / (1 + distance * distance);
-            totalWeight += weight;
-            totalDensity += (level.currentCount / level.capacity) * 100 * weight;
+          // Find nearest location
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestLocation = locationName;
           }
-        });
 
-        // Calculate final density value
+          // Calculate influence based on distance and location's radius
+          const influence = Math.max(0, 1 - distance / locationData.radius);
+          if (influence > 0) {
+            const crowdInfo = crowdLevels.find(level => level.location === locationName);
+            if (crowdInfo) {
+              const weight = influence * influence; // Square for stronger local effect
+              totalWeight += weight;
+              totalDensity += (crowdInfo.currentCount / crowdInfo.capacity) * 100 * weight;
+            }
+          }
+        }
+
+        // Calculate final density value with enhanced weighting
         const density = totalWeight > 0 ? Math.min(100, Math.round(totalDensity / totalWeight)) : 0;
 
-        // Create metadata with proper typing
+        // Enhanced metadata for visualization
         const metadata: GridMetadata = {
           lat,
           lng,
           color: this.getDensityColor(density),
+          nearestLocation,
+          distanceToNearest: minDistance,
+          intensity: density / 100, // For opacity/intensity visualization
+          timestamp: new Date().toISOString()
         };
 
         newDensityData.push({
           id: this.densityGridData.length + 1,
-          locationId: -1, // General grid cell
+          locationId: Object.keys(this.keyLocations).indexOf(nearestLocation),
           gridX: x,
           gridY: y,
           density,
@@ -1046,10 +1071,11 @@ export class MemStorage implements IStorage {
   }
 
   private getDensityColor(density: number): string {
-    // Returns color based on density value (0-100)
-    if (density < 25) return '#00ff00'; // Green
-    if (density < 50) return '#ffff00'; // Yellow
-    if (density < 75) return '#ffa500'; // Orange
+    // Enhanced color gradient for better visualization
+    if (density < 20) return '#00ff00'; // Green
+    if (density < 40) return '#90ee90'; // Light green
+    if (density < 60) return '#ffff00'; // Yellow
+    if (density < 80) return '#ffa500'; // Orange
     return '#ff0000'; // Red
   }
 }

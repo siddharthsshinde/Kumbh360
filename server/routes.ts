@@ -242,11 +242,32 @@ Provide specific, accurate information while being respectful of religious and c
     return 'general';
   }
 
-  // Add to existing routes
+  // Enhanced density grid endpoints
   app.get("/api/density-grid", async (_req, res) => {
     try {
       const densityGrid = await storage.calculateDensityGrid();
-      res.json(densityGrid);
+
+      // Group by nearest location for better visualization
+      const groupedData = densityGrid.reduce((acc, cell) => {
+        const location = cell.metadata.nearestLocation;
+        if (!acc[location]) {
+          acc[location] = [];
+        }
+        acc[location].push(cell);
+        return acc;
+      }, {});
+
+      res.json({
+        grid: densityGrid,
+        groupedByLocation: groupedData,
+        timestamp: new Date().toISOString(),
+        keyLocations: {
+          "Ramkund": { lat: 20.0059, lng: 73.7913 },
+          "Tapovan": { lat: 20.0116, lng: 73.7938 },
+          "Kalaram Temple": { lat: 20.0064, lng: 73.7904 },
+          "Trimbakeshwar": { lat: 19.9322, lng: 73.5309 }
+        }
+      });
     } catch (error) {
       console.error("Error calculating density grid:", error);
       res.status(500).json({ error: "Failed to calculate density grid" });
@@ -260,7 +281,18 @@ Provide specific, accurate information while being respectful of religious and c
         return res.status(400).json({ error: "Invalid location ID" });
       }
       const densityGrid = await storage.getDensityGridForLocation(locationId);
-      res.json(densityGrid);
+
+      // Add real-time crowd level information
+      const crowdLevels = await storage.getAllCrowdLevels();
+      const locationName = Object.keys(storage.keyLocations)[locationId];
+      const crowdInfo = crowdLevels.find(level => level.location === locationName);
+
+      res.json({
+        grid: densityGrid,
+        location: locationName,
+        crowdInfo,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
       console.error("Error fetching density grid:", error);
       res.status(500).json({ error: "Failed to fetch density grid" });
