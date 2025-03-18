@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Send } from "lucide-react";
+import { Send, Lightbulb, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,17 +8,50 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
 import { getChatResponse, getSuggestions } from "@/lib/chatbot";
+import { TFIDF, extractEntities, computeJaccardSimilarity } from "@/lib/nlp";
+
+// Knowledge base data with Kumbh Mela related information
+const kumbhMelaKnowledgeBase = [
+  "Kumbh Mela is one of the largest peaceful gatherings in the world, where Hindus gather to bathe in a sacred river.",
+  "Nashik Kumbh Mela is held along the banks of the Godavari River in Maharashtra, India.",
+  "The main bathing spots in Nashik Kumbh Mela include Ramkund, Tapovan, and Trimbakeshwar.",
+  "Ramkund is considered one of the holiest spots in Nashik where pilgrims take a dip in the sacred waters of the Godavari.",
+  "Tapovan is located on the banks of the Godavari and is associated with Lord Rama during his exile.",
+  "Trimbakeshwar is famous for its ancient Shiva temple and is one of the twelve Jyotirlingas.",
+  "The best time to visit Kumbh Mela is during the Shahi Snan (Royal Bath) when thousands of sadhus and pilgrims gather to bathe.",
+  "Safety tips for Kumbh Mela include staying hydrated, keeping your belongings secure, and following the crowd management instructions.",
+  "Accommodation options during Kumbh Mela include tent cities, guesthouses, hotels, and ashrams.",
+  "Transportation during Kumbh Mela includes special shuttle services, auto-rickshaws, and designated walking paths.",
+  "Emergency services are available throughout the Kumbh Mela area, with medical camps, police assistance, and lost-and-found centers.",
+  "Important rituals during Kumbh Mela include Ganga Aarti, Rudrabhishek, and Snan (holy bath).",
+  "Kumbh Mela is celebrated four times over the course of 12 years at four different locations in India: Haridwar, Prayagraj, Nashik and Ujjain.",
+  "The Nashik Kumbh Mela 2025 is expected to host millions of pilgrims from around the world.",
+  "During Kumbh Mela, various cultural programs, spiritual discourses, and religious ceremonies are organized.",
+  "The word 'Kumbh' means pot or pitcher, referring to the pot of nectar that emerged during the churning of the cosmic ocean.",
+  "According to Hindu mythology, drops of the nectar of immortality fell at four places where Kumbh Mela is celebrated.",
+  "Sadhus (holy men) belonging to various akharas (religious orders) come to participate in the Kumbh Mela.",
+  "The Godavari River is considered sacred in Hinduism and is often called the Ganges of South India.",
+  "The Kalaram Temple in Nashik is an important religious site dedicated to Lord Rama.",
+  "Pilgrims should bring essentials like comfortable clothing, water bottle, identification documents, and basic medicines.",
+  "The crowd density varies throughout the day, with early mornings and evenings being relatively less crowded.",
+  "Photography is allowed in most areas, but some sacred ceremonies and rituals may restrict it."
+];
+
+// Initialize TFIDF with our knowledge base for semantic search
+const nlpEngine = new TFIDF(kumbhMelaKnowledgeBase);
 
 export function ChatInterface() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "assistant", content: "Namaste! I'm your Kumbh Mela guide. How can I assist you today?" }
+    { role: "assistant", content: "Namaste! 🙏 I'm your Kumbh Mela guide powered by advanced NLP. How can I assist you with your pilgrimage today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [followUpSuggestions, setFollowUpSuggestions] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [searchResults, setSearchResults] = useState<{text: string, score: number}[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -30,9 +63,44 @@ export function ChatInterface() {
   }, [messages]);
 
   useEffect(() => {
-    const suggestions = getSuggestions(input);
-    setSuggestions(suggestions);
-    setSelectedSuggestionIndex(-1);
+    // Enhanced suggestion generation using NLP techniques
+    if (input.trim().length > 2) {
+      // Get standard suggestions
+      const standardSuggestions = getSuggestions(input);
+      
+      // Use Jaccard similarity for better matching
+      const enhancedSuggestions = standardSuggestions
+        .map(suggestion => ({
+          text: suggestion,
+          score: computeJaccardSimilarity(input.toLowerCase(), suggestion.toLowerCase())
+        }))
+        .filter(match => match.score > 0.1)
+        .sort((a, b) => b.score - a.score)
+        .map(match => match.text);
+      
+      // Extract entities and generate entity-specific suggestions
+      const entities = extractEntities(input);
+      const entitySuggestions: string[] = [];
+      
+      if (entities.locations.length > 0) {
+        const location = entities.locations[0];
+        entitySuggestions.push(`How crowded is ${location} now?`);
+        entitySuggestions.push(`Best time to visit ${location}?`);
+      }
+      
+      if (entities.events.length > 0) {
+        const event = entities.events[0];
+        entitySuggestions.push(`When is the next ${event}?`);
+        entitySuggestions.push(`What should I bring to ${event}?`);
+      }
+      
+      // Combine and de-duplicate
+      const uniqueSuggestions = Array.from(new Set([...enhancedSuggestions, ...entitySuggestions]));
+      setSuggestions(uniqueSuggestions.slice(0, 5));
+      setSelectedSuggestionIndex(-1);
+    } else {
+      setSuggestions([]);
+    }
   }, [input]);
 
   const handleSend = async (messageText = input) => {
@@ -42,10 +110,47 @@ export function ChatInterface() {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setSuggestions([]);
+    setFollowUpSuggestions([]);
     setIsLoading(true);
 
     try {
-      const response = await getChatResponse([...messages, userMessage]);
+      // First try to find an answer from our knowledge base using NLP
+      const nlpResults = nlpEngine.findSimilarDocuments(messageText, 3);
+      setSearchResults(nlpResults);
+      
+      // Extract entities from the query
+      const entities = extractEntities(messageText);
+      
+      let response = "";
+      
+      // If we have good matches from our knowledge base (confidence > 25%), use them
+      if (nlpResults.length > 0 && nlpResults[0].score > 0.25) {
+        // Use the best match as our base response
+        response = nlpResults[0].text;
+        
+        // If there are multiple good matches, combine insights
+        if (nlpResults.length > 1 && nlpResults[1].score > 0.2) {
+          response += " " + nlpResults[1].text;
+        }
+        
+        // If the query is about a specific location, prioritize location-specific info
+        if (entities.locations.length > 0) {
+          const locationMatches = nlpResults.filter(r => 
+            r.text.toLowerCase().includes(entities.locations[0].toLowerCase())
+          );
+          if (locationMatches.length > 0) {
+            response = locationMatches[0].text;
+          }
+        }
+        
+        // Generate follow-up questions based on the results
+        const followUps = nlpEngine.generateFollowUpQuestions(messageText, nlpResults);
+        setFollowUpSuggestions(followUps);
+      } else {
+        // If no good match in our knowledge base, use the server-side API
+        response = await getChatResponse([...messages, userMessage]);
+      }
+      
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -85,25 +190,31 @@ export function ChatInterface() {
     }
   };
 
-  // Quick prompts the user can click on
+  // Enhanced quick prompts the user can click on
   const quickPrompts = [
+    "What is Kumbh Mela?",
+    "Best time to visit?",
+    "Holy bathing spots",
+    "Important rituals",
     "Safety tips during rush hours",
-    "Best time to visit Ramkund",
     "Emergency services nearby",
-    "Transportation options"
+    "Transportation options",
+    "Crowd levels today"
   ];
 
   return (
     <div className="flex flex-col">
       <Card className="flex flex-col w-full bg-white shadow-lg rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
-        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-3 text-white">
-          <h2 className="text-xl font-bold">
+        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-4 text-white">
+          <h2 className="text-2xl font-bold flex items-center">
             <span className="hidden xs:inline">Kumbh Mela</span> AI Assistant
+            <span className="ml-2 px-2 py-0.5 bg-white/20 text-xs rounded-full">NLP Enhanced</span>
           </h2>
-          <p className="text-xs opacity-90">Ask any question about your pilgrimage</p>
+          <p className="text-sm opacity-90">Ask any question about your pilgrimage journey</p>
+          <p className="text-xs mt-1 opacity-75">Using advanced NLP and semantic search technology</p>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'min(400px, 50vh)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'min(500px, 60vh)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
@@ -113,6 +224,16 @@ export function ChatInterface() {
                 }`}
               >
                 {msg.content}
+                {msg.role === "assistant" && i > 0 && (
+                  <div className="mt-2 text-xs text-gray-500 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M12 16v-4"></path>
+                      <path d="M12 8h.01"></path>
+                    </svg>
+                    AI-generated response using semantic search
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
@@ -122,6 +243,7 @@ export function ChatInterface() {
                   <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-150"></div>
                   <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-300"></div>
                 </div>
+                <div className="mt-2 text-xs text-gray-500">Searching knowledge base...</div>
               </div>
             )}
             <div ref={messagesEndRef} />
