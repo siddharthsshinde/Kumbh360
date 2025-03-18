@@ -24,8 +24,11 @@ interface KnowledgeBase {
   id: number;
   topic: string;
   content: string;
+  source?: string;
+  lastUpdated: string;
+  confidence: number;
+  verified: boolean;
 }
-
 
 export interface IStorage {
   getAllFacilities(): Promise<Facility[]>;
@@ -84,6 +87,13 @@ export interface IStorage {
   saveChatMessage(sessionId: string, message: ChatMessage): Promise<void>;
   getResponseTemplate(type: string): Promise<ResponseTemplate | null>;
   formatResponse(template: string, variables: Record<string, string>): string;
+  storeKnowledgeBase(data: {
+    topic: string;
+    content: string;
+    source?: string;
+    confidence?: number;
+  }): Promise<void>;
+  searchKnowledgeBase(query: string): Promise<KnowledgeBase | null>;
 }
 
 export class MemStorage implements IStorage {
@@ -741,6 +751,14 @@ export class MemStorage implements IStorage {
   }): Promise<number> {
     const queryId = this.queryIdCounter++;
 
+    // Check the knowledge base first
+    const kbResult = await this.searchKnowledgeBase(data.query);
+    if (kbResult) {
+      data.response = kbResult.content;
+      data.sources = [kbResult.source || 'Internal Knowledge Base'];
+    }
+
+
     // Check if query is about crowd levels
     if (data.query.toLowerCase().includes('crowd') || data.query.toLowerCase().includes('people')) {
       const crowdLevels = await this.getAllCrowdLevels();
@@ -798,6 +816,31 @@ export class MemStorage implements IStorage {
 
   formatResponse(template: string, variables: Record<string, string>): string {
     return template.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match);
+  }
+
+  async storeKnowledgeBase(data: {
+    topic: string;
+    content: string;
+    source?: string;
+    confidence?: number;
+  }): Promise<void> {
+    this.knowledgeBaseItems.push({
+      id: this.knowledgeBaseItems.length + 1,
+      topic: data.topic,
+      content: data.content,
+      source: data.source || '',
+      lastUpdated: new Date().toISOString(),
+      confidence: data.confidence || 80,
+      verified: false
+    });
+  }
+
+  async searchKnowledgeBase(query: string): Promise<KnowledgeBase | null> {
+    // Simple search based on topic and content matching
+    return this.knowledgeBaseItems.find(item =>
+      item.topic.toLowerCase().includes(query.toLowerCase()) ||
+      item.content.toLowerCase().includes(query.toLowerCase())
+    ) || null;
   }
 }
 

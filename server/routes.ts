@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Enhanced NLP query route with chat history and context
+  // Enhanced NLP query route with knowledge base integration
   app.post("/api/nlp/query", async (req, res) => {
     try {
       const { query, sessionId } = req.body;
@@ -95,20 +95,29 @@ export async function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Query is required" });
       }
 
-      const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBon0OTRkC6324gW3BYpc1ziCCPbjuv0fQ";
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      // First check if we have a similar query in our knowledge base
+      const existingKnowledge = await storage.searchKnowledgeBase(query);
+      let answer: string;
+      let isFromKnowledgeBase = false;
 
-      // Get chat history for context
-      const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
-      const recentMessages = chatHistory.slice(-5); // Get last 5 messages for context
+      if (existingKnowledge) {
+        answer = existingKnowledge.content;
+        isFromKnowledgeBase = true;
+      } else {
+        // If not found in knowledge base, use Gemini API
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBon0OTRkC6324gW3BYpc1ziCCPbjuv0fQ";
+        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      // Create enhanced prompt with context
-      const contextPrompt = recentMessages.map(msg => 
-        `${msg.role}: ${msg.content}`
-      ).join('\n');
+        // Get chat history for context
+        const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
+        const recentMessages = chatHistory.slice(-5);
 
-      const prompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Answer questions about locations, crowd management, facilities, and religious aspects of the event. Be precise and respectful.
+        const contextPrompt = recentMessages.map(msg =>
+          `${msg.role}: ${msg.content}`
+        ).join('\n');
+
+        const prompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Answer questions about locations, crowd management, facilities, and religious aspects of the event. Be precise and respectful.
 
 Previous conversation:
 ${contextPrompt}
@@ -120,55 +129,60 @@ Use the following format for certain types of questions:
 - For crowd-related queries: Provide real-time crowd levels and safety advice
 - For emergency queries: Provide immediate action steps and relevant contact information`;
 
-      try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        answer = response.text();
 
-        // Save the chat messages
-        if (sessionId) {
-          const userMessage: ChatMessage = {
-            role: 'user',
-            content: query,
-            timestamp: new Date().toISOString(),
-            metadata: {
-              intent: determineQueryIntent(query)
-            }
-          };
-
-          const assistantMessage: ChatMessage = {
-            role: 'assistant',
-            content: text,
-            timestamp: new Date().toISOString()
-          };
-
-          await storage.saveChatMessage(sessionId, userMessage);
-          await storage.saveChatMessage(sessionId, assistantMessage);
-        }
-
-        // Store the query and enhanced response
-        const queryId = await storage.storeUserQuery({
-          query,
-          response: text,
-          sources: [],
-          feedback: null
+        // Store the new knowledge for future use
+        await storage.storeKnowledgeBase({
+          topic: query,
+          content: answer,
+          source: 'Gemini API',
+          confidence: 85
         });
-
-        // Return the enhanced response
-        res.json({
-          queryId,
-          answer: text,
-          sources: [],
-          context: {
-            sessionId,
-            messageCount: chatHistory.length + 2
-          }
-        });
-
-      } catch (error) {
-        console.error("Gemini API error:", error);
-        res.status(500).json({ error: "Failed to generate response from Gemini API" });
       }
+
+      // Save chat history if sessionId is provided
+      if (sessionId) {
+        const userMessage: ChatMessage = {
+          role: 'user',
+          content: query,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            intent: determineQueryIntent(query)
+          }
+        };
+
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: answer,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            source: isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api'
+          }
+        };
+
+        await storage.saveChatMessage(sessionId, userMessage);
+        await storage.saveChatMessage(sessionId, assistantMessage);
+      }
+
+      // Store the query and response
+      const queryId = await storage.storeUserQuery({
+        query,
+        response: answer,
+        sources: [isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api'],
+        feedback: null
+      });
+
+      res.json({
+        queryId,
+        answer,
+        source: isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api',
+        context: {
+          sessionId,
+          messageCount: sessionId ? (await storage.getChatHistory(sessionId)).length : 0
+        }
+      });
 
     } catch (error) {
       console.error("NLP Query error:", error);
