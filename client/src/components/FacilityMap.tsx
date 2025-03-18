@@ -1448,12 +1448,13 @@ export function FacilityMap(): JSX.Element {
         const lat = Number(facility.location.lat);
         const lng = Number(facility.location.lng);
         
-        if (!isNaN(lat) && !isNaN(lng)) {
+        if (!isNaN(lat) && !isNaN(lng) && mapRef.current) {
           const marker = L.marker(
             [lat, lng],
             { icon: createCustomIcon(facility.type) }
-          )
-            .addTo(mapRef.current!)
+          );
+          
+          marker.addTo(mapRef.current)
             .bindPopup(
               `<b>${facility.name}</b><br>${facility.address || ''}<br>${
                 facility.contact ? `Contact: ${facility.contact}` : ""
@@ -1473,12 +1474,13 @@ export function FacilityMap(): JSX.Element {
           const lat = Number(shuttle.coordinates.lat);
           const lng = Number(shuttle.coordinates.lng);
           
-          if (!isNaN(lat) && !isNaN(lng)) {
+          if (!isNaN(lat) && !isNaN(lng) && mapRef.current) {
             const marker = L.marker(
               [lat, lng],
               { icon: createCustomIcon('shuttle_stop') }
-            )
-            .addTo(mapRef.current!)
+            );
+            
+            marker.addTo(mapRef.current)
             .bindPopup(
               `<div class="text-sm">
                 <h3 class="font-bold text-blue-600">${shuttle.routeName}</h3>
@@ -1508,12 +1510,13 @@ export function FacilityMap(): JSX.Element {
           const lat = Number(restroom.coordinates.lat);
           const lng = Number(restroom.coordinates.lng);
           
-          if (!isNaN(lat) && !isNaN(lng)) {
+          if (!isNaN(lat) && !isNaN(lng) && mapRef.current) {
             const marker = L.marker(
               [lat, lng],
               { icon: createCustomIcon('restroom') }
-            )
-            .addTo(mapRef.current!)
+            );
+            
+            marker.addTo(mapRef.current)
             .bindPopup(
               `<div class="text-sm">
                 <h3 class="font-bold text-purple-600">${restroom.location}</h3>
@@ -1596,7 +1599,11 @@ export function FacilityMap(): JSX.Element {
         circleOptions.dashArray = '5, 10';
       }
 
-      const safetyZone = L.circle(coordinates, circleOptions).addTo(mapRef.current!);
+      let safetyZone: L.Circle = L.circle(coordinates, circleOptions);
+      
+      if (mapRef.current) {
+        safetyZone.addTo(mapRef.current);
+      }
       
       safetyZonesRef.current.push(safetyZone);
       
