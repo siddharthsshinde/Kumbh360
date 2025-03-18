@@ -46,8 +46,10 @@ export function CrowdLevelIndicator() {
 
   if (!crowdLevels) return null;
 
+  const cardHeight = "calc(100vh - 280px)";
+  
   return (
-    <Card className="w-full h-full overflow-hidden shadow-md border-none card-hover flex flex-col">
+    <Card className="w-full h-full overflow-hidden shadow-md border-none card-hover flex flex-col" style={{ height: cardHeight }}>
       <div className="bg-gradient-to-r from-[#138808]/80 to-[#138808]/90 p-3 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -64,7 +66,7 @@ export function CrowdLevelIndicator() {
         </div>
       </div>
       
-      <div className="divide-y divide-gray-100 flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <div className="divide-y divide-gray-100 flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 330px)' }}>
         {crowdLevels.map((level) => {
           const crowdPercentage = (level.currentCount / level.capacity) * 100;
           let statusBgColor;

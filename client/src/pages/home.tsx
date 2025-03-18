@@ -168,13 +168,15 @@ export default function Home() {
 
         {/* Main Content Sections */}
         <div className={`space-y-6 ${(activeTab === "main" || activeTab === "info") ? "" : "hidden md:block"}`}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-            <div className="md:col-span-2 h-full flex flex-col">
-              <ChatInterface />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 flex flex-col">
+              <div className="h-full">
+                <ChatInterface />
+              </div>
             </div>
-            <div className="space-y-4 h-full flex flex-col">
+            <div className="space-y-4 flex flex-col">
               <WeatherWidget />
-              <div className="flex-grow">
+              <div className="flex-grow h-full">
                 <CrowdLevelIndicator />
               </div>
             </div>
