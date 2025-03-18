@@ -43,7 +43,9 @@ const nlpEngine = new TFIDF(kumbhMelaKnowledgeBase);
 export function ChatInterface() {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: "assistant", content: "Namaste! 🙏 I'm your Kumbh Mela guide powered by advanced NLP. How can I assist you with your pilgrimage today?" }
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -56,42 +58,6 @@ export function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Load chat history from localStorage on initial load
-  useEffect(() => {
-    try {
-      const savedMessages = localStorage.getItem('kumbhChatHistory');
-      
-      if (savedMessages && JSON.parse(savedMessages).length > 0) {
-        setMessages(JSON.parse(savedMessages));
-      } else {
-        // Default welcome message if no history exists
-        setMessages([
-          { 
-            role: "assistant", 
-            content: "🙏 Namaste! I'm your AI-powered Kumbh Mela guide. I can provide information about bathing schedules, transportation, accommodation, crowd levels, and more. How can I assist you today?" 
-          }
-        ]);
-      }
-    } catch (error) {
-      console.error("Error loading chat history:", error);
-      // Fallback message in case of error
-      setMessages([
-        { 
-          role: "assistant", 
-          content: "Welcome to Kumbh Mela AI Assistant. How can I help you today?" 
-        }
-      ]);
-    }
-  }, []);
-
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('kumbhChatHistory', JSON.stringify(messages));
-    }
-  }, [messages]);
-  
-  // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -254,25 +220,7 @@ export function ChatInterface() {
                 <span className="w-2 h-2 rounded-full bg-green-400 mr-1"></span>
                 <span>Knowledge Base: 23 Entries</span>
               </div>
-              <div className="flex items-center mt-1">
-                <div className="text-xs opacity-75 mr-2">Supports Hindi & English</div>
-                <button 
-                  onClick={() => {
-                    localStorage.removeItem('kumbhChatHistory');
-                    setMessages([{ 
-                      role: "assistant", 
-                      content: "🙏 Chat history cleared. How else can I assist you with Kumbh Mela information?" 
-                    }]);
-                    toast({
-                      title: "Chat History Cleared",
-                      description: "Your conversation history has been deleted.",
-                    });
-                  }}
-                  className="text-[10px] bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded-md transition-colors"
-                >
-                  Clear History
-                </button>
-              </div>
+              <div className="text-xs mt-1 opacity-75">Supports Hindi & English</div>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
@@ -283,7 +231,7 @@ export function ChatInterface() {
           </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'min(1000px, 90vh)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'min(800px, 80vh)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
