@@ -582,6 +582,10 @@ export function FacilityMap(): JSX.Element {
   // For area zone visualization (integrated with main map)
   const areaZoneLayersRef = useRef<L.Layer[]>([]);
   const [showAreaZones, setShowAreaZones] = useState(false);
+  
+  // For WebSocket connection to get real-time density updates
+  const wsRef = useRef<WebSocket | null>(null);
+  const [densityData, setDensityData] = useState<any>(null);
 
   // Helper function to toggle view modes - ensuring all modes are mutually exclusive
   const toggleViewMode = (mode: ViewMode) => {
@@ -589,9 +593,15 @@ export function FacilityMap(): JSX.Element {
     if (activeViewMode === mode) {
       setActiveViewMode('facilities');
     } else {
-      // Turn off density grid and area zones when toggling between heatmap and safety
-      setShowDensityGrid(false);
-      setShowAreaZones(false);
+      if (mode === 'density') {
+        // If switching to density mode, enable density grid
+        setShowDensityGrid(true);
+        setShowAreaZones(false);
+      } else {
+        // Turn off density grid and area zones when toggling to other modes
+        setShowDensityGrid(false);
+        setShowAreaZones(false);
+      }
       setActiveViewMode(mode);
     }
   };
@@ -1517,15 +1527,19 @@ export function FacilityMap(): JSX.Element {
 
   // Toggle functions for visualization layers - ensuring they're mutually exclusive
   const toggleDensityGrid = () => {
-    // If turning on density grid, turn off area zones
+    // If turning on density grid, turn off area zones and set view mode to density
     if (!showDensityGrid) {
       setShowAreaZones(false);
+      setActiveViewMode('density');
+    } else {
+      // If turning off density grid, revert to facilities view mode
+      setActiveViewMode('facilities');
     }
     setShowDensityGrid(!showDensityGrid);
   };
   
   const toggleAreaZones = () => {
-    // If turning on area zones, turn off density grid
+    // If turning on area zones, turn off density grid and stay in current view
     if (!showAreaZones) {
       setShowDensityGrid(false);
     }
