@@ -1,33 +1,39 @@
 import type { Facility, EmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage } from "@shared/schema";
+import { pipeline } from '@xenova/transformers';
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
-// Define migration pattern type for crowd movement
-interface CrowdMigrationPattern {
-  from: "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
-  to: "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
-  flowRate: number;
-  timeRange: [number, number]; // [startHour, endHour]
+// Initialize the embedding model
+let embedder: any = null;
+async function getEmbedder() {
+  if (!embedder) {
+    embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+  }
+  return embedder;
 }
 
-// Define UserQuery type
-interface UserQuery {
-  id: number;
-  query: string;
-  response: string;
-  sources: string[];
-  timestamp: string;
-  feedback: number | null;
+// Calculate cosine similarity between two vectors
+function cosineSimilarity(vecA: number[], vecB: number[]): number {
+  const dotProduct = vecA.reduce((acc, val, i) => acc + val * vecB[i], 0);
+  const normA = Math.sqrt(vecA.reduce((acc, val) => acc + val * val, 0));
+  const normB = Math.sqrt(vecB.reduce((acc, val) => acc + val * val, 0));
+  return dotProduct / (normA * normB);
 }
 
-// Define KnowledgeBase type (assuming a structure - adjust as needed)
-interface KnowledgeBase {
-  id: number;
-  topic: string;
-  content: string;
-  source?: string;
-  lastUpdated: string;
-  confidence: number;
-  verified: boolean;
+// Get embedding for a text string
+async function getEmbedding(text: string): Promise<number[]> {
+  const model = await getEmbedder();
+  const output = await model(text, { pooling: 'mean', normalize: true });
+  return Array.from(output.data);
+}
+
+// Extract keywords from text
+function extractKeywords(text: string): string[] {
+  const stopWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']);
+  const words = text.toLowerCase()
+    .replace(/[^\w\s]/g, '')
+    .split(/\s+/)
+    .filter(word => !stopWords.has(word));
+  return Array.from(new Set(words));
 }
 
 export interface IStorage {
@@ -725,8 +731,8 @@ export class MemStorage implements IStorage {
         estimatedArrival: randomDelay ? `${Math.floor(Math.random() * 10 + 5)} mins` : shuttle.estimatedArrival,
         capacity: randomCrowd ? `${Math.floor(Math.random() * 50 + 50)}%` : shuttle.capacity,
         status: randomDelay ? "delayed" as const :
-               randomCrowd ? "crowded" as const :
-               "on-time" as const
+          randomCrowd ? "crowded" as const :
+            "on-time" as const
       };
     });
   }
@@ -738,8 +744,8 @@ export class MemStorage implements IStorage {
       return {
         ...restroom,
         status: random > 0.8 ? "maintenance" as const :
-                random > 0.95 ? "closed" as const :
-                "operational" as const
+          random > 0.95 ? "closed" as const :
+            "operational" as const
       };
     });
   }
@@ -824,23 +830,79 @@ export class MemStorage implements IStorage {
     source?: string;
     confidence?: number;
   }): Promise<void> {
-    this.knowledgeBaseItems.push({
-      id: this.knowledgeBaseItems.length + 1,
-      topic: data.topic,
-      content: data.content,
-      source: data.source || '',
-      lastUpdated: new Date().toISOString(),
-      confidence: data.confidence || 80,
-      verified: false
-    });
+    try {
+      // Generate embedding for the new content
+      const text = data.topic + ' ' + data.content;
+      const embedding = await getEmbedding(text);
+      const keywords = extractKeywords(text);
+
+      this.knowledgeBaseItems.push({
+        id: this.knowledgeBaseItems.length + 1,
+        topic: data.topic,
+        content: data.content,
+        source: data.source || '',
+        lastUpdated: new Date().toISOString(),
+        confidence: data.confidence || 80,
+        verified: false,
+        embedding,
+        keywords
+      });
+    } catch (error) {
+      console.error('Error storing knowledge base item:', error);
+      // Store without embedding if generation fails
+      this.knowledgeBaseItems.push({
+        id: this.knowledgeBaseItems.length + 1,
+        topic: data.topic,
+        content: data.content,
+        source: data.source || '',
+        lastUpdated: new Date().toISOString(),
+        confidence: data.confidence || 80,
+        verified: false
+      });
+    }
   }
 
   async searchKnowledgeBase(query: string): Promise<KnowledgeBase | null> {
-    // Simple search based on topic and content matching
-    return this.knowledgeBaseItems.find(item =>
-      item.topic.toLowerCase().includes(query.toLowerCase()) ||
-      item.content.toLowerCase().includes(query.toLowerCase())
-    ) || null;
+    try {
+      // Get embedding for the query
+      const queryEmbedding = await getEmbedding(query);
+      const queryKeywords = extractKeywords(query);
+
+      // First, try keyword-based filtering
+      const keywordMatches = this.knowledgeBaseItems.filter(item => {
+        const itemKeywords = item.keywords || extractKeywords(item.topic + ' ' + item.content);
+        return queryKeywords.some(keyword =>
+          itemKeywords.some(itemKeyword => itemKeyword.includes(keyword))
+        );
+      });
+
+      if (keywordMatches.length === 0) {
+        return null;
+      }
+
+      // For keyword matches, compute semantic similarity
+      const similarities = await Promise.all(
+        keywordMatches.map(async item => {
+          const itemEmbedding = item.embedding || await getEmbedding(item.topic + ' ' + item.content);
+          return {
+            item,
+            similarity: cosineSimilarity(queryEmbedding, itemEmbedding)
+          };
+        })
+      );
+
+      // Sort by similarity and return the best match if it exceeds threshold
+      const bestMatch = similarities.sort((a, b) => b.similarity - a.similarity)[0];
+      return bestMatch.similarity > 0.7 ? bestMatch.item : null;
+
+    } catch (error) {
+      console.error('Error in semantic search:', error);
+      // Fallback to basic text matching if semantic search fails
+      return this.knowledgeBaseItems.find(item =>
+        item.topic.toLowerCase().includes(query.toLowerCase()) ||
+        item.content.toLowerCase().includes(query.toLowerCase())
+      ) || null;
+    }
   }
 }
 

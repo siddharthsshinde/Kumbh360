@@ -42,6 +42,8 @@ export const knowledgeBase = pgTable("knowledge_base", {
   lastUpdated: timestamp("last_updated").defaultNow(),
   confidence: integer("confidence"), // 0-100
   verified: boolean("verified").default(false),
+  embedding: jsonb("embedding"), // Store text embeddings for semantic search
+  keywords: text("keywords").array(), // Store extracted keywords for better matching
 });
 
 export const userQueries = pgTable("user_queries", {
@@ -51,15 +53,16 @@ export const userQueries = pgTable("user_queries", {
   sources: jsonb("sources").notNull(), // Array of source URLs
   timestamp: timestamp("timestamp").defaultNow(),
   feedback: integer("feedback"), // User feedback score (1-5)
+  queryEmbedding: jsonb("query_embedding"), // Store query embeddings for semantic matching
 });
 
 // Enhanced chat history table
 export const chatHistory = pgTable("chat_history", {
   id: serial("id").primaryKey(),
   sessionId: text("session_id").notNull(),
-  messages: jsonb("messages").notNull(), // Array of message objects
+  messages: jsonb("messages").notNull(),
   lastUpdated: timestamp("last_updated").defaultNow(),
-  metadata: jsonb("metadata"), // Additional context info
+  metadata: jsonb("metadata"),
 });
 
 // Structured response format
@@ -70,7 +73,6 @@ export const responseTemplates = pgTable("response_templates", {
   variables: jsonb("variables").notNull(), // Required variables for template
   lastModified: timestamp("last_modified").defaultNow(),
 });
-
 
 // Define the location type
 export const locationSchema = z.object({
