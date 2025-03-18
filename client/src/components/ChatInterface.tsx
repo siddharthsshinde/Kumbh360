@@ -85,11 +85,25 @@ export function ChatInterface() {
     }
   };
 
+  // Quick prompts the user can click on
+  const quickPrompts = [
+    "Safety tips during rush hours",
+    "Best time to visit Ramkund",
+    "Emergency services nearby",
+    "Transportation options"
+  ];
+
   return (
     <div className="flex flex-col">
-      <h2 className="text-2xl font-bold mb-4 text-center text-[#FF7F00]">Kumbh Mela Guide</h2>
-      <Card className="flex flex-col h-[600px] w-full max-w-2xl bg-white shadow-lg relative">
-        <ScrollArea className="flex-1 p-4">
+      <Card className="flex flex-col w-full bg-white shadow-lg rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
+        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-3 text-white">
+          <h2 className="text-xl font-bold">
+            <span className="hidden xs:inline">Kumbh Mela</span> AI Assistant
+          </h2>
+          <p className="text-xs opacity-90">Ask any question about your pilgrimage</p>
+        </div>
+        
+        <ScrollArea className="flex-1 p-4" style={{ height: 'min(400px, 50vh)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
@@ -102,13 +116,33 @@ export function ChatInterface() {
               </div>
             ))}
             {isLoading && (
-              <div className="chat-bubble chat-bubble-assistant animate-pulse">
-                <span className="text-gray-500">Typing...</span>
+              <div className="chat-bubble chat-bubble-assistant">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-150"></div>
+                  <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-300"></div>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
+        
+        {/* Quick prompts */}
+        <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-2 flex-nowrap">
+            {quickPrompts.map((prompt, i) => (
+              <button
+                key={i}
+                className="px-3 py-1 bg-white text-[#FF7F00] border border-[#FF7F00] rounded-full text-xs whitespace-nowrap hover:bg-[#FF7F00] hover:text-white transition-colors"
+                onClick={() => setInput(prompt)}
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+        
         <div className="p-4 border-t border-gray-200">
           <div className="flex flex-col gap-2 relative">
             <div className="flex gap-2 w-full relative">
@@ -117,13 +151,13 @@ export function ChatInterface() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask me anything about Kumbh Mela..."
-                className="flex-1 bg-gray-50 border-gray-200"
+                className="flex-1 bg-white border-[#FF7F00]/30 focus-visible:ring-[#FF7F00]"
                 disabled={isLoading}
               />
               <Button 
                 onClick={handleSend}
                 disabled={isLoading}
-                className="bg-[#FF7F00] hover:bg-[#E67300] text-white"
+                className="bg-[#FF7F00] hover:bg-[#E3A018] text-white"
               >
                 <Send className="h-4 w-4" />
               </Button>

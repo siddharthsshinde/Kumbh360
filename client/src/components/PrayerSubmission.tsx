@@ -37,18 +37,18 @@ export function PrayerSubmission() {
   return (
     <>
       <Button
-        variant="outline"
+        variant="default"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-700"
+        className="rounded-full w-14 h-14 shadow-lg flex items-center justify-center bg-[#FF7F00] hover:bg-[#E3A018] text-white"
+        aria-label="Submit Prayer"
       >
-        <Heart className="h-4 w-4" />
-        {t("submitPrayer")}
+        <Heart className="h-6 w-6" />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{t("submitPrayer")}</DialogTitle>
+            <DialogTitle className="text-[#FF7F00] text-xl">{t("submitPrayer")}</DialogTitle>
             <DialogDescription>
               Your prayer will be physically placed at the sacred sites by our local representatives.
             </DialogDescription>
@@ -58,11 +58,11 @@ export function PrayerSubmission() {
               value={prayer}
               onChange={(e) => setPrayer(e.target.value)}
               placeholder={t("prayerPlaceholder")}
-              className="min-h-[100px]"
+              className="min-h-[100px] border-[#FF7F00]/20 focus:border-[#FF7F00]"
             />
           </div>
           <DialogFooter>
-            <Button onClick={handleSubmit} className="bg-[#FF7F00] hover:bg-[#FF5500]">
+            <Button onClick={handleSubmit} className="bg-[#FF7F00] hover:bg-[#E3A018] text-white">
               {t("submitPrayer")}
             </Button>
           </DialogFooter>
