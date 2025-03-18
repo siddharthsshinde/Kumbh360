@@ -66,13 +66,40 @@
 
 /* Chat interface custom styles */
 .chat-bubble {
-  @apply max-w-[80%] rounded-2xl px-4 py-2 mb-4;
+  @apply max-w-[85%] rounded-2xl px-5 py-3 mb-4 shadow-sm;
+  position: relative;
 }
 
 .chat-bubble-user {
-  @apply ml-auto bg-[#FF7F00] text-white rounded-br-sm;
+  @apply ml-auto bg-gradient-to-r from-[#FF7F00] to-[#E3A018] text-white rounded-br-sm;
+  box-shadow: 0 2px 8px rgba(255, 127, 0, 0.15);
+}
+
+.chat-bubble-user::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(to right, #FF7F00, #E3A018);
+  clip-path: polygon(0 0, 0% 100%, 100% 100%);
 }
 
 .chat-bubble-assistant {
-  @apply bg-gray-100 text-[#333333] rounded-bl-sm;
+  @apply bg-white border border-gray-200 text-[#333333] rounded-bl-sm;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.chat-bubble-assistant::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 }

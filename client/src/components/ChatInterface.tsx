@@ -203,8 +203,8 @@ export function ChatInterface() {
   ];
 
   return (
-    <div className="flex flex-col">
-      <Card className="flex flex-col w-full bg-white shadow-lg rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
+    <div className="flex flex-col w-full max-w-5xl mx-auto">
+      <Card className="flex flex-col w-full bg-white shadow-xl rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
         <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-5 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -231,7 +231,7 @@ export function ChatInterface() {
           </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'min(650px, 70vh)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'min(800px, 80vh)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
