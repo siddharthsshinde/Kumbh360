@@ -597,6 +597,10 @@ export function FacilityMap(): JSX.Element {
         // If switching to density mode, enable density grid
         setShowDensityGrid(true);
         setShowAreaZones(false);
+      } else if (mode === 'area') {
+        // If switching to area mode, enable area zones
+        setShowAreaZones(true);
+        setShowDensityGrid(false);
       } else {
         // Turn off density grid and area zones when toggling to other modes
         setShowDensityGrid(false);
@@ -818,7 +822,11 @@ export function FacilityMap(): JSX.Element {
                 fillColor: cellColor,
                 fillOpacity: 0.1 + (intensity * 0.3),
                 weight: 1
-              }).addTo(mapRef.current);
+              });
+              
+              if (mapRef.current) {
+                polygon.addTo(mapRef.current);
+              }
               
               // Add class for styling
               if (polygon.getElement()) {
@@ -838,7 +846,11 @@ export function FacilityMap(): JSX.Element {
                   weight: 2,
                   opacity: opacity,
                   dashArray: '5,10'
-                }).addTo(mapRef.current!);
+                });
+                
+                if (mapRef.current) {
+                  polyline.addTo(mapRef.current);
+                }
                 
                 densityGridLayersRef.current.push(polyline);
               });
@@ -905,7 +917,11 @@ export function FacilityMap(): JSX.Element {
                   fillColor: color,
                   fillOpacity: 0.2 + (density * 0.15) + pulseEffect,
                   weight: 1
-                }).addTo(mapRef.current!);
+                });
+                
+                if (mapRef.current) {
+                  polygon.addTo(mapRef.current);
+                }
                 
                 if (polygon.getElement()) {
                   polygon.getElement()?.classList.add('density-grid-cell');
@@ -983,7 +999,11 @@ export function FacilityMap(): JSX.Element {
             fillColor: zone.color,
             fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
             weight: 2
-          }).addTo(mapRef.current!);
+          });
+          
+          if (mapRef.current) {
+            polygon.addTo(mapRef.current);
+          }
           
           // Add class to element using DOM methods instead
           if (polygon.getElement()) {
@@ -1075,7 +1095,11 @@ export function FacilityMap(): JSX.Element {
                 weight: 2,
                 opacity: 0.5 + Math.sin(timeOffset) * 0.3,
                 dashArray: '5, 8'
-              }).addTo(mapRef.current!);
+              });
+              
+              if (mapRef.current) {
+                polyline.addTo(mapRef.current);
+              }
               
               // Add class using DOM methods
               if (polyline.getElement()) {
@@ -1683,9 +1707,13 @@ export function FacilityMap(): JSX.Element {
   };
   
   const toggleAreaZones = () => {
-    // If turning on area zones, turn off density grid and stay in current view
+    // If turning on area zones, turn off density grid and set view mode to area
     if (!showAreaZones) {
       setShowDensityGrid(false);
+      setActiveViewMode('area');
+    } else {
+      // If turning off area zones, revert to facilities view mode
+      setActiveViewMode('facilities');
     }
     setShowAreaZones(!showAreaZones);
   };
