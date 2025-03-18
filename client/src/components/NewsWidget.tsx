@@ -47,7 +47,7 @@ export function NewsWidget() {
       {
         id: 102,
         title: "Special Train Services for Prayagraj Kumbh",
-        content: "Indian Railways has announced special train services connecting major cities to Prayagraj for the upcoming Kumbh Mela in 2025.",
+        content: "Indian Railways has announced special train services connecting major cities to Prayagraj for the upcoming Kumbh Mela in the year 2025.",
         language: "en",
         timestamp: new Date().toISOString(),
         category: "Transport"
@@ -135,67 +135,119 @@ export function NewsWidget() {
     return 0;
   });
 
-  const getBadgeColor = (category: string) => {
+  const getCategoryStyles = (category: string) => {
     switch (category) {
-      case "Emergency": return "bg-red-500 hover:bg-red-600";
-      case "Event": return "bg-blue-500 hover:bg-blue-600";
-      case "Transport": return "bg-green-500 hover:bg-green-600";
-      case "Culture": return "bg-purple-500 hover:bg-purple-600";
-      default: return "bg-gray-500 hover:bg-gray-600";
+      case "Emergency": 
+        return { 
+          bg: "bg-gradient-to-r from-red-600 to-red-500",
+          text: "text-red-600",
+          border: "border-red-200",
+          icon: "🚨",
+          cardBg: "bg-red-50"
+        };
+      case "Event": 
+        return { 
+          bg: "bg-gradient-to-r from-blue-600 to-blue-500",
+          text: "text-blue-600",
+          border: "border-blue-200",
+          icon: "🎪",
+          cardBg: "bg-blue-50"
+        };
+      case "Transport": 
+        return { 
+          bg: "bg-gradient-to-r from-green-600 to-green-500",
+          text: "text-green-600",
+          border: "border-green-200",
+          icon: "🚆",
+          cardBg: "bg-green-50"
+        };
+      case "Culture": 
+        return { 
+          bg: "bg-gradient-to-r from-purple-600 to-purple-500",
+          text: "text-purple-600",
+          border: "border-purple-200",
+          icon: "🎭",
+          cardBg: "bg-purple-50"
+        };
+      default: 
+        return { 
+          bg: "bg-gradient-to-r from-gray-600 to-gray-500",
+          text: "text-gray-600",
+          border: "border-gray-200",
+          icon: "📰",
+          cardBg: "bg-gray-50"
+        };
     }
   };
 
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  };
+
   return (
-    <div className="w-full bg-white rounded-lg shadow-md p-4">
-      <h2 className="text-xl font-semibold mb-4 text-[#FF7F00] flex items-center">
-        <span className="mr-2">📰</span>
-        Live News
-      </h2>
+    <div className="w-full bg-white rounded-lg shadow-lg overflow-hidden border-none card-hover">
+      <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-3 text-white">
+        <h2 className="text-xl font-semibold flex items-center">
+          <span className="mr-2">📣</span>
+          {t("Kumbh Mela News Updates")}
+        </h2>
+        <p className="text-xs opacity-90">{t("Latest information and alerts")}</p>
+      </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF7F00]"></div>
         </div>
       ) : (
-        <div className="space-y-6">
-          {categories.map(category => (
-            <div key={category} className="mb-4">
-              <div className="flex items-center mb-2">
-                <Badge className={`${getBadgeColor(category)} text-white`}>
-                  {category}
-                </Badge>
+        <div className="p-2 sm:p-4">
+          {categories.map(category => {
+            const { bg, text, border, icon, cardBg } = getCategoryStyles(category);
+            
+            return (
+              <div key={category} className="mb-6 last:mb-0">
+                <div className="flex items-center mb-2">
+                  <Badge className={`${bg} text-white px-3 py-1`}>
+                    <span className="mr-1">{icon}</span>
+                    {category}
+                  </Badge>
+                </div>
+                
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  className="w-full"
+                >
+                  <CarouselContent>
+                    {groupedNews[category].map((item) => (
+                      <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3 px-2">
+                        <Card className={`border ${border} shadow-sm overflow-hidden h-full ${cardBg}`}>
+                          <CardContent className="p-4">
+                            <h3 className={`font-bold mb-2 ${text}`}>
+                              {item.title}
+                            </h3>
+                            <p className="text-sm text-gray-700 mb-3">
+                              {item.content}
+                            </p>
+                            <div className="flex items-center gap-1 text-xs text-gray-500 justify-end">
+                              <Clock className="h-3 w-3" />
+                              <span>{formatTimestamp(item.timestamp)}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="hidden sm:block">
+                    <CarouselPrevious className="-left-2 bg-white/80 hover:bg-white border border-gray-200" />
+                    <CarouselNext className="-right-2 bg-white/80 hover:bg-white border border-gray-200" />
+                  </div>
+                </Carousel>
               </div>
-              
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                className="w-full"
-              >
-                <CarouselContent>
-                  {groupedNews[category].map((item) => (
-                    <CarouselItem key={item.id} className="md:basis-1/2 lg:basis-1/3">
-                      <Card>
-                        <CardContent className="p-4">
-                          <h3 className="font-bold mb-2">{item.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{item.content}</p>
-                          <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <Clock className="h-3 w-3" />
-                            <span>
-                              {new Date(item.timestamp).toLocaleTimeString()}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex" />
-                <CarouselNext className="hidden md:flex" />
-              </Carousel>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
