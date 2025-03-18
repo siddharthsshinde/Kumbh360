@@ -250,9 +250,9 @@ export class TFIDF {
     
     for (const doc of this.documents) {
       const uniqueTerms = new Set(doc);
-      for (const term of uniqueTerms) {
+      Array.from(uniqueTerms).forEach(term => {
         documentFrequency.set(term, (documentFrequency.get(term) || 0) + 1);
-      }
+      });
     }
     
     // Compute IDF scores with smoothing

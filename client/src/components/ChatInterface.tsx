@@ -231,7 +231,14 @@ export function ChatInterface() {
                       <path d="M12 16v-4"></path>
                       <path d="M12 8h.01"></path>
                     </svg>
-                    AI-generated response using semantic search
+                    {searchResults.length > 0 && searchResults[0].score > 0.25 ? (
+                      <span>
+                        NLP match found (confidence: {Math.round(searchResults[0].score * 100)}%)
+                        {searchResults.length > 1 && <span className="ml-1 text-amber-600">· {searchResults.length} matches</span>}
+                      </span>
+                    ) : (
+                      <span>AI-generated response using semantic search</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -243,7 +250,17 @@ export function ChatInterface() {
                   <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-150"></div>
                   <div className="w-2 h-2 rounded-full bg-[#FF7F00] animate-pulse delay-300"></div>
                 </div>
-                <div className="mt-2 text-xs text-gray-500">Searching knowledge base...</div>
+                <div className="mt-2 text-xs text-gray-500">
+                  <div className="flex items-center">
+                    <Search className="h-3 w-3 mr-1" />
+                    <span>Analyzing using advanced NLP...</span>
+                  </div>
+                  <div className="mt-1 font-mono text-[10px] text-gray-400">
+                    <span className="text-amber-500">●</span> Tokenizing input
+                    <span className="ml-2 text-amber-600">●</span> Removing stopwords
+                    <span className="ml-2 text-amber-700">●</span> Computing semantic similarity
+                  </div>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -264,6 +281,27 @@ export function ChatInterface() {
             ))}
           </div>
         </div>
+        
+        {/* Follow-up suggestions based on NLP analysis */}
+        {followUpSuggestions.length > 0 && messages.length > 1 && !isLoading && (
+          <div className="px-4 py-3 border-t border-gray-100 bg-white/50">
+            <div className="flex items-center text-sm text-gray-600 mb-2">
+              <Lightbulb className="h-4 w-4 mr-1 text-amber-500" />
+              <span>You might also be interested in:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {followUpSuggestions.map((suggestion, i) => (
+                <button
+                  key={i}
+                  className="px-3 py-1.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg text-xs hover:bg-amber-100 transition-colors"
+                  onClick={() => handleSend(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         
         <div className="p-4 border-t border-gray-200">
           <div className="flex flex-col gap-2 relative">
