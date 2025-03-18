@@ -1,11 +1,38 @@
 import type { Express } from "express";
 import { createServer } from "http";
+import { WebSocketServer } from 'ws';
 import { storage } from "./storage";
-import type { WeatherData, GeminiRequest, ChatMessage } from "@shared/schema";
+import type { WeatherData, GeminiRequest, ChatMessage, DensityGrid } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+
+  // Broadcast density updates to all connected clients
+  function broadcastDensityUpdate(data: any) {
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'density_update',
+          data
+        }));
+      }
+    });
+  }
+
+  // Set up periodic density updates
+  setInterval(async () => {
+    try {
+      const densityGrid = await storage.calculateDensityGrid();
+      broadcastDensityUpdate({
+        grid: densityGrid,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating density grid:', error);
+    }
+  }, 5000); // Update every 5 seconds
 
   app.get("/api/facilities", async (_req, res) => {
     const facilities = await storage.getAllFacilities();
@@ -242,22 +269,25 @@ Provide specific, accurate information while being respectful of religious and c
     return 'general';
   }
 
-  // Enhanced density grid endpoints
+  // Enhanced density grid endpoints with better error handling
   app.get("/api/density-grid", async (_req, res) => {
     try {
       const densityGrid = await storage.calculateDensityGrid();
+      console.log('Calculating density grid...');
 
       // Group by nearest location for better visualization
-      const groupedData = densityGrid.reduce((acc, cell) => {
-        const location = cell.metadata.nearestLocation;
-        if (!acc[location]) {
-          acc[location] = [];
+      const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {
+        const location = cell.metadata?.nearestLocation;
+        if (location) {
+          if (!acc[location]) {
+            acc[location] = [];
+          }
+          acc[location].push(cell);
         }
-        acc[location].push(cell);
         return acc;
       }, {});
 
-      res.json({
+      const response = {
         grid: densityGrid,
         groupedByLocation: groupedData,
         timestamp: new Date().toISOString(),
@@ -267,7 +297,14 @@ Provide specific, accurate information while being respectful of religious and c
           "Kalaram Temple": { lat: 20.0064, lng: 73.7904 },
           "Trimbakeshwar": { lat: 19.9322, lng: 73.5309 }
         }
+      };
+
+      console.log('Sending density grid response:', {
+        gridSize: densityGrid.length,
+        locations: Object.keys(groupedData)
       });
+
+      res.json(response);
     } catch (error) {
       console.error("Error calculating density grid:", error);
       res.status(500).json({ error: "Failed to calculate density grid" });
@@ -280,19 +317,32 @@ Provide specific, accurate information while being respectful of religious and c
       if (isNaN(locationId)) {
         return res.status(400).json({ error: "Invalid location ID" });
       }
-      const densityGrid = await storage.getDensityGridForLocation(locationId);
 
-      // Add real-time crowd level information
+      console.log(`Fetching density grid for location ID: ${locationId}`);
+
+      const densityGrid = await storage.getDensityGridForLocation(locationId);
       const crowdLevels = await storage.getAllCrowdLevels();
-      const locationName = Object.keys(storage.keyLocations)[locationId];
+
+      // Get location name from keyLocations array
+      const locations = ["Ramkund", "Tapovan", "Kalaram Temple", "Trimbakeshwar"];
+      const locationName = locations[locationId];
+
+      if (!locationName) {
+        return res.status(404).json({ error: "Location not found" });
+      }
+
       const crowdInfo = crowdLevels.find(level => level.location === locationName);
 
-      res.json({
+      console.log(`Found crowd info for ${locationName}:`, crowdInfo);
+
+      const response = {
         grid: densityGrid,
         location: locationName,
         crowdInfo,
         timestamp: new Date().toISOString()
-      });
+      };
+
+      res.json(response);
     } catch (error) {
       console.error("Error fetching density grid:", error);
       res.status(500).json({ error: "Failed to fetch density grid" });
