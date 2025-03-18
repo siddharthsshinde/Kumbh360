@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer } from "http";
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { storage } from "./storage";
 import type { WeatherData, GeminiRequest, ChatMessage, DensityGrid } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -11,6 +11,7 @@ export async function registerRoutes(app: Express) {
 
   // Broadcast density updates to all connected clients
   function broadcastDensityUpdate(data: any) {
+    console.log('Broadcasting density update to', wss.clients.size, 'clients');
     wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify({
@@ -25,14 +26,105 @@ export async function registerRoutes(app: Express) {
   setInterval(async () => {
     try {
       const densityGrid = await storage.calculateDensityGrid();
-      broadcastDensityUpdate({
+      const crowdLevels = await storage.getAllCrowdLevels();
+
+      // Group by nearest location for better visualization
+      const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {
+        const location = cell.metadata?.nearestLocation;
+        if (location) {
+          if (!acc[location]) {
+            acc[location] = [];
+          }
+          acc[location].push(cell);
+        }
+        return acc;
+      }, {});
+
+      const updateData = {
         grid: densityGrid,
-        timestamp: new Date().toISOString()
+        groupedByLocation: groupedData,
+        crowdLevels,
+        timestamp: new Date().toISOString(),
+        keyLocations: {
+          "Ramkund": { lat: 20.0059, lng: 73.7913 },
+          "Tapovan": { lat: 20.0116, lng: 73.7938 },
+          "Kalaram Temple": { lat: 20.0064, lng: 73.7904 },
+          "Trimbakeshwar": { lat: 19.9322, lng: 73.5309 }
+        }
+      };
+
+      console.log('Calculated new density grid:', {
+        gridSize: densityGrid.length,
+        locations: Object.keys(groupedData),
+        timestamp: updateData.timestamp
       });
+
+      broadcastDensityUpdate(updateData);
     } catch (error) {
       console.error('Error updating density grid:', error);
     }
   }, 5000); // Update every 5 seconds
+
+  // WebSocket connection handling
+  wss.on('connection', (ws) => {
+    console.log('New WebSocket connection established');
+
+    // Send initial density data
+    storage.calculateDensityGrid().then(densityGrid => {
+      ws.send(JSON.stringify({
+        type: 'initial_density',
+        data: {
+          grid: densityGrid,
+          timestamp: new Date().toISOString()
+        }
+      }));
+    }).catch(error => {
+      console.error('Error sending initial density data:', error);
+    });
+
+    ws.on('error', console.error);
+  });
+
+  // Enhanced density grid REST endpoints
+  app.get("/api/density-grid", async (_req, res) => {
+    try {
+      const densityGrid = await storage.calculateDensityGrid();
+      console.log('Calculating density grid for HTTP request...');
+
+      const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {
+        const location = cell.metadata?.nearestLocation;
+        if (location) {
+          if (!acc[location]) {
+            acc[location] = [];
+          }
+          acc[location].push(cell);
+        }
+        return acc;
+      }, {});
+
+      const response = {
+        grid: densityGrid,
+        groupedByLocation: groupedData,
+        timestamp: new Date().toISOString(),
+        keyLocations: {
+          "Ramkund": { lat: 20.0059, lng: 73.7913 },
+          "Tapovan": { lat: 20.0116, lng: 73.7938 },
+          "Kalaram Temple": { lat: 20.0064, lng: 73.7904 },
+          "Trimbakeshwar": { lat: 19.9322, lng: 73.5309 }
+        }
+      };
+
+      console.log('Sending density grid response:', {
+        gridSize: densityGrid.length,
+        locations: Object.keys(groupedData)
+      });
+
+      res.json(response);
+    } catch (error) {
+      console.error("Error calculating density grid:", error);
+      res.status(500).json({ error: "Failed to calculate density grid" });
+    }
+  });
 
   app.get("/api/facilities", async (_req, res) => {
     const facilities = await storage.getAllFacilities();
@@ -150,10 +242,8 @@ export async function registerRoutes(app: Express) {
             contents: [{
               parts: [{
                 text: `You are a helpful assistant for the Nashik Kumbh Mela 2025. Your role is to assist visitors with information about locations, crowd management, facilities, and religious aspects of the event.
-
 Previous conversation context:
 ${recentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
-
 Current question: ${query}
 
 Provide specific, accurate information while being respectful of religious and cultural aspects. Include:
@@ -268,48 +358,6 @@ Provide specific, accurate information while being respectful of religious and c
     if (queryLower.includes('location') || queryLower.includes('where')) return 'location_info';
     return 'general';
   }
-
-  // Enhanced density grid endpoints with better error handling
-  app.get("/api/density-grid", async (_req, res) => {
-    try {
-      const densityGrid = await storage.calculateDensityGrid();
-      console.log('Calculating density grid...');
-
-      // Group by nearest location for better visualization
-      const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {
-        const location = cell.metadata?.nearestLocation;
-        if (location) {
-          if (!acc[location]) {
-            acc[location] = [];
-          }
-          acc[location].push(cell);
-        }
-        return acc;
-      }, {});
-
-      const response = {
-        grid: densityGrid,
-        groupedByLocation: groupedData,
-        timestamp: new Date().toISOString(),
-        keyLocations: {
-          "Ramkund": { lat: 20.0059, lng: 73.7913 },
-          "Tapovan": { lat: 20.0116, lng: 73.7938 },
-          "Kalaram Temple": { lat: 20.0064, lng: 73.7904 },
-          "Trimbakeshwar": { lat: 19.9322, lng: 73.5309 }
-        }
-      };
-
-      console.log('Sending density grid response:', {
-        gridSize: densityGrid.length,
-        locations: Object.keys(groupedData)
-      });
-
-      res.json(response);
-    } catch (error) {
-      console.error("Error calculating density grid:", error);
-      res.status(500).json({ error: "Failed to calculate density grid" });
-    }
-  });
 
   app.get("/api/density-grid/:locationId", async (req, res) => {
     try {
