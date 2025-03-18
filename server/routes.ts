@@ -110,7 +110,7 @@ Query: ${query}`;
         const text = response.text();
 
         // Store the query and response
-        await storage.storeUserQuery({
+        const queryId = await storage.storeUserQuery({
           query,
           response: text,
           sources: [], // Gemini doesn't provide source citations directly
@@ -119,13 +119,14 @@ Query: ${query}`;
 
         // Return the response to the client
         res.json({
+          queryId,
           answer: text,
           sources: []
         });
 
       } catch (error) {
         console.error("Gemini API error:", error);
-        throw new Error("Failed to generate response");
+        res.status(500).json({ error: "Failed to generate response from Gemini API" });
       }
 
     } catch (error) {
