@@ -559,7 +559,7 @@ const addEnhancedDensityMarker = (
   }).addTo(map);
 };
 
-export function FacilityMap() {
+export function FacilityMap(): JSX.Element {
   // For view modes - only one active at a time
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('facilities');
 
@@ -748,9 +748,13 @@ export function FacilityMap() {
                   color: 'rgba(255,255,255,0.3)',
                   fillColor: color,
                   fillOpacity: 0.2 + (density * 0.15) + pulseEffect,
-                  weight: 1,
-                  className: 'density-grid-cell'
+                  weight: 1
                 }).addTo(mapRef.current);
+                
+                // Add class using DOM methods instead
+                if (polygon.getElement()) {
+                  polygon.getElement()?.classList.add('density-grid-cell');
+                }
                 
                 densityGridLayersRef.current.push(polygon);
               }
@@ -824,9 +828,13 @@ export function FacilityMap() {
             color: zone.color,
             fillColor: zone.color,
             fillOpacity: 0.2 + (zone.crowdFactor * 0.3),
-            weight: 2,
-            className: 'area-zone animate-pulse-slow'
+            weight: 2
           }).addTo(mapRef.current!);
+          
+          // Add class to element using DOM methods instead
+          if (polygon.getElement()) {
+            polygon.getElement()?.classList.add('area-zone', 'animate-pulse-slow');
+          }
           
           areaZoneLayersRef.current.push(polygon);
 
@@ -908,9 +916,13 @@ export function FacilityMap() {
                 color: '#FF7F00',
                 weight: 2,
                 opacity: 0.5 + Math.sin(timeOffset) * 0.3,
-                dashArray: '5, 8',
-                className: 'connection-path animate-pulse-slow'
+                dashArray: '5, 8'
               }).addTo(mapRef.current!);
+              
+              // Add class using DOM methods
+              if (polyline.getElement()) {
+                polyline.getElement()?.classList.add('connection-path', 'animate-pulse-slow');
+              }
               
               areaZoneLayersRef.current.push(polyline);
             }
@@ -1251,17 +1263,22 @@ export function FacilityMap() {
       if (selectedType && facility.type !== selectedType) return;
 
       if (facility.location && typeof facility.location === 'object' && 'lat' in facility.location && 'lng' in facility.location) {
-        const marker = L.marker(
-          [facility.location.lat, facility.location.lng],
-          { icon: createCustomIcon(facility.type) }
-        )
-          .addTo(mapRef.current!)
-          .bindPopup(
-            `<b>${facility.name}</b><br>${facility.address || ''}<br>${
-              facility.contact ? `Contact: ${facility.contact}` : ""
-            }`
-          );
-        markersRef.current.push(marker);
+        const lat = Number(facility.location.lat);
+        const lng = Number(facility.location.lng);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+          const marker = L.marker(
+            [lat, lng],
+            { icon: createCustomIcon(facility.type) }
+          )
+            .addTo(mapRef.current!)
+            .bindPopup(
+              `<b>${facility.name}</b><br>${facility.address || ''}<br>${
+                facility.contact ? `Contact: ${facility.contact}` : ""
+              }`
+            );
+          markersRef.current.push(marker);
+        }
       }
     });
 
@@ -1271,10 +1288,14 @@ export function FacilityMap() {
         if (selectedType && selectedType !== 'shuttle_stop') return;
         
         if (shuttle.coordinates && typeof shuttle.coordinates === 'object' && 'lat' in shuttle.coordinates && 'lng' in shuttle.coordinates) {
-          const marker = L.marker(
-            [shuttle.coordinates.lat, shuttle.coordinates.lng],
-            { icon: createCustomIcon('shuttle_stop') }
-          )
+          const lat = Number(shuttle.coordinates.lat);
+          const lng = Number(shuttle.coordinates.lng);
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const marker = L.marker(
+              [lat, lng],
+              { icon: createCustomIcon('shuttle_stop') }
+            )
             .addTo(mapRef.current!)
             .bindPopup(
               `<div class="text-sm">
@@ -1290,7 +1311,8 @@ export function FacilityMap() {
               }">${shuttle.status}</span></p>
               </div>`
             );
-          markersRef.current.push(marker);
+            markersRef.current.push(marker);
+          }
         }
       });
     }
@@ -1301,10 +1323,14 @@ export function FacilityMap() {
         if (selectedType && selectedType !== 'restroom') return;
         
         if (restroom.coordinates && typeof restroom.coordinates === 'object' && 'lat' in restroom.coordinates && 'lng' in restroom.coordinates) {
-          const marker = L.marker(
-            [restroom.coordinates.lat, restroom.coordinates.lng],
-            { icon: createCustomIcon('restroom') }
-          )
+          const lat = Number(restroom.coordinates.lat);
+          const lng = Number(restroom.coordinates.lng);
+          
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const marker = L.marker(
+              [lat, lng],
+              { icon: createCustomIcon('restroom') }
+            )
             .addTo(mapRef.current!)
             .bindPopup(
               `<div class="text-sm">
@@ -1318,7 +1344,8 @@ export function FacilityMap() {
                 ${restroom.accessibility ? '<p class="mt-1"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">Accessible</span></p>' : ''}
               </div>`
             );
-          markersRef.current.push(marker);
+            markersRef.current.push(marker);
+          }
         }
       });
     }
