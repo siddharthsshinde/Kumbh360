@@ -231,7 +231,7 @@ export function ChatInterface() {
           </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'min(800px, 80vh)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'calc(100vh - 300px)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
