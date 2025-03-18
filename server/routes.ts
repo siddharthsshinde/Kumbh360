@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer } from "http";
 import { storage } from "./storage";
-import type { WeatherData, GeminiRequest } from "@shared/schema";
+import type { WeatherData, GeminiRequest, ChatMessage } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function registerRoutes(app: Express) {
@@ -86,10 +86,10 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // New route for NLP queries using Gemini
+  // Enhanced NLP query route with chat history and context
   app.post("/api/nlp/query", async (req, res) => {
     try {
-      const { query } = req.body;
+      const { query, sessionId } = req.body;
 
       if (!query || typeof query !== "string") {
         return res.status(400).json({ error: "Query is required" });
@@ -99,29 +99,70 @@ export async function registerRoutes(app: Express) {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      // Create chat context with system prompt
+      // Get chat history for context
+      const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
+      const recentMessages = chatHistory.slice(-5); // Get last 5 messages for context
+
+      // Create enhanced prompt with context
+      const contextPrompt = recentMessages.map(msg => 
+        `${msg.role}: ${msg.content}`
+      ).join('\n');
+
       const prompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Answer questions about locations, crowd management, facilities, and religious aspects of the event. Be precise and respectful.
 
-Query: ${query}`;
+Previous conversation:
+${contextPrompt}
+
+Current Query: ${query}
+
+Use the following format for certain types of questions:
+- For location-related queries: Include current status and recommendations
+- For crowd-related queries: Provide real-time crowd levels and safety advice
+- For emergency queries: Provide immediate action steps and relevant contact information`;
 
       try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
 
-        // Store the query and response
+        // Save the chat messages
+        if (sessionId) {
+          const userMessage: ChatMessage = {
+            role: 'user',
+            content: query,
+            timestamp: new Date().toISOString(),
+            metadata: {
+              intent: determineQueryIntent(query)
+            }
+          };
+
+          const assistantMessage: ChatMessage = {
+            role: 'assistant',
+            content: text,
+            timestamp: new Date().toISOString()
+          };
+
+          await storage.saveChatMessage(sessionId, userMessage);
+          await storage.saveChatMessage(sessionId, assistantMessage);
+        }
+
+        // Store the query and enhanced response
         const queryId = await storage.storeUserQuery({
           query,
           response: text,
-          sources: [], // Gemini doesn't provide source citations directly
+          sources: [],
           feedback: null
         });
 
-        // Return the response to the client
+        // Return the enhanced response
         res.json({
           queryId,
           answer: text,
-          sources: []
+          sources: [],
+          context: {
+            sessionId,
+            messageCount: chatHistory.length + 2
+          }
         });
 
       } catch (error) {
@@ -152,6 +193,15 @@ Query: ${query}`;
       res.status(500).json({ error: "Failed to submit feedback" });
     }
   });
+
+  // Helper function to determine query intent
+  function determineQueryIntent(query: string): string {
+    const queryLower = query.toLowerCase();
+    if (queryLower.includes('crowd') || queryLower.includes('people')) return 'crowd_info';
+    if (queryLower.includes('emergency') || queryLower.includes('help')) return 'emergency';
+    if (queryLower.includes('location') || queryLower.includes('where')) return 'location_info';
+    return 'general';
+  }
 
   return httpServer;
 }

@@ -53,6 +53,25 @@ export const userQueries = pgTable("user_queries", {
   feedback: integer("feedback"), // User feedback score (1-5)
 });
 
+// Enhanced chat history table
+export const chatHistory = pgTable("chat_history", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  messages: jsonb("messages").notNull(), // Array of message objects
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  metadata: jsonb("metadata"), // Additional context info
+});
+
+// Structured response format
+export const responseTemplates = pgTable("response_templates", {
+  id: serial("id").primaryKey(),
+  templateType: text("template_type").notNull(), // e.g., 'location_info', 'crowd_update', 'emergency'
+  template: text("template").notNull(),
+  variables: jsonb("variables").notNull(), // Required variables for template
+  lastModified: timestamp("last_modified").defaultNow(),
+});
+
+
 // Define the location type
 export const locationSchema = z.object({
   lat: z.number(),
@@ -70,6 +89,10 @@ export const insertCrowdLevelSchema = createInsertSchema(crowdLevels).omit({ id:
 export const insertKnowledgeBaseSchema = createInsertSchema(knowledgeBase).omit({ id: true, lastUpdated: true });
 export const insertUserQuerySchema = createInsertSchema(userQueries).omit({ id: true, timestamp: true });
 
+// Enhanced schemas
+export const insertChatHistorySchema = createInsertSchema(chatHistory).omit({ id: true, lastUpdated: true });
+export const insertResponseTemplateSchema = createInsertSchema(responseTemplates).omit({ id: true, lastModified: true });
+
 // Existing types
 export type Facility = typeof facilities.$inferSelect;
 export type EmergencyContact = typeof emergencyContacts.$inferSelect;
@@ -78,6 +101,10 @@ export type CrowdLevel = typeof crowdLevels.$inferSelect;
 // New types
 export type KnowledgeBase = typeof knowledgeBase.$inferSelect;
 export type UserQuery = typeof userQueries.$inferSelect;
+
+// Enhanced types
+export type ChatHistory = typeof chatHistory.$inferSelect;
+export type ResponseTemplate = typeof responseTemplates.$inferSelect;
 
 // Gemini API types
 export const geminiMessageSchema = z.object({
@@ -103,3 +130,17 @@ export const geminiRequestSchema = z.object({
 
 export type GeminiMessage = z.infer<typeof geminiMessageSchema>;
 export type GeminiRequest = z.infer<typeof geminiRequestSchema>;
+
+// Message format for chat
+export const chatMessageSchema = z.object({
+  role: z.enum(['user', 'assistant']),
+  content: z.string(),
+  timestamp: z.string(),
+  metadata: z.object({
+    context: z.string().optional(),
+    location: z.string().optional(),
+    intent: z.string().optional(),
+  }).optional(),
+});
+
+export type ChatMessage = z.infer<typeof chatMessageSchema>;

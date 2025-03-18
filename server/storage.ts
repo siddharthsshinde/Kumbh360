@@ -1,4 +1,4 @@
-import type { Facility, EmergencyContact, CrowdLevel } from "@shared/schema";
+import type { Facility, EmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage } from "@shared/schema";
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
 // Define migration pattern type for crowd movement
@@ -79,6 +79,11 @@ export interface IStorage {
   }): Promise<number>; // Returns the query ID
   updateQueryFeedback(queryId: number, feedback: number): Promise<void>;
   getKnowledgeBase(topic?: string): Promise<KnowledgeBase[]>;
+  // New methods for enhanced chat functionality
+  getChatHistory(sessionId: string): Promise<ChatMessage[]>;
+  saveChatMessage(sessionId: string, message: ChatMessage): Promise<void>;
+  getResponseTemplate(type: string): Promise<ResponseTemplate | null>;
+  formatResponse(template: string, variables: Record<string, string>): string;
 }
 
 export class MemStorage implements IStorage {
@@ -425,6 +430,23 @@ export class MemStorage implements IStorage {
   private knowledgeBaseItems: KnowledgeBase[] = [];
   private userQueriesData: UserQuery[] = [];
   private queryIdCounter = 1;
+  private chatHistories: Record<string, ChatMessage[]> = {};
+  private responseTemplates: ResponseTemplate[] = [
+    {
+      id: 1,
+      templateType: 'location_info',
+      template: '{{location}} is {{status}}. Current crowd level is {{crowdLevel}}. {{recommendations}}',
+      variables: ['location', 'status', 'crowdLevel', 'recommendations'],
+      lastModified: new Date().toISOString()
+    },
+    {
+      id: 2,
+      templateType: 'emergency_response',
+      template: 'For immediate assistance at {{location}}, contact {{contact}}. {{additionalInfo}}',
+      variables: ['location', 'contact', 'additionalInfo'],
+      lastModified: new Date().toISOString()
+    }
+  ];
 
   constructor() {
     this.initCrowdLevels();
@@ -719,6 +741,19 @@ export class MemStorage implements IStorage {
   }): Promise<number> {
     const queryId = this.queryIdCounter++;
 
+    // Check if query is about crowd levels
+    if (data.query.toLowerCase().includes('crowd') || data.query.toLowerCase().includes('people')) {
+      const crowdLevels = await this.getAllCrowdLevels();
+      const relevantUpdates = crowdLevels
+        .filter(level => level.status === 'critical' || level.status === 'high')
+        .map(level => `${level.location}: ${level.status} (${level.recommendations})`);
+
+      if (relevantUpdates.length > 0) {
+        data.response += '\n\nImportant crowd updates:\n' + relevantUpdates.join('\n');
+      }
+    }
+
+    // Store the enhanced query
     this.userQueriesData.push({
       id: queryId,
       query: data.query,
@@ -745,6 +780,24 @@ export class MemStorage implements IStorage {
       );
     }
     return this.knowledgeBaseItems;
+  }
+  async getChatHistory(sessionId: string): Promise<ChatMessage[]> {
+    return this.chatHistories[sessionId] || [];
+  }
+
+  async saveChatMessage(sessionId: string, message: ChatMessage): Promise<void> {
+    if (!this.chatHistories[sessionId]) {
+      this.chatHistories[sessionId] = [];
+    }
+    this.chatHistories[sessionId].push(message);
+  }
+
+  async getResponseTemplate(type: string): Promise<ResponseTemplate | null> {
+    return this.responseTemplates.find(t => t.templateType === type) || null;
+  }
+
+  formatResponse(template: string, variables: Record<string, string>): string {
+    return template.replace(/\{\{(\w+)\}\}/g, (match, key) => variables[key] || match);
   }
 }
 
