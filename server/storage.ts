@@ -135,6 +135,17 @@ interface CrowdMigrationPattern {
   timeRange: [number, number];
 }
 
+interface Location {
+  lat: number;
+  lng: number;
+}
+
+interface GridMetadata {
+  lat: number;
+  lng: number;
+  color: string;
+}
+
 export class MemStorage implements IStorage {
   private facilities: Facility[] = [
     {
@@ -972,10 +983,11 @@ export class MemStorage implements IStorage {
 
         crowdLevels.forEach(level => {
           const location = this.facilities.find(f => f.name === level.location);
-          if (location) {
+          if (location && location.location) {
+            const facilityLocation = location.location as Location;
             // Calculate distance to cell center
-            const dlat = lat - location.location.lat;
-            const dlng = lng - location.location.lng;
+            const dlat = lat - facilityLocation.lat;
+            const dlng = lng - facilityLocation.lng;
             const distance = Math.sqrt(dlat * dlat + dlng * dlng);
 
             // Use inverse square for weight
@@ -988,18 +1000,21 @@ export class MemStorage implements IStorage {
         // Calculate final density value
         const density = totalWeight > 0 ? Math.min(100, Math.round(totalDensity / totalWeight)) : 0;
 
+        // Create metadata with proper typing
+        const metadata: GridMetadata = {
+          lat,
+          lng,
+          color: this.getDensityColor(density),
+        };
+
         newDensityData.push({
           id: this.densityGridData.length + 1,
           locationId: -1, // General grid cell
           gridX: x,
           gridY: y,
           density,
-          timestamp: new Date().toISOString(),
-          metadata: {
-            lat,
-            lng,
-            color: this.getDensityColor(density),
-          },
+          timestamp: new Date(),
+          metadata
         });
       }
     }
