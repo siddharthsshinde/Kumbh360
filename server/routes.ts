@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Enhanced NLP query route with knowledge base integration
+  // Enhanced NLP query route with better error handling
   app.post("/api/nlp/query", async (req, res) => {
     try {
       const { query, sessionId } = req.body;
@@ -95,51 +95,71 @@ export async function registerRoutes(app: Express) {
         return res.status(400).json({ error: "Query is required" });
       }
 
+      console.log("Processing query:", query);
+
       // First check if we have a similar query in our knowledge base
       const existingKnowledge = await storage.searchKnowledgeBase(query);
       let answer: string;
       let isFromKnowledgeBase = false;
 
       if (existingKnowledge) {
+        console.log("Found in knowledge base:", existingKnowledge);
         answer = existingKnowledge.content;
         isFromKnowledgeBase = true;
       } else {
+        console.log("Querying Gemini API");
         // If not found in knowledge base, use Gemini API
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBon0OTRkC6324gW3BYpc1ziCCPbjuv0fQ";
         const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-        // Get chat history for context
-        const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
-        const recentMessages = chatHistory.slice(-5);
+        try {
+          // Get chat history for context
+          const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
+          const recentMessages = chatHistory.slice(-5);
 
-        const contextPrompt = recentMessages.map(msg =>
-          `${msg.role}: ${msg.content}`
-        ).join('\n');
+          console.log("Creating Gemini prompt with context");
+          const formattedPrompt = {
+            contents: [{
+              parts: [{
+                text: `You are a helpful assistant for the Nashik Kumbh Mela 2025. Your role is to assist visitors with information about locations, crowd management, facilities, and religious aspects of the event.
 
-        const prompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Answer questions about locations, crowd management, facilities, and religious aspects of the event. Be precise and respectful.
+Previous conversation context:
+${recentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
-Previous conversation:
-${contextPrompt}
+Current question: ${query}
 
-Current Query: ${query}
+Provide specific, accurate information while being respectful of religious and cultural aspects. Include:
+1. Relevant details about locations, timings, or facilities
+2. Safety recommendations if applicable
+3. Real-time crowd management advice when needed
+4. Emergency contact information for relevant queries`
+              }]
+            }]
+          };
 
-Use the following format for certain types of questions:
-- For location-related queries: Include current status and recommendations
-- For crowd-related queries: Provide real-time crowd levels and safety advice
-- For emergency queries: Provide immediate action steps and relevant contact information`;
+          console.log("Sending request to Gemini API");
+          const result = await model.generateContent(formattedPrompt.contents[0].parts[0].text);
+          console.log("Received raw response from Gemini:", result);
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        answer = response.text();
+          const response = await result.response;
+          console.log("Processed response object:", response);
 
-        // Store the new knowledge for future use
-        await storage.storeKnowledgeBase({
-          topic: query,
-          content: answer,
-          source: 'Gemini API',
-          confidence: 85
-        });
+          answer = response.text();
+          console.log("Final text response:", answer);
+
+          // Store the new knowledge for future use
+          await storage.storeKnowledgeBase({
+            topic: query,
+            content: answer,
+            source: 'Gemini API',
+            confidence: 85
+          });
+        } catch (geminiError: any) {
+          console.error("Gemini API error:", geminiError);
+          console.error("Error stack trace:", geminiError.stack);
+          throw new Error(`Gemini API error: ${geminiError.message || 'Unknown error'}`);
+        }
       }
 
       // Save chat history if sessionId is provided
@@ -158,7 +178,8 @@ Use the following format for certain types of questions:
           content: answer,
           timestamp: new Date().toISOString(),
           metadata: {
-            source: isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api'
+            context: 'kumbh_mela_info',
+            intent: 'response'
           }
         };
 
@@ -184,9 +205,13 @@ Use the following format for certain types of questions:
         }
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("NLP Query error:", error);
-      res.status(500).json({ error: "Failed to process NLP query" });
+      console.error("Error stack trace:", error.stack);
+      res.status(500).json({
+        error: "Failed to process NLP query",
+        details: error.message || 'Unknown error'
+      });
     }
   });
 
