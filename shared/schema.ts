@@ -146,3 +146,32 @@ export const chatMessageSchema = z.object({
 });
 
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
+
+// Add density grid types
+export const densityGrid = pgTable("density_grid", {
+  id: serial("id").primaryKey(),
+  locationId: integer("location_id").notNull(),
+  gridX: integer("grid_x").notNull(),
+  gridY: integer("grid_y").notNull(),
+  density: integer("density").notNull(), // 0-100
+  timestamp: timestamp("timestamp").defaultNow(),
+  metadata: jsonb("metadata"), // Additional info like heat map color
+});
+
+// Add to existing types
+export const insertDensityGridSchema = createInsertSchema(densityGrid).omit({ id: true, timestamp: true });
+export type DensityGrid = typeof densityGrid.$inferSelect;
+
+// Add grid config type
+export const gridConfigSchema = z.object({
+  gridSize: z.number(),
+  boundaries: z.object({
+    north: z.number(),
+    south: z.number(),
+    east: z.number(),
+    west: z.number(),
+  }),
+  resolution: z.number(), // meters per grid cell
+});
+
+export type GridConfig = z.infer<typeof gridConfigSchema>;

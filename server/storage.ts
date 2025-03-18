@@ -1,4 +1,4 @@
-import type { Facility, EmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage } from "@shared/schema";
+import type { Facility, EmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig } from "@shared/schema";
 import { pipeline } from '@xenova/transformers';
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
@@ -100,6 +100,39 @@ export interface IStorage {
     confidence?: number;
   }): Promise<void>;
   searchKnowledgeBase(query: string): Promise<KnowledgeBase | null>;
+  // New density grid methods
+  calculateDensityGrid(config: GridConfig): Promise<DensityGrid[]>;
+  getDensityGridForLocation(locationId: number): Promise<DensityGrid[]>;
+  updateDensityGrid(locationId: number, density: number[][]): Promise<void>;
+}
+
+interface KnowledgeBase {
+  id: number;
+  topic: string;
+  content: string;
+  source?: string;
+  lastUpdated: string;
+  confidence: number;
+  verified: boolean;
+  embedding?: number[];
+  keywords?: string[];
+}
+
+interface UserQuery {
+  id: number;
+  query: string;
+  response: string;
+  sources: string[];
+  timestamp: string;
+  feedback: number | null;
+}
+
+
+interface CrowdMigrationPattern {
+  from: string;
+  to: string;
+  flowRate: number;
+  timeRange: [number, number];
 }
 
 export class MemStorage implements IStorage {
@@ -463,6 +496,18 @@ export class MemStorage implements IStorage {
       lastModified: new Date().toISOString()
     }
   ];
+
+  private densityGridData: DensityGrid[] = [];
+  private gridConfig: GridConfig = {
+    gridSize: 50, // 50x50 grid
+    boundaries: {
+      north: 20.0116, // Tapovan
+      south: 19.9322, // Trimbakeshwar
+      east: 73.7938, // Tapovan
+      west: 73.5309, // Trimbakeshwar
+    },
+    resolution: 100, // 100 meters per cell
+  };
 
   constructor() {
     this.initCrowdLevels();
@@ -903,6 +948,94 @@ export class MemStorage implements IStorage {
         item.content.toLowerCase().includes(query.toLowerCase())
       ) || null;
     }
+  }
+  async calculateDensityGrid(config: GridConfig = this.gridConfig): Promise<DensityGrid[]> {
+    const crowdLevels = await this.getAllCrowdLevels();
+    const newDensityData: DensityGrid[] = [];
+
+    // Calculate cells based on boundaries and resolution
+    const latDiff = config.boundaries.north - config.boundaries.south;
+    const lngDiff = config.boundaries.east - config.boundaries.west;
+    const cellSizeLat = latDiff / config.gridSize;
+    const cellSizeLng = lngDiff / config.gridSize;
+
+    // Generate density grid
+    for (let x = 0; x < config.gridSize; x++) {
+      for (let y = 0; y < config.gridSize; y++) {
+        // Calculate cell center coordinates
+        const lat = config.boundaries.south + (y + 0.5) * cellSizeLat;
+        const lng = config.boundaries.west + (x + 0.5) * cellSizeLng;
+
+        // Find nearest crowd levels and calculate density
+        let totalDensity = 0;
+        let totalWeight = 0;
+
+        crowdLevels.forEach(level => {
+          const location = this.facilities.find(f => f.name === level.location);
+          if (location) {
+            // Calculate distance to cell center
+            const dlat = lat - location.location.lat;
+            const dlng = lng - location.location.lng;
+            const distance = Math.sqrt(dlat * dlat + dlng * dlng);
+
+            // Use inverse square for weight
+            const weight = 1 / (1 + distance * distance);
+            totalWeight += weight;
+            totalDensity += (level.currentCount / level.capacity) * 100 * weight;
+          }
+        });
+
+        // Calculate final density value
+        const density = totalWeight > 0 ? Math.min(100, Math.round(totalDensity / totalWeight)) : 0;
+
+        newDensityData.push({
+          id: this.densityGridData.length + 1,
+          locationId: -1, // General grid cell
+          gridX: x,
+          gridY: y,
+          density,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            lat,
+            lng,
+            color: this.getDensityColor(density),
+          },
+        });
+      }
+    }
+
+    this.densityGridData = newDensityData;
+    return newDensityData;
+  }
+
+  async getDensityGridForLocation(locationId: number): Promise<DensityGrid[]> {
+    return this.densityGridData.filter(cell => cell.locationId === locationId);
+  }
+
+  async updateDensityGrid(locationId: number, density: number[][]): Promise<void> {
+    const existingCells = this.densityGridData.filter(cell => cell.locationId === locationId);
+
+    density.forEach((row, x) => {
+      row.forEach((value, y) => {
+        const cell = existingCells.find(c => c.gridX === x && c.gridY === y);
+        if (cell) {
+          cell.density = value;
+          cell.timestamp = new Date().toISOString();
+          cell.metadata = {
+            ...cell.metadata,
+            color: this.getDensityColor(value),
+          };
+        }
+      });
+    });
+  }
+
+  private getDensityColor(density: number): string {
+    // Returns color based on density value (0-100)
+    if (density < 25) return '#00ff00'; // Green
+    if (density < 50) return '#ffff00'; // Yellow
+    if (density < 75) return '#ffa500'; // Orange
+    return '#ff0000'; // Red
   }
 }
 

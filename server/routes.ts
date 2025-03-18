@@ -242,5 +242,30 @@ Provide specific, accurate information while being respectful of religious and c
     return 'general';
   }
 
+  // Add to existing routes
+  app.get("/api/density-grid", async (_req, res) => {
+    try {
+      const densityGrid = await storage.calculateDensityGrid();
+      res.json(densityGrid);
+    } catch (error) {
+      console.error("Error calculating density grid:", error);
+      res.status(500).json({ error: "Failed to calculate density grid" });
+    }
+  });
+
+  app.get("/api/density-grid/:locationId", async (req, res) => {
+    try {
+      const locationId = parseInt(req.params.locationId);
+      if (isNaN(locationId)) {
+        return res.status(400).json({ error: "Invalid location ID" });
+      }
+      const densityGrid = await storage.getDensityGridForLocation(locationId);
+      res.json(densityGrid);
+    } catch (error) {
+      console.error("Error fetching density grid:", error);
+      res.status(500).json({ error: "Failed to fetch density grid" });
+    }
+  });
+
   return httpServer;
 }
