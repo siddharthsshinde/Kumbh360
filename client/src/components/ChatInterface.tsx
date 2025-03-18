@@ -53,7 +53,6 @@ export function ChatInterface() {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [searchResults, setSearchResults] = useState<{text: string, score: number}[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const cardHeight = "calc(100vh - 280px)";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -204,32 +203,35 @@ export function ChatInterface() {
   ];
 
   return (
-    <div className="flex flex-col w-full max-w-5xl mx-auto h-full">
-      <Card className="flex flex-col w-full h-full bg-white shadow-xl rounded-xl overflow-hidden border-t-4 border-[#FF7F00]" style={{ height: cardHeight }}>
-        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-3 text-white">
+    <div className="flex flex-col w-full max-w-5xl mx-auto">
+      <Card className="flex flex-col w-full bg-white shadow-xl rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
+        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-5 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold flex items-center">
+              <h2 className="text-3xl font-bold flex items-center">
                 <span className="hidden xs:inline">Kumbh Mela</span> AI Assistant
                 <span className="ml-2 px-2 py-0.5 bg-white/20 text-xs rounded-full">NLP Enhanced</span>
               </h2>
-              <p className="text-xs mt-0.5 opacity-90">Ask any question about your pilgrimage journey</p>
+              <p className="text-sm mt-1 opacity-90">Ask any question about your pilgrimage journey</p>
+              <p className="text-xs mt-1 opacity-75">Using advanced NLP and semantic search technology</p>
             </div>
             <div className="hidden md:flex flex-col items-end">
               <div className="flex items-center text-xs bg-white/10 px-2 py-1 rounded-md">
                 <span className="w-2 h-2 rounded-full bg-green-400 mr-1"></span>
                 <span>Knowledge Base: 23 Entries</span>
               </div>
+              <div className="text-xs mt-1 opacity-75">Supports Hindi & English</div>
             </div>
           </div>
-          <div className="mt-1 flex flex-wrap gap-2 text-xs">
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Semantic Search</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">TF-IDF Analysis</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Entity Recognition</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Contextual Suggestions</span>
           </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'calc(100vh - 380px)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'calc(100vh - 200px)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
