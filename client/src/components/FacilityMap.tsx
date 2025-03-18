@@ -1058,53 +1058,73 @@ export function FacilityMap() {
 
       const hour = new Date().getHours();
 
-      // Create main heat point
-      expandedHeatmapData.push([
-        coordinates[0],
-        coordinates[1],
-        baseIntensity
-      ]);
+      try {
+        // Create main heat point
+        expandedHeatmapData.push([
+          coordinates[0],
+          coordinates[1],
+          baseIntensity > 0 ? baseIntensity : 1 // Ensure non-zero intensity
+        ]);
 
-      // Add surrounding points with location-specific patterns
-      const numPoints = Math.floor(10 + (ratio * 5)); // More points for higher density
-      for (let i = 0; i < numPoints; i++) {
-        const angle = (Math.PI * 2 * i) / numPoints;
-        const distance = 0.002 * (0.5 + Math.random() * 0.5); // Varying distances
-        const newLat = coordinates[0] + Math.sin(angle) * distance;
-        const newLng = coordinates[1] + Math.cos(angle) * distance;
-        const intensity = baseIntensity * (0.3 + Math.random() * 0.4);
+        // Add surrounding points with location-specific patterns
+        const numPoints = Math.min(20, Math.max(5, Math.floor(10 + (ratio * 5)))); // Limit points between 5-20
+        for (let i = 0; i < numPoints; i++) {
+          if (i >= numPoints) break; // Safety check to prevent infinite loops
+          
+          const angle = (Math.PI * 2 * i) / (numPoints || 1); // Prevent division by zero
+          const distance = Math.min(0.002, Math.max(0.0001, 0.002 * (0.5 + Math.random() * 0.5))); // Limit distance
+          const newLat = coordinates[0] + Math.sin(angle) * distance;
+          const newLng = coordinates[1] + Math.cos(angle) * distance;
+          const intensity = Math.max(1, baseIntensity * (0.3 + Math.random() * 0.4)); // Ensure non-zero intensity
 
-        expandedHeatmapData.push([newLat, newLng, intensity]);
-      }
-
-      // Add movement trails based on time of day
-      if ((hour >= 6 && hour <= 9) || (hour >= 17 && hour <= 19)) {
-        // Add directional heat trails during peak hours
-        const trailDirection = hour < 12 ? 1 : -1;
-        for (let i = 1; i <= 3; i++) {
-          const trailLat = coordinates[0] + (0.001 * i * trailDirection);
-          const trailLng = coordinates[1] + (0.001 * i);
-          expandedHeatmapData.push([trailLat, trailLng, baseIntensity * (1 - (i * 0.2))]);
+          // Validate coordinates before adding
+          if (isFinite(newLat) && isFinite(newLng) && isFinite(intensity)) {
+            expandedHeatmapData.push([newLat, newLng, intensity]);
+          }
         }
+
+        // Add movement trails based on time of day
+        if ((hour >= 6 && hour <= 9) || (hour >= 17 && hour <= 19)) {
+          // Add directional heat trails during peak hours
+          const trailDirection = hour < 12 ? 1 : -1;
+          for (let i = 1; i <= 3; i++) {
+            const trailLat = coordinates[0] + (0.001 * i * trailDirection);
+            const trailLng = coordinates[1] + (0.001 * i);
+            const trailIntensity = Math.max(1, baseIntensity * (1 - (i * 0.2))); // Ensure non-zero intensity
+            
+            // Validate coordinates before adding
+            if (isFinite(trailLat) && isFinite(trailLng) && isFinite(trailIntensity)) {
+              expandedHeatmapData.push([trailLat, trailLng, trailIntensity]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error generating heatmap data:", error);
       }
     });
 
-    // Create enhanced heat layer with dynamic patterns
-    heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
-      radius: 45,
-      blur: 35,
-      maxZoom: 15,
-      max: 120,
-      gradient: {
-        0.0: '#4ade80',
-        0.2: '#22c55e',
-        0.4: '#f59e0b',
-        0.6: '#f97316',
-        0.75: '#ef4444',
-        0.85: '#b91c1c',
-        0.95: '#7f1d1d'
+    // Create enhanced heat layer with dynamic patterns (only if we have data)
+    if (expandedHeatmapData.length > 0 && mapRef.current) {
+      try {
+        heatLayerRef.current = L.heatLayer(expandedHeatmapData, {
+          radius: 45,
+          blur: 35,
+          maxZoom: 15,
+          max: 120,
+          gradient: {
+            0.0: '#4ade80',
+            0.2: '#22c55e',
+            0.4: '#f59e0b',
+            0.6: '#f97316',
+            0.75: '#ef4444',
+            0.85: '#b91c1c',
+            0.95: '#7f1d1d'
+          }
+        }).addTo(mapRef.current);
+      } catch (error) {
+        console.error("Error creating heat layer:", error);
       }
-    }).addTo(mapRef.current);
+    }
 
   }, [crowdLevels, facilities, mapRef, showHeatLayer]);
 
