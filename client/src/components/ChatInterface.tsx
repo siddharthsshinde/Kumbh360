@@ -205,16 +205,33 @@ export function ChatInterface() {
   return (
     <div className="flex flex-col">
       <Card className="flex flex-col w-full bg-white shadow-lg rounded-xl overflow-hidden border-t-4 border-[#FF7F00]">
-        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-4 text-white">
-          <h2 className="text-2xl font-bold flex items-center">
-            <span className="hidden xs:inline">Kumbh Mela</span> AI Assistant
-            <span className="ml-2 px-2 py-0.5 bg-white/20 text-xs rounded-full">NLP Enhanced</span>
-          </h2>
-          <p className="text-sm opacity-90">Ask any question about your pilgrimage journey</p>
-          <p className="text-xs mt-1 opacity-75">Using advanced NLP and semantic search technology</p>
+        <div className="bg-gradient-to-r from-[#FF7F00] to-[#E3A018] p-5 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold flex items-center">
+                <span className="hidden xs:inline">Kumbh Mela</span> AI Assistant
+                <span className="ml-2 px-2 py-0.5 bg-white/20 text-xs rounded-full">NLP Enhanced</span>
+              </h2>
+              <p className="text-sm mt-1 opacity-90">Ask any question about your pilgrimage journey</p>
+              <p className="text-xs mt-1 opacity-75">Using advanced NLP and semantic search technology</p>
+            </div>
+            <div className="hidden md:flex flex-col items-end">
+              <div className="flex items-center text-xs bg-white/10 px-2 py-1 rounded-md">
+                <span className="w-2 h-2 rounded-full bg-green-400 mr-1"></span>
+                <span>Knowledge Base: 23 Entries</span>
+              </div>
+              <div className="text-xs mt-1 opacity-75">Supports Hindi & English</div>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Semantic Search</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">TF-IDF Analysis</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Entity Recognition</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Contextual Suggestions</span>
+          </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4" style={{ height: 'min(500px, 60vh)' }}>
+        <ScrollArea className="flex-1 p-4" style={{ height: 'min(650px, 70vh)' }}>
           <div className="space-y-4">
             {messages.map((msg, i) => (
               <div
@@ -305,21 +322,39 @@ export function ChatInterface() {
         
         <div className="p-4 border-t border-gray-200">
           <div className="flex flex-col gap-2 relative">
-            <div className="flex gap-2 w-full relative">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask me anything about Kumbh Mela..."
-                className="flex-1 bg-white border-[#FF7F00]/30 focus-visible:ring-[#FF7F00]"
-                disabled={isLoading}
-              />
+            <div className="flex gap-3 w-full relative">
+              <div className="flex-1 relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <Search className="h-4 w-4" />
+                </div>
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask me anything about Kumbh Mela..."
+                  className="flex-1 pl-9 bg-white border-[#FF7F00]/30 focus-visible:ring-[#FF7F00] pr-36"
+                  disabled={isLoading}
+                />
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[10px] text-gray-400">
+                  {isLoading ? (
+                    <span className="flex items-center">
+                      <span className="animate-pulse mr-1">●</span> Processing
+                    </span>
+                  ) : (
+                    <span>Press Enter to send</span>
+                  )}
+                </div>
+              </div>
               <Button 
                 onClick={() => handleSend(input)}
                 disabled={isLoading}
                 className="bg-[#FF7F00] hover:bg-[#E3A018] text-white"
               >
-                <Send className="h-4 w-4" />
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
               {suggestions.length > 0 && (
                 <div className="absolute bottom-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10">
