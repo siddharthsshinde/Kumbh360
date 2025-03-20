@@ -9,7 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Tabs, TabsContent, TabsList, TabsTrigger
 } from "@/components/ui/tabs";
-import { AlertTriangle, MapPin, Users } from "lucide-react";
+import { AlertTriangle, MapPin, Users, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 type FacilityType = "holy_site" | "hospital" | "hotel" | "temple" | "shuttle_stop" | "restroom";
 
@@ -568,6 +569,11 @@ export function FacilityMap(): JSX.Element {
   const [mapContainer, setMapContainer] = useState<HTMLElement | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  
+  // For search functionality
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<{name: string, type: string, location: {lat: number, lng: number}}[]>([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
 
   // For heatmap (integrated with the main map)
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
@@ -1816,6 +1822,43 @@ export function FacilityMap(): JSX.Element {
               <span>Area Zones</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Search functionality */}
+      <div className="p-2 border-b">
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Search for facilities, temples, services..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-4 py-2 text-sm w-full"
+          />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          {searchQuery.length > 0 && searchResults.length > 0 && (
+            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+              {searchResults.map((result, index) => (
+                <button
+                  key={index}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center"
+                  onClick={() => {
+                    if (mapRef.current && result.location) {
+                      mapRef.current.setView([result.location.lat, result.location.lng], 16);
+                      setSearchQuery('');
+                    }
+                  }}
+                >
+                  <span
+                    className="inline-block w-2 h-2 rounded-full mr-2"
+                    style={{ backgroundColor: getTypeColor(result.type) }}
+                  ></span>
+                  <span>{result.name}</span>
+                  <span className="ml-2 text-xs text-gray-500">{getTypeName(result.type)}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
