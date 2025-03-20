@@ -1,5 +1,5 @@
 import type { ChatMessage, KumbhFAQItem, ChatResponse } from "@shared/types";
-import kumbhData from "../../../attached_assets/kumbh_mela_advanced_dataset.json";
+import kumbhData from "../../../attached_assets/kumbh_mela_real_human_dataset (1).json";
 import { TFIDF, tokenize, removeStopwords } from "./nlp";
 
 // Enhanced intents and patterns
