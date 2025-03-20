@@ -806,7 +806,8 @@ export class MemStorage implements IStorage {
         content: article.description || article.content || "No content available",
         language: "en", // NewsAPI provides language in the query, all items will be "en"
         timestamp: article.publishedAt || new Date().toISOString(),
-        category: this.categorizeNewsArticle(article.title, article.description)
+        category: this.categorizeNewsArticle(article.title, article.description),
+        imageUrl: article.urlToImage || null // Include image URL from NewsAPI
       })) || [];
       
       // Combine essential news with API news
@@ -853,7 +854,8 @@ export class MemStorage implements IStorage {
         content: "A special Ganga Aarti will be performed tonight at Ramkund at 7 PM. All devotees are welcome.",
         language: "en",
         timestamp: new Date().toISOString(),
-        category: "Event"
+        category: "Event",
+        imageUrl: "https://images.unsplash.com/photo-1630169161596-fa2296d5c67a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2874&q=80"
       },
       {
         id: 2,
@@ -861,7 +863,8 @@ export class MemStorage implements IStorage {
         content: "Due to high footfall, traffic has been diverted from Godavari Bridge to Tapovan Road. Please use alternate routes.",
         language: "en",
         timestamp: new Date().toISOString(),
-        category: "Transport"
+        category: "Transport",
+        imageUrl: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2864&q=80"
       }
     ];
   }

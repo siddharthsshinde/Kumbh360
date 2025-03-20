@@ -22,6 +22,7 @@ export interface NewsItem {
   language: string;
   timestamp: string;
   category?: string;
+  imageUrl?: string;
 }
 
 export interface KumbhFAQItem {
