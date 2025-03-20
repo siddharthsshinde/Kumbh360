@@ -151,38 +151,69 @@ export function getSuggestions(input: string): string[] {
 }
 
 /**
- * Find intent using embeddings for semantic matching
+ * Find intent using a hybrid approach - first direct pattern matching, then embeddings, then tokens
  */
 async function findIntentWithEmbeddings(message: string): Promise<string> {
   try {
-    // First try with embeddings if model is loaded
+    // First try exact pattern matching for common questions (fastest)
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Direct pattern matching for common queries about Kumbh Mela
+    if (lowerMessage.includes("what is kumbh") || 
+        lowerMessage.includes("what is the kumbh") || 
+        lowerMessage.includes("kumbh mela is") || 
+        lowerMessage.includes("about kumbh mela")) {
+      return "general";
+    }
+    
+    // Check other direct matches for known intents
+    for (const [intentName, data] of Object.entries(intents)) {
+      for (const pattern of data.patterns) {
+        if (lowerMessage.includes(pattern.toLowerCase())) {
+          return intentName;
+        }
+      }
+    }
+    
+    // Second, try with less processing-heavy token matching
+    const tokenBasedIntent = findIntentWithTokens(message);
+    if (tokenBasedIntent !== "general") {
+      return tokenBasedIntent;
+    }
+    
+    // Only use embeddings for more complex queries that weren't matched above
     const intentDescriptions = Object.entries(intents).map(([name, data]) => ({
       name,
       description: data.description
     }));
     
-    // Use embeddings manager to find semantic similarity
-    const results = await embeddingsManager.findMostSimilar(
-      message,
-      intentDescriptions.map(item => item.description),
-      0.4 // Threshold
-    );
-    
-    if (results) {
-      // Find index of matching description
-      const index = intentDescriptions.findIndex(
-        item => item.description === results.text
+    try {
+      // Use embeddings manager to find semantic similarity
+      const results = await embeddingsManager.findMostSimilar(
+        message,
+        intentDescriptions.map(item => item.description),
+        0.4 // Threshold
       );
-      if (index >= 0) {
-        return intentDescriptions[index].name;
+      
+      if (results) {
+        // Find index of matching description
+        const index = intentDescriptions.findIndex(
+          item => item.description === results.text
+        );
+        if (index >= 0) {
+          return intentDescriptions[index].name;
+        }
       }
+    } catch (embeddingError) {
+      console.log('Skipping embeddings due to error:', embeddingError);
+      // Continue with token-based approach
     }
     
-    // Fallback to token-based matching if embeddings don't work
-    return findIntentWithTokens(message);
+    // Fallback to token-based result
+    return tokenBasedIntent;
   } catch (error) {
-    console.error('Error using embeddings for intent recognition:', error);
-    // Fallback to token-based approach
+    console.error('Error in intent recognition:', error);
+    // Ultimate fallback to token-based approach
     return findIntentWithTokens(message);
   }
 }
@@ -211,29 +242,74 @@ function findIntentWithTokens(message: string): string {
 }
 
 /**
- * Enhanced FAQ matching using embeddings when possible
+ * Enhanced FAQ matching using a faster, optimized approach
  */
 async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQItem | null> {
   try {
-    // Try using embeddings first
-    const results = await embeddingsManager.findMostSimilar(
-      query,
-      faqData.map(item => item.question),
-      0.5 // Higher threshold for more accurate FAQ matching
-    );
+    // First try direct matching for common questions (fastest)
+    const lowerQuery = query.toLowerCase().trim();
     
-    if (results) {
-      // Find the FAQ that matches
-      const faqIndex = faqData.findIndex(item => item.question === results.text);
-      if (faqIndex >= 0) {
-        return faqData[faqIndex];
+    // Direct lookup for "What is Kumbh Mela?" type questions
+    if (lowerQuery.includes("what is kumbh") || 
+        lowerQuery.includes("what is the kumbh") ||
+        lowerQuery.includes("about kumbh mela") ||
+        lowerQuery.includes("kumbh festival") ||
+        lowerQuery.includes("kumbh pilgrimage")) {
+      
+      // Find the exact match or similar in the FAQ data
+      for (let i = 0; i < faqData.length; i++) {
+        const question = faqData[i].question.toLowerCase();
+        if (question.includes("what is kumbh")) {
+          return faqData[i];
+        }
       }
     }
     
-    // Fall back to TFIDF if embeddings don't find a good match
-    return findRelevantFAQWithTFIDF(query);
+    // For other common questions, try direct matching by tokenizing
+    // This is faster than full embeddings
+    const queryTokens = new Set(tokenize(lowerQuery).map(t => t.toLowerCase()));
+    
+    for (let i = 0; i < faqData.length; i++) {
+      const faqTokens = new Set(tokenize(faqData[i].question.toLowerCase()).map(t => t.toLowerCase()));
+      const overlap = [...queryTokens].filter(token => faqTokens.has(token)).length;
+      
+      // If more than 60% of the tokens match (normalized by total tokens in query)
+      if (overlap > 0 && overlap / queryTokens.size > 0.6) {
+        return faqData[i];
+      }
+    }
+    
+    // If still no match, try with TFIDF (faster than embeddings)
+    const tfidfMatch = findRelevantFAQWithTFIDF(query);
+    if (tfidfMatch) {
+      return tfidfMatch;
+    }
+    
+    // As a last resort, only use embeddings for complex queries
+    try {
+      // Try using embeddings last (most processing intensive)
+      const results = await embeddingsManager.findMostSimilar(
+        query,
+        faqData.map(item => item.question),
+        0.5 // Higher threshold for more accurate FAQ matching
+      );
+      
+      if (results) {
+        // Find the FAQ that matches
+        const faqIndex = faqData.findIndex(item => item.question === results.text);
+        if (faqIndex >= 0) {
+          return faqData[faqIndex];
+        }
+      }
+    } catch (embeddingError) {
+      console.log('Skipping embeddings for FAQ matching due to error:', embeddingError);
+      // Continue with TFIDF approach (already tried above)
+    }
+    
+    // No match found
+    return null;
   } catch (error) {
-    console.error('Error using embeddings for FAQ matching:', error);
+    console.error('Error in FAQ matching:', error);
     // Fallback to TFIDF
     return findRelevantFAQWithTFIDF(query);
   }
