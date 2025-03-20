@@ -533,7 +533,12 @@ export class MemStorage implements IStorage {
 
   constructor() {
     this.initCrowdLevels();
-    this.initNewsData();
+    // Initialize with default news items immediately
+    this.setDefaultNewsItems();
+    // Then fetch real news asynchronously
+    this.initNewsData().catch(err => {
+      console.error("Error initializing news data:", err);
+    });
   }
 
   private initCrowdLevels() {
@@ -751,7 +756,96 @@ export class MemStorage implements IStorage {
   }[]> {
     return this.newsItems;
   }
-  private initNewsData() {
+  private async initNewsData() {
+    try {
+      const API_KEY = process.env.NEWSAPI_KEY;
+      
+      if (!API_KEY) {
+        console.error("NewsAPI key not found");
+        // Fallback data in case API key is missing
+        this.setDefaultNewsItems();
+        return;
+      }
+      
+      // Static essential Kumbh Mela event news should always be available
+      const essentialNews = [
+        {
+          id: 1,
+          title: "Special Ganga Aarti Tonight",
+          content: "A special Ganga Aarti will be performed tonight at Ramkund at 7 PM. All devotees are welcome.",
+          language: "en",
+          timestamp: new Date().toISOString(),
+          category: "Event"
+        },
+        {
+          id: 2,
+          title: "Traffic Diversion on Main Road",
+          content: "Due to high footfall, traffic has been diverted from Godavari Bridge to Tapovan Road. Please use alternate routes.",
+          language: "en",
+          timestamp: new Date().toISOString(),
+          category: "Transport"
+        }
+      ];
+      
+      // Attempt to fetch news from NewsAPI
+      const response = await fetch(
+        `https://newsapi.org/v2/everything?q=Kumbh+Mela+OR+Nashik+OR+Festival+India&language=en&sortBy=publishedAt&apiKey=${API_KEY}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`NewsAPI error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`Fetched ${data.articles?.length || 0} news items from NewsAPI`);
+      
+      // Transform NewsAPI data to our format
+      const apiNewsItems = data.articles?.map((article: any, index: number) => ({
+        id: essentialNews.length + index + 1,
+        title: article.title,
+        content: article.description || article.content || "No content available",
+        language: "en", // NewsAPI provides language in the query, all items will be "en"
+        timestamp: article.publishedAt || new Date().toISOString(),
+        category: this.categorizeNewsArticle(article.title, article.description)
+      })) || [];
+      
+      // Combine essential news with API news
+      this.newsItems = [...essentialNews, ...apiNewsItems];
+      
+      // Set up automatic refresh of news data every 30 minutes
+      setTimeout(() => this.refreshNewsData(), 30 * 60 * 1000);
+      
+    } catch (error) {
+      console.error("Error fetching news from NewsAPI:", error);
+      // Fallback to default news items in case of error
+      this.setDefaultNewsItems();
+    }
+  }
+  
+  private categorizeNewsArticle(title: string, description: string): string {
+    const combinedText = `${title} ${description}`.toLowerCase();
+    
+    // Define category keywords
+    const categoryKeywords: Record<string, string[]> = {
+      "Emergency": ["emergency", "alert", "warning", "evacuate", "accident", "disaster", "critical"],
+      "Transport": ["transport", "traffic", "road", "vehicle", "bus", "train", "route", "travel"],
+      "Event": ["event", "ceremony", "festival", "celebration", "ritual", "performance", "program"],
+      "Weather": ["weather", "rain", "flood", "temperature", "storm", "hot", "cold", "climate"],
+      "Health": ["health", "medical", "hospital", "doctor", "patient", "treatment", "injury", "cure"]
+    };
+    
+    // Check for keywords and return matching category
+    for (const [category, keywords] of Object.entries(categoryKeywords)) {
+      if (keywords.some(keyword => combinedText.includes(keyword))) {
+        return category;
+      }
+    }
+    
+    // Default category
+    return "General";
+  }
+  
+  private setDefaultNewsItems() {
     this.newsItems = [
       {
         id: 1,
@@ -770,6 +864,11 @@ export class MemStorage implements IStorage {
         category: "Transport"
       }
     ];
+  }
+  
+  private async refreshNewsData() {
+    console.log('Refreshing news data from NewsAPI');
+    await this.initNewsData();
   }
   async getKumbhLocations() {
     // Update current status based on crowd levels
@@ -1060,11 +1159,11 @@ export class MemStorage implements IStorage {
         const cell = existingCells.find(c => c.gridX === x && c.gridY === y);
         if (cell) {
           cell.density = value;
-          cell.timestamp = new Date().toISOString();
-          cell.metadata = {
-            ...cell.metadata,
-            color: this.getDensityColor(value),
-          };
+          cell.timestamp = new Date();
+          if (cell.metadata) {
+            cell.metadata.color = this.getDensityColor(value);
+            cell.metadata.timestamp = new Date().toISOString();
+          }
         }
       });
     });
