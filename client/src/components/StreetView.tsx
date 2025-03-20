@@ -17,28 +17,37 @@ const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Ramkund",
     description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela.",
-    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742246127271!6m8!1m7!1sPqDHN1zHdVLHt2OZJXq_IQ!2m2!1d20.00854120408353!2d73.7924885746894!3f210.56375!4f0!5f0.7820865974627469",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506627287!6m8!1m7!1sCAoSLEFGMVFpcE5YWTkwaENBcnVCNTdlTFB3UW5jckZIT3N0Y0R4WjRndnhIaGk4!2m2!1d19.9939833953146!2d73.7889873981476!3f320!4f0!5f0.7820865974627469",
     location: {
-      lat: 20.0074901,
-      lng: 73.79205090000005
+      lat: 19.994031, 
+      lng: 73.788984
     }
   },
   {
     name: "Kalaram Temple",
     description: "Historic black stone temple dedicated to Lord Rama in Panchavati area. Notable for its architectural beauty and religious importance.",
-    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742247900000!6m8!1m7!1sCAoSLEFGMVFpcE9DSjJTRzVoeDU3ZlBwS0NQdjVMZlYwb2x5dGt1ZnYzTFZULW1r!2m2!1d20.00689164875!2d73.7902840338182!3f0!4f0!5f0.7820865974627469",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506764845!6m8!1m7!1sCAoSLEFGMVFpcFAyYWpyQktSaXJ1UGlkMlU4a2xaQVlLeEZZczVkZnpVQk1rNWdy!2m2!1d19.9969979!2d73.7906662!3f290!4f0!5f0.7820865974627469",
     location: {
-      lat: 20.0064,
-      lng: 73.7904
+      lat: 19.997090, 
+      lng: 73.790732
     }
   },
   {
     name: "Tapovan",
     description: "Sacred area where Lord Rama stayed during exile. Features ancient caves and meditation spots surrounded by natural beauty.",
-    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742247950000!6m8!1m7!1sCAoSLEFGMVFpcE5nZVFibEJxcVhpcl9lbkVlVTQ1NXFNZk1GMTNnYUpJLXVjV01V!2m2!1d20.01103104458!2d73.79389071464539!3f0!4f0!5f0.7820865974627469",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506832892!6m8!1m7!1sCAoSLEFGMVFpcE9MN2YtVDMxVnVRT0Q4eWdSU01YWDh2bEdFVWc0QmNXSm04YU5j!2m2!1d19.9967088!2d73.7715396!3f340!4f0!5f0.7820865974627469",
     location: {
-      lat: 20.0116,
-      lng: 73.7938
+      lat: 19.996708, 
+      lng: 73.771539
+    }
+  },
+  {
+    name: "Trimbakeshwar Temple",
+    description: "One of the 12 Jyotirlingas of Lord Shiva, located near the source of the Godavari River. A significant pilgrimage site during Kumbh Mela.",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506982743!6m8!1m7!1sCAoSLEFGMVFpcE9WTVZpUkhZNi1PelBKUHlhQVpBMmRsYlQwdVRuX19IR0Z4WHND!2m2!1d19.9320634!2d73.5305333!3f190!4f0!5f0.7820865974627469",
+    location: {
+      lat: 19.932127, 
+      lng: 73.530555
     }
   }
 ];
