@@ -24,8 +24,13 @@ const intents = {
   ]
 };
 
-// Initialize FAQ data
-const faqData: KumbhFAQItem[] = kumbhData.kumbh_mela.faq;
+// Initialize FAQ data - convert from the available format
+// The data structure comes from questions array rather than kumbh_mela.faq
+const faqData: KumbhFAQItem[] = kumbhData.questions.map(item => ({
+  question: item.question,
+  answer: item.answer,
+  category: 'general'
+}));
 
 // Initialize TFIDF with FAQ questions
 const tfidf = new TFIDF(faqData.map(item => item.question));
@@ -59,9 +64,9 @@ export function getSuggestions(input: string): string[] {
 
   // Use TFIDF to find similar questions from FAQ
   if (input.length > 2) {
-    const similarIndices = tfidf.findSimilarDocuments(input, 3);
+    const similarDocs = tfidf.findSimilarDocuments(input, 3);
     suggestions.push(
-      ...similarIndices.map(idx => faqData[idx].question)
+      ...similarDocs.map(item => faqData[item.index].question)
     );
   }
 
@@ -93,17 +98,13 @@ function findIntent(message: string): string {
 
 function findRelevantFAQ(query: string): KumbhFAQItem | null {
   // Use TFIDF to find the most relevant FAQ
-  const similarIndices = tfidf.findSimilarDocuments(query, 1);
-  if (similarIndices.length === 0) return null;
+  const similarDocs = tfidf.findSimilarDocuments(query, 1);
+  if (similarDocs.length === 0) return null;
 
-  const bestMatchIndex = similarIndices[0];
-  const similarity = tfidf.cosineSimilarity(
-    tfidf.queryVector(query),
-    tfidf.documentVectors[bestMatchIndex]
-  );
-
+  const bestMatch = similarDocs[0];
+  
   // Only return if similarity is above threshold
-  return similarity > 0.2 ? faqData[bestMatchIndex] : null;
+  return bestMatch.score > 0.2 ? faqData[bestMatch.index] : null;
 }
 
 function getRealTimeUpdate(intent: string): string | null {

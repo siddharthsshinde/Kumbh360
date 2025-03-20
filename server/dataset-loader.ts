@@ -7,7 +7,7 @@ import { storage } from './storage';
 export async function loadRealHumanDataset() {
   try {
     // Path to the dataset file
-    const datasetPath = path.join(__dirname, '../attached_assets/kumbh_mela_real_human_dataset (1).json');
+    const datasetPath = path.join(__dirname, '../attached_assets/kumbh_mela main .json');
     
     // Read and parse the JSON file
     const rawData = fs.readFileSync(datasetPath, 'utf8');
