@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -8,9 +9,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, ArrowRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 import type { NewsItem } from "@shared/types";
 
@@ -20,6 +23,9 @@ export function NewsWidget() {
     queryKey: ["/api/news"],
     refetchInterval: 15000, // Refresh every 15 seconds
   });
+  
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Filter news by current language
   const filteredNews = newsItems?.filter(
@@ -246,9 +252,23 @@ export function NewsWidget() {
                             <p className="text-sm text-gray-700 mb-3 line-clamp-3">
                               {item.content}
                             </p>
-                            <div className="flex items-center gap-1 text-xs text-gray-500 justify-end">
-                              <Clock className="h-3 w-3" />
-                              <span>{formatTimestamp(item.timestamp)}</span>
+                            <div className="flex items-center justify-between">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className={`p-0 h-auto ${text} hover:bg-transparent hover:underline`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedNews(item);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                {t("Read More")} <ArrowRight className="h-3 w-3 ml-1" />
+                              </Button>
+                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <Clock className="h-3 w-3" />
+                                <span>{formatTimestamp(item.timestamp)}</span>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -265,6 +285,46 @@ export function NewsWidget() {
           })}
         </div>
       )}
+      
+      {/* News Detail Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {selectedNews?.title}
+            </DialogTitle>
+            <DialogDescription className="flex items-center gap-2 text-sm">
+              <Badge className={selectedNews?.category ? getCategoryStyles(selectedNews.category).bg : "bg-gray-500"}>
+                {selectedNews?.category || "General"}
+              </Badge>
+              <span className="flex items-center gap-1 text-gray-500">
+                <Clock className="h-3 w-3" />
+                {selectedNews ? formatTimestamp(selectedNews.timestamp) : ""}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedNews?.imageUrl && (
+            <div className="relative w-full h-48 overflow-hidden rounded-md mb-4">
+              <img 
+                src={selectedNews.imageUrl} 
+                alt={selectedNews.title}
+                className="w-full h-full object-cover" 
+              />
+            </div>
+          )}
+          
+          <div className="text-sm text-gray-700 whitespace-pre-line">
+            {selectedNews?.content}
+          </div>
+          
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              {t("Close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
