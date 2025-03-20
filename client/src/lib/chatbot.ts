@@ -1,5 +1,5 @@
 import type { ChatMessage, KumbhFAQItem, ChatResponse } from "@shared/types";
-import rawKumbhData from "../../../attached_assets/kumbh_mela_real_human_dataset (1).json";
+import kumbhData from "../../../attached_assets/kumbh_mela main .json";
 import { TFIDF, tokenize, removeStopwords } from "./nlp";
 
 // Enhanced intents and patterns
@@ -24,12 +24,8 @@ const intents = {
   ]
 };
 
-// Transform the raw data into the expected format
-const faqData: KumbhFAQItem[] = (rawKumbhData.questions || []).map(item => ({
-  question: item.question || "",
-  answer: item.answer || "",
-  category: "general"
-}));
+// Initialize FAQ data
+const faqData: KumbhFAQItem[] = kumbhData.kumbh_mela.faq;
 
 // Initialize TFIDF with FAQ questions
 const tfidf = new TFIDF(faqData.map(item => item.question));
