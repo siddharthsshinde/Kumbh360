@@ -1680,6 +1680,93 @@ export function FacilityMap(): JSX.Element {
     setSelectedType(type);
   };
 
+  // Handle search functionality
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setIsSearching(true);
+
+    if (query.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const lowercaseQuery = query.toLowerCase();
+    const results: {name: string, type: string, location: {lat: number, lng: number}}[] = [];
+
+    // Search through facilities
+    if (facilities) {
+      facilities.forEach(facility => {
+        if (
+          facility.name?.toLowerCase().includes(lowercaseQuery) ||
+          facility.address?.toLowerCase().includes(lowercaseQuery) ||
+          facility.type?.toLowerCase().includes(lowercaseQuery) ||
+          getTypeName(facility.type).toLowerCase().includes(lowercaseQuery)
+        ) {
+          if (facility.location && typeof facility.location === 'object' && 'lat' in facility.location && 'lng' in facility.location) {
+            results.push({
+              name: facility.name,
+              type: facility.type,
+              location: {
+                lat: Number(facility.location.lat),
+                lng: Number(facility.location.lng)
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // Search through shuttles
+    if (shuttles) {
+      shuttles.forEach(shuttle => {
+        if (
+          shuttle.routeName?.toLowerCase().includes(lowercaseQuery) ||
+          shuttle.currentLocation?.toLowerCase().includes(lowercaseQuery) ||
+          shuttle.nextStop?.toLowerCase().includes(lowercaseQuery)
+        ) {
+          if (shuttle.coordinates && typeof shuttle.coordinates === 'object' && 'lat' in shuttle.coordinates && 'lng' in shuttle.coordinates) {
+            results.push({
+              name: `${shuttle.routeName} (${shuttle.currentLocation})`,
+              type: 'shuttle_stop',
+              location: {
+                lat: Number(shuttle.coordinates.lat),
+                lng: Number(shuttle.coordinates.lng)
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // Search through restrooms
+    if (restrooms) {
+      restrooms.forEach(restroom => {
+        if (
+          restroom.location?.toLowerCase().includes(lowercaseQuery) ||
+          restroom.nearestStop?.toLowerCase().includes(lowercaseQuery) ||
+          restroom.status?.toLowerCase().includes(lowercaseQuery) ||
+          'restroom'.includes(lowercaseQuery) ||
+          'toilet'.includes(lowercaseQuery)
+        ) {
+          if (restroom.coordinates && typeof restroom.coordinates === 'object' && 'lat' in restroom.coordinates && 'lng' in restroom.coordinates) {
+            results.push({
+              name: `${restroom.location} Restroom${restroom.accessibility ? ' (Accessible)' : ''}`,
+              type: 'restroom',
+              location: {
+                lat: Number(restroom.coordinates.lat),
+                lng: Number(restroom.coordinates.lng)
+              }
+            });
+          }
+        }
+      });
+    }
+
+    setSearchResults(results);
+    setIsSearching(false);
+  };
+
   // Helper function to get type name for display
   const getTypeName = (type: string) => {
     const names: Record<string, string> = {
@@ -1832,13 +1919,36 @@ export function FacilityMap(): JSX.Element {
             type="text"
             placeholder="Search for facilities, temples, services..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 pr-4 py-2 text-sm w-full"
           />
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          {searchQuery.length > 0 && searchResults.length > 0 && (
+          {isSearching ? (
+            <div className="absolute left-3 top-2.5 h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
+          ) : (
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          )}
+          {searchQuery.length > 0 && (
+            <div className="absolute right-3 top-2.5">
+              <button 
+                className="h-4 w-4 text-gray-400 hover:text-gray-600"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+          {searchQuery.length > 0 && (
             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-              {searchResults.map((result, index) => (
+              {searchResults.length === 0 && !isSearching && searchQuery.length >= 2 ? (
+                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                  <span>No facilities found matching "{searchQuery}"</span>
+                  <div className="text-xs mt-1">Try a different search term or browse the map</div>
+                </div>
+              ) : (
+                searchResults.map((result, index) => (
                 <button
                   key={index}
                   className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center"
@@ -1856,7 +1966,7 @@ export function FacilityMap(): JSX.Element {
                   <span>{result.name}</span>
                   <span className="ml-2 text-xs text-gray-500">{getTypeName(result.type)}</span>
                 </button>
-              ))}
+              )))}
             </div>
           )}
         </div>
