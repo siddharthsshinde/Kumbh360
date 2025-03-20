@@ -147,8 +147,16 @@ export function ChatInterface() {
         const followUps = nlpEngine.generateFollowUpQuestions(messageText, nlpResults);
         setFollowUpSuggestions(followUps);
       } else {
-        // If no good match in our knowledge base, use the server-side API
+        // If no good match in our knowledge base, use the enhanced server-side API
+        // that uses word embeddings and maintains conversation state
         response = await getChatResponse([...messages, userMessage]);
+        
+        // Dynamically generate follow-up questions based on the new response
+        const followUps = suggestions.length > 0 
+          ? suggestions.slice(0, 3) 
+          : nlpEngine.generateFollowUpQuestions(messageText, [{ text: response, score: 1 }]);
+        
+        setFollowUpSuggestions(followUps);
       }
       
       setMessages(prev => [...prev, { role: "assistant", content: response }]);
@@ -224,7 +232,8 @@ export function ChatInterface() {
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            <span className="bg-white/10 px-2 py-0.5 rounded-full">Semantic Search</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Word Embeddings</span>
+            <span className="bg-white/10 px-2 py-0.5 rounded-full">Conversation History</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">TF-IDF Analysis</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Entity Recognition</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Contextual Suggestions</span>
@@ -274,8 +283,8 @@ export function ChatInterface() {
                   </div>
                   <div className="mt-1 font-mono text-[10px] text-gray-400">
                     <span className="text-amber-500">●</span> Tokenizing input
-                    <span className="ml-2 text-amber-600">●</span> Removing stopwords
-                    <span className="ml-2 text-amber-700">●</span> Computing semantic similarity
+                    <span className="ml-2 text-amber-600">●</span> Generating word embeddings
+                    <span className="ml-2 text-amber-700">●</span> Analyzing conversation context
                   </div>
                 </div>
               </div>
