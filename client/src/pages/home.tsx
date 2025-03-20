@@ -11,7 +11,8 @@ import { AccommodationFinder } from "@/components/AccommodationFinder";
 import { TransportationGuide } from "@/components/TransportationGuide";
 import { EmergencyTransport } from "@/components/EmergencyTransport";
 import { StreetView } from "@/components/StreetView";
-import { MapPin, AlertCircle, Camera } from "lucide-react";
+import { LostAndFound } from "@/components/LostAndFound";
+import { MapPin, AlertCircle, Camera, UserSearch } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { PrayerSubmission } from "@/components/PrayerSubmission";
@@ -20,6 +21,7 @@ export default function Home() {
   const { i18n } = useTranslation();
   const { toast } = useToast();
   const [showStreetView, setShowStreetView] = useState(false);
+  const [showLostAndFound, setShowLostAndFound] = useState(false);
   const [activeTab, setActiveTab] = useState("main");
 
   const handleShareLocation = () => {
@@ -104,6 +106,15 @@ export default function Home() {
                 <Camera className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">{showStreetView ? 'Hide View' : 'Street View'}</span>
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowLostAndFound(!showLostAndFound)}
+                className="flex items-center gap-1 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs sm:text-sm"
+                size="sm"
+              >
+                <UserSearch className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">{showLostAndFound ? 'Hide Lost & Found' : 'Lost & Found'}</span>
+              </Button>
             </div>
             
             {/* Language Selector */}
@@ -158,6 +169,12 @@ export default function Home() {
         {showStreetView && (
           <div className="mb-6 rounded-lg overflow-hidden shadow-lg">
             <StreetView />
+          </div>
+        )}
+
+        {showLostAndFound && (
+          <div className="mb-6 rounded-lg overflow-hidden shadow-lg">
+            <LostAndFound />
           </div>
         )}
 
