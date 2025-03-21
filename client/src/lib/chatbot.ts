@@ -1,10 +1,35 @@
 import type { ChatMessage, KumbhFAQItem, ChatResponse } from "@shared/types";
-import kumbhData from "../../../attached_assets/kumbh_mela main .json";
+// Import the JSON data with type assertion
+import kumbhDataRaw from "../../../attached_assets/kumbh_mela main .json";
+
+// Define type for the imported JSON data
+interface KumbhData {
+  questions: Array<{
+    question: string;
+    answer: string;
+  }>;
+  crowdUpdates?: any[];
+  // Add other properties as needed
+}
+
+// Assert the correct type
+const kumbhData = kumbhDataRaw as KumbhData;
 import { TFIDF, tokenize, removeStopwords } from "./nlp";
 import { embeddingsManager, ConversationState } from "./embeddings";
 
+// Define type for intent data
+interface IntentData {
+  patterns: string[];
+  description: string;
+}
+
+// Define type for intents object
+interface Intents {
+  [key: string]: IntentData;
+}
+
 // Enhanced intents with description patterns for use with embeddings
-const intents = {
+const intents: Intents = {
   greetings: {
     patterns: [
       'hello', 'hi', 'hey', 'namaste', 'नमस्ते', 'नमस्कार', 'welcome', 'greet'
@@ -271,7 +296,7 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
     
     for (let i = 0; i < faqData.length; i++) {
       const faqTokens = new Set(tokenize(faqData[i].question.toLowerCase()).map(t => t.toLowerCase()));
-      const overlap = [...queryTokens].filter(token => faqTokens.has(token)).length;
+      const overlap = Array.from(queryTokens).filter(token => faqTokens.has(token)).length;
       
       // If more than 60% of the tokens match (normalized by total tokens in query)
       if (overlap > 0 && overlap / queryTokens.size > 0.6) {
@@ -423,8 +448,11 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     const realtimeUpdate = getRealTimeUpdate(intent, state);
     const followUp = getFollowUpSuggestions(intent, state);
     
+    // Safely access intent description with a fallback
+    const intentDescription = intents[intent as keyof typeof intents]?.description || "information about Kumbh Mela";
+    
     let response = realtimeUpdate || 
-      "I understand you're asking about " + intents[intent].description + ". " +
+      "I understand you're asking about " + intentDescription + ". " +
       "To help you better, you can ask about:\n" +
       "- Locations and directions\n" +
       "- Event schedules and timings\n" +

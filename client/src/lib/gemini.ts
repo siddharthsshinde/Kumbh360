@@ -20,6 +20,7 @@ export async function getGeminiResponse(messages: ChatMessage[]): Promise<string
     }
 
     // Initialize the model
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     // Convert ChatMessage[] to format expected by Gemini
