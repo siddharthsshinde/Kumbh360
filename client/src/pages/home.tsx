@@ -142,12 +142,9 @@ export default function Home() {
           const location: Location = { lat: latitude, lng: longitude };
           
           try {
-            // Send SOS via API
-            const response = await fetch("/api/sos-message", {
+            // Send SOS via API using the apiRequest utility
+            const response = await apiRequest("/api/sos-message", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
               body: JSON.stringify({
                 userId: CURRENT_USER_ID,
                 location,
@@ -157,21 +154,21 @@ export default function Home() {
               }),
             });
             
-            if (!response.ok) {
-              throw new Error("Failed to send SOS message");
+            if (response.success) {
+              // Show success message
+              toast({
+                title: "Emergency Alert Sent",
+                description: "Emergency services have been notified. Stay calm, help is on the way.",
+                variant: "destructive",
+                duration: 10000
+              });
+              
+              // Close dialog and reset
+              setSosDialogOpen(false);
+              setSosMessage("");
+            } else {
+              throw new Error(response.error || "Failed to send SOS message");
             }
-            
-            // Show success
-            toast({
-              title: "Emergency Alert Sent",
-              description: "Emergency services have been notified. Stay calm, help is on the way.",
-              variant: "destructive",
-              duration: 10000
-            });
-            
-            // Close dialog and reset
-            setSosDialogOpen(false);
-            setSosMessage("");
           } catch (error) {
             console.error("Failed to send SOS message:", error);
             toast({

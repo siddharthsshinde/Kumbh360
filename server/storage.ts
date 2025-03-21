@@ -246,7 +246,7 @@ export class MemStorage implements IStorage {
     {
       id: 1,
       name: "Nashik Police Control Room",
-      number: "0253-2305200",
+      number: "+919975854488",
       type: "police",
       address: "Police Headquarters, Sharanpur Road, Nashik",
       available24x7: true,
@@ -255,7 +255,7 @@ export class MemStorage implements IStorage {
     {
       id: 2,
       name: "Civil Hospital Nashik",
-      number: "0253-2572038",
+      number: "+919975854488",
       type: "hospital",
       address: "Mumbai Naka, Nashik",
       available24x7: true,
@@ -264,8 +264,8 @@ export class MemStorage implements IStorage {
     {
       id: 3,
       name: "Missing Person Help Desk",
-      number: "1094",
-      type: "missing_person",
+      number: "+919975854488",
+      type: "emergency",
       address: "Kumbh Mela Control Room, Panchavati",
       available24x7: true,
       zone: "Panchavati"
