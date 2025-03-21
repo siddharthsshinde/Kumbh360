@@ -8,8 +8,6 @@ import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion"
 import { NewsWidget } from "@/components/NewsWidget";
 import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo";
 import { AccommodationFinder } from "@/components/AccommodationFinder";
-import { TransportationGuide } from "@/components/TransportationGuide";
-import { EmergencyTransport } from "@/components/EmergencyTransport";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { StreetView } from "@/components/StreetView";
 import { LostAndFound } from "@/components/LostAndFound";
@@ -371,12 +369,6 @@ export default function Home() {
           <div className="space-y-4">
             <div className="rounded-lg overflow-hidden shadow-md">
               <SmartTransportationHub />
-            </div>
-            <div className="rounded-lg overflow-hidden shadow-md">
-              <EmergencyTransport />
-            </div>
-            <div className="rounded-lg overflow-hidden shadow-md">
-              <TransportationGuide />
             </div>
           </div>
         </div>
