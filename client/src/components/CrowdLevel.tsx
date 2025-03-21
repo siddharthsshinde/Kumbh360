@@ -4,7 +4,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { 
   Users, AlertTriangle, Clock, Info, ChevronUp, ChevronDown, 
-  Minus, Calendar, ArrowRight, MapPin, RefreshCw, BarChart
+  Minus, Calendar, ArrowRight, MapPin, BarChart
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CrowdLevel } from "@shared/schema";
@@ -240,10 +240,7 @@ export function CrowdLevelIndicator() {
     ? crowdLevels.find(level => level.location === selectedLocation) 
     : null;
     
-  const handleRefresh = () => {
-    refetch();
-    setLastRefreshed(new Date());
-  };
+
 
   return (
     <Card className="w-full h-full overflow-hidden shadow-md border-none card-hover flex flex-col">
@@ -253,22 +250,12 @@ export function CrowdLevelIndicator() {
             <Users className="h-5 w-5" />
             <h3 className="font-semibold">{t("Live Crowd Status")}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center text-xs gap-1">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-              </span>
-              <span>Live</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6 text-white hover:bg-white/10" 
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-            </Button>
+          <div className="flex items-center text-xs gap-1">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            <span>Live Updates</span>
           </div>
         </div>
       </div>
