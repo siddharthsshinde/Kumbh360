@@ -727,17 +727,21 @@ export class MemStorage implements IStorage {
       const utilization = currentCount / pattern.capacity;
 
       let status: CrowdStatus;
-      if (utilization > 0.75) status = "overcrowded";
-      else if (utilization > 0.5) status = "crowded";
-      else if (utilization > 0.25) status = "moderate";
+      // Adjust thresholds to provide better gradation
+      if (utilization > 0.9) status = "overcrowded";
+      else if (utilization > 0.65) status = "crowded";
+      else if (utilization > 0.35) status = "moderate";
       else status = "safe";
+
+      // Cap level between 1-5 for consistent UI representation
+      const level = Math.max(1, Math.min(5, Math.ceil(utilization * 10)));
 
       return {
         id: index + 1,
         location: key,
-        level: Math.ceil(utilization * 5),
+        level: level,
         capacity: pattern.capacity,
-        currentCount,
+        currentCount: Math.max(0, currentCount), // Ensure non-negative
         status,
         lastUpdated: update.lastUpdated,
         recommendations: pattern.recommendations[status]

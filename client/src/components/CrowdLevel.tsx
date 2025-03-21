@@ -66,7 +66,10 @@ export function CrowdLevelIndicator() {
       
       <div className="divide-y divide-gray-100 flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
         {crowdLevels.map((level) => {
-          const crowdPercentage = (level.currentCount / level.capacity) * 100;
+          // Calculate crowd percentage with safety checks
+          const crowdPercentage = level.currentCount && level.capacity
+            ? Math.min((level.currentCount / level.capacity) * 100, 100) // Cap at 100%
+            : 0;
           let statusBgColor;
           
           switch(level.status) {
@@ -107,8 +110,8 @@ export function CrowdLevelIndicator() {
                   ></div>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>Current: {level.currentCount.toLocaleString()}</span>
-                  <span>Capacity: {level.capacity.toLocaleString()}</span>
+                  <span>Current: {level.currentCount ? level.currentCount.toLocaleString() : 'N/A'}</span>
+                  <span>Capacity: {level.capacity ? level.capacity.toLocaleString() : 'N/A'}</span>
                 </div>
               </div>
               
