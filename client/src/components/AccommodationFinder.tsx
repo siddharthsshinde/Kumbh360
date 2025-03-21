@@ -253,14 +253,14 @@ export function AccommodationFinder() {
   // Request API key from user
   const requestApiKey = async () => {
     const secretKeys = ["VITE_TRIPADVISOR_API_KEY"];
-    const message = "TripAdvisor API key is required to fetch real accommodation data near Kumbh Mela. Please provide your API key.";
+    const message = "A RapidAPI key with TripAdvisor API access is required to fetch real accommodation data near Kumbh Mela. Please visit RapidAPI, subscribe to the TripAdvisor API, and provide your RapidAPI key.";
     
     try {
       const success = await ask_secrets(secretKeys, message);
       if (success) {
         toast({
           title: "API Key Requested",
-          description: "Once the TripAdvisor API key is set, real accommodation data will be displayed.",
+          description: "Once the RapidAPI TripAdvisor API key is set, real accommodation data will be displayed.",
           variant: "default"
         });
         
@@ -293,7 +293,7 @@ export function AccommodationFinder() {
           
           toast({
             title: "Live Data Loaded",
-            description: "Showing real-time accommodation data from TripAdvisor",
+            description: "Showing real-time accommodation data from RapidAPI TripAdvisor",
             variant: "default"
           });
         } catch (apiError) {
@@ -374,7 +374,7 @@ export function AccommodationFinder() {
                 className="ml-2 text-xs text-orange-600"
               >
                 <Info className="h-3 w-3 mr-1" />
-                Get TripAdvisor API
+                Get RapidAPI Key
               </Button>
             )}
           </h2>
