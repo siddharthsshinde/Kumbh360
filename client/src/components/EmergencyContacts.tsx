@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Trash2, UserPlus, Phone } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 
 // Placeholder user ID - in a real app, this would come from authentication
 const CURRENT_USER_ID = "user123";
@@ -29,6 +28,13 @@ interface EmergencyContact {
   createdAt: string;
 }
 
+interface ContactInput {
+  userId: string;
+  contactName: string;
+  contactNumber: string;
+  relationship: string;
+}
+
 export function EmergencyContacts() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -40,23 +46,27 @@ export function EmergencyContacts() {
   });
 
   // Fetch emergency contacts
-  const { data: contacts = [], isLoading } = useQuery({
+  const { data: contacts = [], isLoading } = useQuery<EmergencyContact[]>({
     queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`],
     refetchOnWindowFocus: false,
   });
 
   // Add new contact
   const addContactMutation = useMutation({
-    mutationFn: async (contact: {
-      userId: string;
-      contactName: string;
-      contactNumber: string;
-      relationship: string;
-    }) => {
-      return apiRequest("/api/user-emergency-contacts", {
+    mutationFn: async (contact: ContactInput) => {
+      const response = await fetch("/api/user-emergency-contacts", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(contact),
       });
+      
+      if (!response.ok) {
+        throw new Error("Failed to add contact");
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`] });
@@ -84,9 +94,15 @@ export function EmergencyContacts() {
   // Delete contact
   const deleteContactMutation = useMutation({
     mutationFn: async (contactId: number) => {
-      return apiRequest(`/api/user-emergency-contacts/${contactId}`, {
+      const response = await fetch(`/api/user-emergency-contacts/${contactId}`, {
         method: "DELETE",
       });
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete contact");
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`] });

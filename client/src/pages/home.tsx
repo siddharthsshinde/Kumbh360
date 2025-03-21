@@ -74,7 +74,7 @@ export default function Home() {
   const [notifyControlRoom, setNotifyControlRoom] = useState(true);
   
   // Fetch emergency contacts
-  const { data: emergencyContacts = [] } = useQuery({
+  const { data: emergencyContacts = [] } = useQuery<EmergencyContact[]>({
     queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`],
     refetchOnWindowFocus: false,
     enabled: sosDialogOpen, // Only fetch when dialog opens
@@ -143,8 +143,11 @@ export default function Home() {
           
           try {
             // Send SOS via API
-            await apiRequest("/api/sos-message", {
+            const response = await fetch("/api/sos-message", {
               method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({
                 userId: CURRENT_USER_ID,
                 location,
@@ -153,6 +156,10 @@ export default function Home() {
                 toContacts: notifyContacts
               }),
             });
+            
+            if (!response.ok) {
+              throw new Error("Failed to send SOS message");
+            }
             
             // Show success
             toast({
