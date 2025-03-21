@@ -14,7 +14,7 @@ import { LostAndFound } from "@/components/LostAndFound";
 import { SmartTransportationHub } from "@/components/SmartTransportationHub";
 import { FoodWaterSafety } from "@/components/FoodWaterSafety";
 import { CommunityFeatures } from "@/components/CommunityFeatures";
-import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone, Eye } from "lucide-react";
+import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { PrayerSubmission } from "@/components/PrayerSubmission";
@@ -73,7 +73,7 @@ export default function Home() {
   const [sendingEmergency, setSendingEmergency] = useState(false);
   const [notifyContacts, setNotifyContacts] = useState(true);
   const [notifyControlRoom, setNotifyControlRoom] = useState(true);
-
+  
   // Fetch emergency contacts
   const { data: emergencyContacts = [] } = useQuery<EmergencyContact[]>({
     queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`],
@@ -113,7 +113,7 @@ export default function Home() {
     // Open the SOS dialog
     setSosDialogOpen(true);
   };
-
+  
   const sendSOSMessage = () => {
     if (!sosMessage.trim()) {
       toast({
@@ -123,7 +123,7 @@ export default function Home() {
       });
       return;
     }
-
+    
     if (!notifyContacts && !notifyControlRoom) {
       toast({
         title: "Notification Options",
@@ -132,16 +132,16 @@ export default function Home() {
       });
       return;
     }
-
+    
     setSendingEmergency(true);
-
+    
     // Get current location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           const location: Location = { lat: latitude, lng: longitude };
-
+          
           try {
             // Send SOS via API using the apiRequest utility
             const response = await apiRequest("/api/sos-message", {
@@ -154,7 +154,7 @@ export default function Home() {
                 toContacts: notifyContacts
               }),
             });
-
+            
             if (response.success) {
               // Show success message
               toast({
@@ -163,7 +163,7 @@ export default function Home() {
                 variant: "destructive",
                 duration: 10000
               });
-
+              
               // Close dialog and reset
               setSosDialogOpen(false);
               setSosMessage("");
@@ -215,7 +215,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold text-[#FF7F00] hidden md:block">Kumbh Mela 2025</h1>
-
+            
             {/* Emergency Buttons - Always visible */}
             <div className="flex gap-2 flex-wrap">
               <Button
@@ -247,15 +247,6 @@ export default function Home() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.open('https://darshan.kumbh2025.org', '_blank')}
-                className="flex items-center gap-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs sm:text-sm"
-                size="sm"
-              >
-                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">Virtual Darshan</span>
-              </Button>
-              <Button
-                variant="outline"
                 onClick={() => setShowLostAndFound(!showLostAndFound)}
                 className="flex items-center gap-1 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs sm:text-sm"
                 size="sm"
@@ -264,7 +255,7 @@ export default function Home() {
                 <span className="hidden xs:inline">{showLostAndFound ? 'Hide Lost & Found' : 'Lost & Found'}</span>
               </Button>
             </div>
-
+            
             {/* Language Selector */}
             <div className="flex gap-1 sm:gap-2">
               <Button
@@ -344,15 +335,15 @@ export default function Home() {
               </div>
             </div>
           </div>
-
+          
           <div className="rounded-lg overflow-hidden shadow-md">
             <NewsWidget />
           </div>
-
+          
           <div className="rounded-lg overflow-hidden shadow-md">
             <FoodWaterSafety />
           </div>
-
+          
           <div className="rounded-lg overflow-hidden shadow-md">
             <CommunityFeatures />
           </div>
@@ -363,7 +354,7 @@ export default function Home() {
           <div className="rounded-lg overflow-hidden shadow-lg">
             <FacilityMap />
           </div>
-
+          
           <div className="rounded-lg overflow-hidden shadow-md">
             <KumbhLocationsInfo />
           </div>
@@ -374,7 +365,7 @@ export default function Home() {
           <div className="rounded-lg overflow-hidden shadow-md">
             <AccommodationFinder/>
           </div>
-
+          
           <div className="space-y-4">
             <div className="rounded-lg overflow-hidden shadow-md">
               <SmartTransportationHub />
@@ -400,7 +391,7 @@ export default function Home() {
               Send emergency alert to authorities and your emergency contacts. Your current location will be shared automatically.
             </DialogDescription>
           </DialogHeader>
-
+          
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="sos-message" className="font-medium">Describe your emergency:</Label>
@@ -412,7 +403,7 @@ export default function Home() {
                 onChange={(e) => setSosMessage(e.target.value)}
               />
             </div>
-
+            
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox 
@@ -424,7 +415,7 @@ export default function Home() {
                   Notify Kumbh Control Room (Police, Medical & Safety Personnel)
                 </Label>
               </div>
-
+              
               <div className="flex items-center space-x-2">
                 <Checkbox 
                   id="notify-contacts" 
@@ -435,7 +426,7 @@ export default function Home() {
                   Notify my emergency contacts ({emergencyContacts.length || 0})
                 </Label>
               </div>
-
+              
               {/* Contact Information */}
               {notifyContacts && (
                 <div className="border rounded-md p-3 bg-gray-50">
@@ -469,7 +460,7 @@ export default function Home() {
               )}
             </div>
           </div>
-
+          
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => setSosDialogOpen(false)}>
               Cancel
@@ -507,7 +498,7 @@ export default function Home() {
           </div>
         </div>
       )}
-
+      
       {/* Add Emergency Contacts button */}
       <div className="fixed bottom-4 left-4 z-40">
         <Button
