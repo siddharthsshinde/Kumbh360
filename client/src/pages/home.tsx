@@ -13,6 +13,7 @@ import { EmergencyTransport } from "@/components/EmergencyTransport";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { StreetView } from "@/components/StreetView";
 import { LostAndFound } from "@/components/LostAndFound";
+import { SmartTransportationHub } from "@/components/SmartTransportationHub";
 import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -358,6 +359,9 @@ export default function Home() {
           </div>
           
           <div className="space-y-4">
+            <div className="rounded-lg overflow-hidden shadow-md">
+              <SmartTransportationHub />
+            </div>
             <div className="rounded-lg overflow-hidden shadow-md">
               <EmergencyTransport />
             </div>
