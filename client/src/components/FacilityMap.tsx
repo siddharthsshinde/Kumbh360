@@ -6,9 +6,11 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import type { Facility, CrowdLevel } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger
+} from "@/components/ui/tabs";
 import { AlertTriangle, MapPin, Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 
 type FacilityType = "holy_site" | "hospital" | "hotel" | "temple" | "shuttle_stop" | "restroom";
 
