@@ -54,10 +54,10 @@ export interface TripAdvisorSearchParams {
 
 class TripAdvisorApiClient {
   private apiKey: string | null = null;
-  private baseUrl = 'https://api.tripadvisor.com/api/v1';
+  private baseUrl = 'https://tripadvisor16.p.rapidapi.com/api/v1';
   
   /**
-   * Set the TripAdvisor API key
+   * Set the TripAdvisor API key (RapidAPI key)
    */
   setApiKey(apiKey: string) {
     this.apiKey = apiKey;
@@ -79,14 +79,33 @@ class TripAdvisorApiClient {
     }
     
     try {
-      // In a real implementation, we would call the TripAdvisor API
-      // const url = `${this.baseUrl}/hotels/search?key=${this.apiKey}&location=${params.location}`;
-      // const response = await fetch(url);
-      // const data = await response.json();
-      // return data.data;
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      if (params.location) queryParams.append('locationId', params.location);
+      if (params.checkIn) queryParams.append('checkIn', params.checkIn);
+      if (params.checkOut) queryParams.append('checkOut', params.checkOut);
+      if (params.adults) queryParams.append('adults', params.adults.toString());
+      if (params.rooms) queryParams.append('rooms', params.rooms.toString());
+      if (params.limit) queryParams.append('pageSize', params.limit.toString());
       
-      // For demo purposes, we'll throw an error to trigger our fallback data
-      throw new Error('Using fallback data for demo purposes');
+      const url = `${this.baseUrl}/hotels/searchHotels?${queryParams.toString()}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': this.apiKey,
+          'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`RapidAPI TripAdvisor API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Transform RapidAPI response to our interface format
+      return this.transformHotelsResponse(data);
     } catch (error) {
       console.error('Error searching TripAdvisor hotels:', error);
       throw error;
@@ -102,14 +121,24 @@ class TripAdvisorApiClient {
     }
     
     try {
-      // In a real implementation, we would call the TripAdvisor API
-      // const url = `${this.baseUrl}/hotels/${hotelId}?key=${this.apiKey}`;
-      // const response = await fetch(url);
-      // const data = await response.json();
-      // return data;
+      const url = `${this.baseUrl}/hotels/getHotelDetails?id=${hotelId}`;
       
-      // For demo purposes, we'll throw an error to trigger our fallback data
-      throw new Error('Using fallback data for demo purposes');
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': this.apiKey,
+          'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`RapidAPI TripAdvisor API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Transform RapidAPI response to our interface format
+      return this.transformHotelDetail(data);
     } catch (error) {
       console.error('Error getting hotel details:', error);
       throw error;
@@ -130,18 +159,132 @@ class TripAdvisorApiClient {
     }
     
     try {
-      // In a real implementation, we would call the TripAdvisor API
-      // const url = `${this.baseUrl}/hotels/nearby?key=${this.apiKey}&latitude=${latitude}&longitude=${longitude}&radius=${radius}&limit=${limit}`;
-      // const response = await fetch(url);
-      // const data = await response.json();
-      // return data.data;
+      // First, we need to search for a location ID near these coordinates
+      const geoUrl = `${this.baseUrl}/hotels/searchLocation?query=nearby&latitude=${latitude}&longitude=${longitude}`;
       
-      // For demo purposes, we'll throw an error to trigger our fallback data
-      throw new Error('Using fallback data for demo purposes');
+      const geoResponse = await fetch(geoUrl, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': this.apiKey,
+          'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+        }
+      });
+      
+      if (!geoResponse.ok) {
+        throw new Error(`RapidAPI TripAdvisor API error: ${geoResponse.status} ${geoResponse.statusText}`);
+      }
+      
+      const geoData = await geoResponse.json();
+      
+      if (!geoData.data || geoData.data.length === 0) {
+        throw new Error('No locations found near the provided coordinates');
+      }
+      
+      // Get the first location ID
+      const locationId = geoData.data[0].locationId;
+      
+      // Now search for hotels in that location
+      const params: TripAdvisorSearchParams = {
+        location: locationId,
+        limit: limit
+      };
+      
+      return await this.searchHotels(params);
     } catch (error) {
       console.error('Error getting nearby hotels:', error);
       throw error;
     }
+  }
+  
+  /**
+   * Transform RapidAPI hotel search response to our interface format
+   */
+  private transformHotelsResponse(apiResponse: any): TripAdvisorHotel[] {
+    if (!apiResponse.data || !apiResponse.data.data) {
+      return [];
+    }
+    
+    return apiResponse.data.data.map((hotel: any) => {
+      try {
+        return {
+          id: hotel.id || `hotel-${Math.random().toString(36).substring(2, 9)}`,
+          name: hotel.title || 'Unnamed Accommodation',
+          location: {
+            id: hotel.locationId || '',
+            name: hotel.address || '',
+            latitude: hotel.latitude || 0,
+            longitude: hotel.longitude || 0,
+            address: hotel.address || '',
+            city: hotel.address?.split(',')[0] || '',
+            country: 'India'
+          },
+          rating: hotel.bubbleRating?.rating || 0,
+          price: {
+            from: hotel.priceForDisplay ? parseInt(hotel.priceForDisplay.replace(/[^0-9]/g, '')) : 1000,
+            to: hotel.priceForDisplay ? parseInt(hotel.priceForDisplay.replace(/[^0-9]/g, '')) * 1.5 : 2000,
+            currency: 'INR',
+            displayPrice: hotel.priceForDisplay || '₹1,000'
+          },
+          amenities: hotel.amenities || ['WiFi', 'Parking', 'Air Conditioning'],
+          images: [
+            {
+              small: hotel.cardPhotos?.[0]?.sizes?.urlTemplate?.replace('{width}', '250').replace('{height}', '150') || '',
+              large: hotel.cardPhotos?.[0]?.sizes?.urlTemplate?.replace('{width}', '500').replace('{height}', '300') || ''
+            }
+          ],
+          description: hotel.secondaryInfo || 'Comfortable accommodation near Kumbh Mela',
+          type: hotel.type || 'Hotel',
+          availability: hotel.availability || 'Available',
+          contact: hotel.contactInfo?.phoneNumber || '+91 1234567890',
+          distance: hotel.distance || this.calculateDistance(19.997454, 73.790919, hotel.latitude || 0, hotel.longitude || 0) // Distance from Trimbakeshwar
+        };
+      } catch (e) {
+        console.error('Error transforming hotel data:', e);
+        return null;
+      }
+    }).filter(Boolean);
+  }
+  
+  /**
+   * Transform RapidAPI hotel detail response to our interface format
+   */
+  private transformHotelDetail(apiResponse: any): TripAdvisorHotel {
+    const hotel = apiResponse.data;
+    
+    if (!hotel) {
+      throw new Error('Invalid hotel detail response');
+    }
+    
+    return {
+      id: hotel.locationId || `hotel-${Math.random().toString(36).substring(2, 9)}`,
+      name: hotel.name || 'Unnamed Accommodation',
+      location: {
+        id: hotel.locationId || '',
+        name: hotel.address?.address_string || '',
+        latitude: hotel.latitude || 0,
+        longitude: hotel.longitude || 0,
+        address: hotel.address?.address_string || '',
+        city: hotel.address?.city || '',
+        country: hotel.address?.country || 'India'
+      },
+      rating: hotel.rating || 0,
+      price: {
+        from: hotel.price || 1000,
+        to: hotel.price ? hotel.price * 1.5 : 2000,
+        currency: 'INR',
+        displayPrice: hotel.price ? `₹${hotel.price}` : '₹1,000'
+      },
+      amenities: hotel.amenities?.map((a: any) => a.name) || ['WiFi', 'Parking', 'Air Conditioning'],
+      images: hotel.photos?.map((photo: any) => ({
+        small: photo.images?.small?.url || '',
+        large: photo.images?.large?.url || ''
+      })) || [{ small: '', large: '' }],
+      description: hotel.description || 'Comfortable accommodation near Kumbh Mela',
+      type: hotel.hotel_class ? `${hotel.hotel_class}-Star Hotel` : 'Hotel',
+      availability: 'Available',
+      contact: hotel.phone || '+91 1234567890',
+      distance: hotel.distance || 0
+    };
   }
   
   /**
