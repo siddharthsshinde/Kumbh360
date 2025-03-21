@@ -336,15 +336,6 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Kumbh Mela Map placed above News Updates as requested */}
-          <div className="rounded-lg overflow-hidden shadow-lg">
-            <FacilityMap />
-          </div>
-          
-          <div className="rounded-lg overflow-hidden shadow-md">
-            <KumbhLocationsInfo />
-          </div>
-          
           <div className="rounded-lg overflow-hidden shadow-md">
             <NewsWidget />
           </div>
@@ -358,8 +349,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Maps Content Section - Map is now also in the main section */}
-        <div className={`space-y-6 ${(activeTab === "maps") ? "" : "hidden md:block"}`}>
+        {/* Maps Content Section */}
+        <div className={`space-y-6 ${(activeTab === "maps" || activeTab === "main") ? "" : "hidden md:block"}`}>
           <div className="rounded-lg overflow-hidden shadow-lg">
             <FacilityMap />
           </div>
