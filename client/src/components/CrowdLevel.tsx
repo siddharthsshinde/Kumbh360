@@ -4,20 +4,13 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { 
   Users, AlertTriangle, Clock, Info, ChevronUp, ChevronDown, 
-  Minus, Calendar, RefreshCw 
+  Minus, Calendar, Activity 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { CrowdLevel } from "@shared/schema";
-import { Button } from "@/components/ui/button";
 
 type TrendDirection = "increasing" | "decreasing" | "stable";
 type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
-
-interface CrowdForecast {
-  hour: number;
-  percentage: number;
-  status: string;
-}
 
 // Function to get status color class
 const getStatusColor = (status: string) => {
@@ -130,7 +123,7 @@ export function CrowdLevelIndicator() {
   const { t } = useTranslation();
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   
-  const { data: crowdLevels, isLoading, refetch } = useQuery<CrowdLevel[]>({
+  const { data: crowdLevels, isLoading } = useQuery<CrowdLevel[]>({
     queryKey: ["/api/crowd-levels"],
     refetchInterval: 10000, // Refresh every 10 seconds
     refetchOnWindowFocus: true,
@@ -145,11 +138,6 @@ export function CrowdLevelIndicator() {
   // Get current hour for forecasting
   const currentHour = new Date().getHours();
   const currentTimeOfDay = getTimeOfDay(currentHour);
-  
-  const handleRefresh = () => {
-    refetch();
-    setLastRefreshed(new Date());
-  };
 
   if (isLoading) {
     return (
@@ -164,34 +152,24 @@ export function CrowdLevelIndicator() {
   if (!crowdLevels) return null;
 
   return (
-    <Card className="w-full h-full overflow-hidden shadow-md border-none card-hover flex flex-col">
-      <div className="bg-gradient-to-r from-[#138808]/80 to-[#138808]/90 p-3 text-white">
+    <Card className="w-full h-full overflow-hidden shadow-md border-none flex flex-col">
+      <div className="bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808] p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            <h3 className="font-semibold">{t("Live Crowd Status")}</h3>
+            <Users className="h-5 w-5 text-[#000080]" />
+            <h3 className="font-semibold text-[#000080]">{t("Live Crowd Status")}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center text-xs gap-1">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-              </span>
-              <span>Live</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6 text-white hover:bg-white/10" 
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-            </Button>
+          <div className="flex items-center gap-1 bg-[#000080]/10 px-2 py-1 rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9933] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9933]"></span>
+            </span>
+            <span className="text-xs text-[#000080] font-medium">Live</span>
           </div>
         </div>
       </div>
       
-      <div className="divide-y divide-gray-100 flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <div className="divide-y divide-gray-100 flex-grow overflow-y-auto bg-white" style={{ maxHeight: 'calc(100vh - 300px)' }}>
         {crowdLevels.map((level) => {
           // Calculate crowd percentage with safety checks
           const crowdPercentage = level.currentCount && level.capacity
@@ -203,15 +181,20 @@ export function CrowdLevelIndicator() {
           const statusTextColor = getStatusTextColor(level.status);
           
           return (
-            <div key={level.id} className="p-3 hover:bg-gray-50 transition-colors">
-              <div className="flex justify-between items-center mb-2">
+            <div key={level.id} className="p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${statusBgColor}`}></div>
-                  <span className="font-medium text-sm">{level.location}</span>
+                  <div className={`w-3 h-3 rounded-full ${statusBgColor} ring-2 ring-opacity-30 ring-offset-1 ${statusBgColor}`}></div>
+                  <span className="font-bold text-gray-800">{level.location}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  {getTrendIcon(trend)}
-                  <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBgColor} text-white`}>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1 text-sm">
+                    {getTrendIcon(trend)}
+                    <span className={`text-xs ${statusTextColor}`}>
+                      {trend === "increasing" ? "Rising" : trend === "decreasing" ? "Falling" : "Stable"}
+                    </span>
+                  </div>
+                  <div className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusBgColor} text-white ml-1`}>
                     {level.status.toUpperCase()}
                   </div>
                 </div>
@@ -220,59 +203,76 @@ export function CrowdLevelIndicator() {
               {/* Critical warning for crowded areas with children */}
               {(level.location === "Tapovan" || level.location === "Ramkund") && 
                (level.status === "crowded" || level.status === "overcrowded") && (
-                <div className="mb-2 p-1.5 bg-red-50 border-l-2 border-red-500 text-xs text-red-700 flex items-center rounded-r-sm">
-                  <AlertTriangle className="h-3 w-3 mr-1 flex-shrink-0" />
-                  <span>Hold children's hands tightly in this area</span>
+                <div className="mb-3 p-2 bg-red-50 border-l-3 border-red-500 text-xs text-red-700 flex items-center rounded-r-sm shadow-sm">
+                  <AlertTriangle className="h-3.5 w-3.5 mr-2 flex-shrink-0" />
+                  <span className="font-medium">Hold children's hands tightly in this area</span>
                 </div>
               )}
               
-              {/* Crowd meter with trend indicator */}
-              <div className="space-y-1 mb-2">
-                <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+              {/* Crowd meter with capacity info */}
+              <div className="bg-gray-50 p-3 rounded-lg mb-3 shadow-sm">
+                <div className="flex justify-between text-xs text-gray-600 mb-1.5">
+                  <div className="flex items-center gap-1">
+                    <Activity className="h-3 w-3" />
+                    <span className="font-medium">Crowd Level:</span>
+                  </div>
+                  <div className="font-bold">{Math.round(crowdPercentage)}% Full</div>
+                </div>
+                
+                <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden mb-2">
                   <div 
                     className={`h-full ${statusBgColor} transition-all duration-500 ease-in-out`} 
-                    style={{ width: `${crowdPercentage}%` }}
+                    style={{ 
+                      width: `${crowdPercentage}%`,
+                      backgroundImage: crowdPercentage > 75 ? 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.1) 5px, rgba(255,255,255,0.1) 10px)' : 'none'
+                    }}
                   ></div>
                 </div>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <div>
-                    <span className="font-medium">Current:</span> {level.currentCount ? level.currentCount.toLocaleString() : 'N/A'}
+                
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <div className="bg-white p-2 rounded shadow-sm border border-gray-100">
+                    <div className="text-xs text-gray-500 mb-1">Current crowd</div>
+                    <div className="text-sm font-bold text-gray-800">
+                      {level.currentCount.toLocaleString()}
+                      <span className="text-xs text-gray-500 ml-1">people</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium">Capacity:</span> {level.capacity ? level.capacity.toLocaleString() : 'N/A'}
+                  <div className="bg-white p-2 rounded shadow-sm border border-gray-100">
+                    <div className="text-xs text-gray-500 mb-1">Capacity</div>
+                    <div className="text-sm font-bold text-gray-800">
+                      {level.capacity.toLocaleString()}
+                      <span className="text-xs text-gray-500 ml-1">max</span>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Wait time and occupancy */}
-              <div className="mb-2 flex justify-between text-xs">
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Clock className="h-3 w-3 text-gray-500" />
-                  <span className="font-medium">Est. Wait:</span>
-                  <span>{getEstimatedWaitTime(crowdPercentage)}</span>
-                </div>
-                <div className="text-gray-600">
-                  <span className="font-medium">Occupancy:</span> {Math.round(crowdPercentage)}%
+              {/* Wait time */}
+              <div className="flex items-center gap-2 mb-3 bg-blue-50 p-2 rounded-md">
+                <Clock className="h-4 w-4 text-blue-500" />
+                <div className="text-sm">
+                  <span className="font-medium text-blue-700">Estimated wait:</span>
+                  <span className="ml-1 font-bold text-blue-800">{getEstimatedWaitTime(crowdPercentage)}</span>
                 </div>
               </div>
               
               {/* Recommendations */}
-              <div className="flex items-start gap-2 text-xs text-gray-600 mb-1">
+              <div className="flex items-start gap-2 text-xs text-gray-700 mb-2 bg-gray-50 p-2 rounded-md">
                 {getStatusIcon(level.status)}
-                <p className="leading-tight">{level.recommendations}</p>
+                <p className="leading-tight font-medium">{level.recommendations}</p>
               </div>
               
               {/* Last updated timestamp */}
               <div className="flex items-center gap-1 text-xs text-gray-400 justify-end">
                 <Clock className="h-3 w-3" />
                 <span>
-                  {new Date(level.lastUpdated).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  Updated at {new Date(level.lastUpdated).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </span>
               </div>
             </div>
           );
         })}
-        <div className="p-2 text-xs text-center text-gray-400">
+        <div className="p-2 text-xs text-center text-gray-500 bg-gray-50 font-medium">
           Last refreshed: {lastRefreshed.toLocaleTimeString()}
         </div>
       </div>
