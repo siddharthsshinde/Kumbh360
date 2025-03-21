@@ -22,6 +22,16 @@ export const emergencyContacts = pgTable("emergency_contacts", {
   zone: text("zone"), // Area/zone of Nashik
 });
 
+// Table for storing user emergency contacts
+export const userEmergencyContacts = pgTable("user_emergency_contacts", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(), // Can be a session ID or device ID
+  contactName: text("contact_name").notNull(),
+  contactNumber: text("contact_number").notNull(),
+  relationship: text("relationship"), // family, friend, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const crowdLevels = pgTable("crowd_levels", {
   id: serial("id").primaryKey(),
   location: text("location").notNull(),
@@ -85,6 +95,7 @@ export type Location = z.infer<typeof locationSchema>;
 // Existing schemas
 export const insertFacilitySchema = createInsertSchema(facilities).omit({ id: true });
 export const insertEmergencyContactSchema = createInsertSchema(emergencyContacts).omit({ id: true });
+export const insertUserEmergencyContactSchema = createInsertSchema(userEmergencyContacts).omit({ id: true, createdAt: true });
 export const insertCrowdLevelSchema = createInsertSchema(crowdLevels).omit({ id: true });
 
 // New schemas for NLP features
@@ -98,6 +109,7 @@ export const insertResponseTemplateSchema = createInsertSchema(responseTemplates
 // Existing types
 export type Facility = typeof facilities.$inferSelect;
 export type EmergencyContact = typeof emergencyContacts.$inferSelect;
+export type UserEmergencyContact = typeof userEmergencyContacts.$inferSelect;
 export type CrowdLevel = typeof crowdLevels.$inferSelect;
 
 // New types

@@ -1,8 +1,10 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
 import { storage } from "./storage";
-import type { WeatherData, GeminiRequest, ChatMessage, DensityGrid } from "@shared/schema";
+import type { GeminiRequest, ChatMessage, DensityGrid, UserEmergencyContact } from "@shared/schema";
+import type { WeatherData } from "../shared/types";
+import { insertUserEmergencyContactSchema } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function registerRoutes(app: Express) {
@@ -160,6 +162,109 @@ export async function registerRoutes(app: Express) {
   app.get("/api/restrooms", async (_req, res) => {
     const restrooms = await storage.getRestrooms();
     res.json(restrooms);
+  });
+  
+  // User emergency contacts routes
+  app.get("/api/user-emergency-contacts/:userId", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+      
+      const contacts = await storage.getUserEmergencyContacts(userId);
+      res.json(contacts);
+    } catch (error) {
+      console.error("Error fetching user emergency contacts:", error);
+      res.status(500).json({ error: "Failed to fetch user emergency contacts" });
+    }
+  });
+  
+  app.post("/api/user-emergency-contacts", async (req, res) => {
+    try {
+      const result = insertUserEmergencyContactSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: "Invalid contact data", 
+          details: result.error.format() 
+        });
+      }
+      
+      const contactId = await storage.saveUserEmergencyContact(result.data);
+      res.status(201).json({ id: contactId });
+    } catch (error) {
+      console.error("Error saving user emergency contact:", error);
+      res.status(500).json({ error: "Failed to save user emergency contact" });
+    }
+  });
+  
+  app.delete("/api/user-emergency-contacts/:contactId", async (req, res) => {
+    try {
+      const contactId = parseInt(req.params.contactId);
+      if (isNaN(contactId)) {
+        return res.status(400).json({ error: "Invalid contact ID" });
+      }
+      
+      await storage.deleteUserEmergencyContact(contactId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting user emergency contact:", error);
+      res.status(500).json({ error: "Failed to delete user emergency contact" });
+    }
+  });
+  
+  // SOS messaging route
+  app.post("/api/sos-message", async (req, res) => {
+    try {
+      const { userId, location, message, toControlRoom, toContacts } = req.body;
+      
+      if (!userId || !location || !message) {
+        return res.status(400).json({ 
+          error: "Missing required fields", 
+          required: ["userId", "location", "message"] 
+        });
+      }
+      
+      // Check if we need to send to either control room or contacts
+      if (!toControlRoom && !toContacts) {
+        return res.status(400).json({ 
+          error: "Either toControlRoom or toContacts must be true" 
+        });
+      }
+      
+      // Validate location structure
+      if (!location.lat || !location.lng) {
+        return res.status(400).json({ 
+          error: "Invalid location format. Requires lat and lng properties." 
+        });
+      }
+      
+      // Send SOS message
+      const result = await storage.sendSOSMessage(
+        userId, 
+        location, 
+        message, 
+        !!toControlRoom, 
+        !!toContacts
+      );
+      
+      if (!result.success) {
+        return res.status(500).json({ error: result.error || "Failed to send SOS message" });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "SOS message sent successfully",
+        info: result.success ? undefined : result.error
+      });
+    } catch (error: any) {
+      console.error("Error sending SOS message:", error);
+      res.status(500).json({ 
+        error: "Failed to send SOS message", 
+        details: error.message || "Unknown error"
+      });
+    }
   });
 
   app.get("/api/weather", async (_req, res) => {

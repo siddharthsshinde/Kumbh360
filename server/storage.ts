@@ -1,4 +1,4 @@
-import type { Facility, EmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig } from "@shared/schema";
+import type { Facility, EmergencyContact, UserEmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig } from "@shared/schema";
 import { pipeline } from '@xenova/transformers';
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
@@ -100,6 +100,14 @@ export interface IStorage {
     confidence?: number;
   }): Promise<void>;
   searchKnowledgeBase(query: string): Promise<KnowledgeBase | null>;
+  // User emergency contacts methods
+  getUserEmergencyContacts(userId: string): Promise<UserEmergencyContact[]>;
+  saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id'>): Promise<number>;
+  deleteUserEmergencyContact(contactId: number): Promise<void>;
+  
+  // SMS functionality
+  sendSOSMessage(userId: string, location: Location, message: string, toControlRoom: boolean, toContacts: boolean): Promise<{success: boolean, error?: string}>;
+  
   // New density grid methods
   calculateDensityGrid(config: GridConfig): Promise<DensityGrid[]>;
   getDensityGridForLocation(locationId: number): Promise<DensityGrid[]>;
@@ -512,6 +520,7 @@ export class MemStorage implements IStorage {
     }
   ];
 
+  private userEmergencyContacts: UserEmergencyContact[] = [];
   private densityGridData: DensityGrid[] = [];
   private readonly keyLocations = {
     "Ramkund": { lat: 20.0059, lng: 73.7913, radius: 0.5 },
@@ -1179,6 +1188,108 @@ export class MemStorage implements IStorage {
     if (density < 60) return '#ffff00'; // Yellow
     if (density < 80) return '#ffa500'; // Orange
     return '#ff0000'; // Red
+  }
+
+  // User emergency contacts methods
+  async getUserEmergencyContacts(userId: string): Promise<UserEmergencyContact[]> {
+    return this.userEmergencyContacts.filter(contact => contact.userId === userId);
+  }
+
+  async saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id'>): Promise<number> {
+    const id = this.userEmergencyContacts.length > 0 
+      ? Math.max(...this.userEmergencyContacts.map(c => c.id)) + 1 
+      : 1;
+    
+    const newContact: UserEmergencyContact = {
+      id,
+      ...contact,
+      createdAt: new Date()
+    };
+    
+    this.userEmergencyContacts.push(newContact);
+    return id;
+  }
+
+  async deleteUserEmergencyContact(contactId: number): Promise<void> {
+    const index = this.userEmergencyContacts.findIndex(c => c.id === contactId);
+    if (index !== -1) {
+      this.userEmergencyContacts.splice(index, 1);
+    }
+  }
+
+  // SMS functionality
+  async sendSOSMessage(
+    userId: string, 
+    location: Location, 
+    message: string, 
+    toControlRoom: boolean, 
+    toContacts: boolean
+  ): Promise<{success: boolean, error?: string}> {
+    try {
+      // Check if Twilio credentials are available
+      const accountSid = process.env.TWILIO_ACCOUNT_SID;
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
+      const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
+      
+      if (!accountSid || !authToken || !twilioPhone) {
+        return {
+          success: false,
+          error: "Twilio credentials not found. Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER environment variables."
+        };
+      }
+
+      // Import Twilio and initialize client
+      const twilio = require('twilio');
+      const client = twilio(accountSid, authToken);
+      
+      // Create the SOS message with location information
+      const locationText = `Location: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+      const fullMessage = `EMERGENCY SOS: ${message}\n${locationText}\nSent from Kumbh Mela Companion App`;
+      
+      let sentMessages = 0;
+      
+      // Send to control room if requested
+      if (toControlRoom) {
+        // Get emergency contacts for control room
+        const controlRoomContacts = this.emergencyContacts.filter(
+          contact => contact.type === 'police' || contact.type === 'emergency'
+        );
+        
+        for (const contact of controlRoomContacts) {
+          await client.messages.create({
+            body: `[CONTROL ROOM ALERT] ${fullMessage}`,
+            from: twilioPhone,
+            to: contact.number
+          });
+          sentMessages++;
+        }
+      }
+      
+      // Send to user's emergency contacts if requested
+      if (toContacts) {
+        const userContacts = await this.getUserEmergencyContacts(userId);
+        
+        for (const contact of userContacts) {
+          await client.messages.create({
+            body: fullMessage,
+            from: twilioPhone,
+            to: contact.contactNumber
+          });
+          sentMessages++;
+        }
+      }
+      
+      return {
+        success: true,
+        error: sentMessages > 0 ? undefined : "No messages sent. Please add emergency contacts or select to send to control room."
+      };
+    } catch (error) {
+      console.error("Error sending SOS messages:", error);
+      return {
+        success: false,
+        error: `Failed to send SOS messages: ${error.message || 'Unknown error'}`
+      };
+    }
   }
 }
 
