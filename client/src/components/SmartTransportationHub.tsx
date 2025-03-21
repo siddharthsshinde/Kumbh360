@@ -10,6 +10,7 @@ import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { UberRideBooking } from './UberRideBooking';
 import { 
   Bus, Car, MapPin, ParkingCircle, Clock, Users, CreditCard, 
   ChevronRight, Loader2, IndianRupee, AlertTriangle, CheckCircle2,
@@ -279,7 +280,7 @@ export function SmartTransportationHub() {
       </CardHeader>
       <CardContent className="p-4">
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-6 mb-4">
+          <TabsList className="grid grid-cols-7 mb-4">
             <TabsTrigger value="shuttle">
               <Bus className="h-4 w-4 mr-2 hidden sm:inline" />
               Shuttles
@@ -292,8 +293,12 @@ export function SmartTransportationHub() {
               <IndianRupee className="h-4 w-4 mr-2 hidden sm:inline" />
               Auto Fare
             </TabsTrigger>
-            <TabsTrigger value="carpool">
+            <TabsTrigger value="uber">
               <Car className="h-4 w-4 mr-2 hidden sm:inline" />
+              Uber
+            </TabsTrigger>
+            <TabsTrigger value="carpool">
+              <Users className="h-4 w-4 mr-2 hidden sm:inline" />
               Carpools
             </TabsTrigger>
             <TabsTrigger value="guide">
@@ -770,6 +775,18 @@ export function SmartTransportationHub() {
                 ))}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Uber Ride Booking Tab */}
+          <TabsContent value="uber" className="space-y-4">
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm">
+              <div className="flex gap-2 items-center">
+                <Car className="h-4 w-4 text-blue-600" />
+                <span className="font-medium">Book an Uber ride to or from Kumbh Mela sites</span>
+              </div>
+            </div>
+            
+            <UberRideBooking />
           </TabsContent>
 
           {/* Carpool Matching Service Tab */}
