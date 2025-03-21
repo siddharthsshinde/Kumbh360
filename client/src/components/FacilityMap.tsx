@@ -666,7 +666,7 @@ export function FacilityMap(): JSX.Element {
   useEffect(() => {
     // Create WebSocket connection
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
     
     if (!wsRef.current) {
       console.log('Connecting to WebSocket for density updates...');
