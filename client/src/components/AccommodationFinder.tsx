@@ -301,7 +301,7 @@ export function AccommodationFinder() {
           console.error('Error loading from TripAdvisor API:', apiError);
           
           // Fall back to sample data
-          setAccommodations(sampleAccommodations);
+          setAccommodations(typedSampleAccommodations);
           
           toast({
             title: "Using Sample Data",
@@ -311,11 +311,11 @@ export function AccommodationFinder() {
         }
       } else {
         // Use sample data if no API key
-        setAccommodations(sampleAccommodations);
+        setAccommodations(typedSampleAccommodations);
       }
     } catch (error) {
       console.error('Error loading accommodations:', error);
-      setAccommodations(sampleAccommodations);
+      setAccommodations(typedSampleAccommodations);
       
       toast({
         title: "Error Loading Data",
