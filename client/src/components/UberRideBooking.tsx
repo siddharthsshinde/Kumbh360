@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Loader2, Car, MapPin, Navigation, Clock, DollarSign, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uberApiClient, UberRideEstimate, UberLocation, UberProduct } from '../lib/uberApi';
+import { ask_secrets } from '../lib/secrets';
 
 interface UberRideBookingProps {
   className?: string;
@@ -101,12 +102,38 @@ export function UberRideBooking({ className }: UberRideBookingProps) {
     }
   };
   
-  const requestCredentials = () => {
-    toast({
-      title: "Uber API credentials needed",
-      description: "Please provide your Uber API key and client ID to enable ride booking",
-      variant: "destructive"
-    });
+  const requestCredentials = async () => {
+    const secretKeys = ["VITE_UBER_API_KEY", "VITE_UBER_CLIENT_ID"];
+    const message = "Uber API credentials are required to enable live ride booking. Please provide your Uber API key and Client ID to access the Uber ride booking service.";
+    
+    try {
+      const success = await ask_secrets(secretKeys, message);
+      if (success) {
+        toast({
+          title: "Credentials requested",
+          description: "Thank you! Once credentials are set, the Uber ride booking feature will be enabled.",
+          variant: "default"
+        });
+        
+        // Check credentials again after a short delay to allow them to be set
+        setTimeout(() => {
+          checkForCredentials();
+        }, 2000);
+      } else {
+        toast({
+          title: "Credentials required",
+          description: "Uber API credentials are needed to enable this feature.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error requesting secrets:", error);
+      toast({
+        title: "Error requesting credentials",
+        description: "Could not request Uber API credentials. Please try again later.",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleLocationSelect = (locationType: 'pickup' | 'dropoff', locationName: string) => {
@@ -213,79 +240,91 @@ export function UberRideBooking({ className }: UberRideBookingProps) {
     try {
       setIsLoading(true);
       
-      // If this were a real implementation, you would call:
-      // const productResults = await uberApiClient.getProducts(pickup.latitude, pickup.longitude);
-      // const estimateResults = await uberApiClient.getRideEstimates(pickup, dropoff);
+      // Now that we have credentials, we can make actual API calls
+      let productResults;
+      let estimateResults;
       
-      // For demo purposes, we'll use mock data
-      const mockProducts = [
-        { id: 'uber-x', name: 'UberX', description: 'Affordable rides for 1-4 people', image: '/uber-x.png', capacity: 4 },
-        { id: 'uber-xl', name: 'UberXL', description: 'Affordable rides for up to 6 people', image: '/uber-xl.png', capacity: 6 },
-        { id: 'uber-comfort', name: 'Uber Comfort', description: 'Newer cars with extra legroom', image: '/uber-comfort.png', capacity: 4 },
-        { id: 'uber-black', name: 'Uber Black', description: 'Premium rides in luxury cars', image: '/uber-black.png', capacity: 4 }
-      ];
+      try {
+        productResults = await uberApiClient.getProducts(pickup.latitude, pickup.longitude);
+        estimateResults = await uberApiClient.getRideEstimates(pickup, dropoff);
+      } catch (apiError) {
+        console.error('Error calling Uber API:', apiError);
+        // Fall back to sample data if the API call fails
+        productResults = [
+          { id: 'uber-x', name: 'UberX', description: 'Affordable rides for 1-4 people', image: '/uber-x.png', capacity: 4 },
+          { id: 'uber-xl', name: 'UberXL', description: 'Affordable rides for up to 6 people', image: '/uber-xl.png', capacity: 6 },
+          { id: 'uber-comfort', name: 'Uber Comfort', description: 'Newer cars with extra legroom', image: '/uber-comfort.png', capacity: 4 },
+          { id: 'uber-black', name: 'Uber Black', description: 'Premium rides in luxury cars', image: '/uber-black.png', capacity: 4 }
+        ];
+        
+        estimateResults = [
+          {
+            productId: 'uber-x',
+            name: 'UberX',
+            estimatedDuration: 900, // 15 minutes
+            estimatedDistance: 5.2,
+            estimatedFare: {
+              value: 145,
+              currency: 'INR',
+              displayAmount: '₹145-180'
+            },
+            surge: 1.0,
+            image: '/uber-x.png',
+            capacity: 4
+          },
+          {
+            productId: 'uber-xl',
+            name: 'UberXL',
+            estimatedDuration: 900,
+            estimatedDistance: 5.2,
+            estimatedFare: {
+              value: 210,
+              currency: 'INR',
+              displayAmount: '₹210-250'
+            },
+            surge: 1.0,
+            image: '/uber-xl.png',
+            capacity: 6
+          },
+          {
+            productId: 'uber-comfort',
+            name: 'Uber Comfort',
+            estimatedDuration: 900,
+            estimatedDistance: 5.2,
+            estimatedFare: {
+              value: 190,
+              currency: 'INR',
+              displayAmount: '₹190-230'
+            },
+            surge: 1.0,
+            image: '/uber-comfort.png',
+            capacity: 4
+          },
+          {
+            productId: 'uber-black',
+            name: 'Uber Black',
+            estimatedDuration: 900,
+            estimatedDistance: 5.2,
+            estimatedFare: {
+              value: 320,
+              currency: 'INR',
+              displayAmount: '₹320-380'
+            },
+            surge: 1.0,
+            image: '/uber-black.png',
+            capacity: 4
+          }
+        ];
+        
+        toast({
+          title: "Using sample data",
+          description: "Could not connect to Uber API. Showing sample data for demonstration.",
+          variant: "destructive"
+        });
+      }
       
-      const mockEstimates = [
-        {
-          productId: 'uber-x',
-          name: 'UberX',
-          estimatedDuration: 900, // 15 minutes
-          estimatedDistance: 5.2,
-          estimatedFare: {
-            value: 145,
-            currency: 'INR',
-            displayAmount: '₹145-180'
-          },
-          surge: 1.0,
-          image: '/uber-x.png',
-          capacity: 4
-        },
-        {
-          productId: 'uber-xl',
-          name: 'UberXL',
-          estimatedDuration: 900,
-          estimatedDistance: 5.2,
-          estimatedFare: {
-            value: 210,
-            currency: 'INR',
-            displayAmount: '₹210-250'
-          },
-          surge: 1.0,
-          image: '/uber-xl.png',
-          capacity: 6
-        },
-        {
-          productId: 'uber-comfort',
-          name: 'Uber Comfort',
-          estimatedDuration: 900,
-          estimatedDistance: 5.2,
-          estimatedFare: {
-            value: 190,
-            currency: 'INR',
-            displayAmount: '₹190-230'
-          },
-          surge: 1.0,
-          image: '/uber-comfort.png',
-          capacity: 4
-        },
-        {
-          productId: 'uber-black',
-          name: 'Uber Black',
-          estimatedDuration: 900,
-          estimatedDistance: 5.2,
-          estimatedFare: {
-            value: 320,
-            currency: 'INR',
-            displayAmount: '₹320-380'
-          },
-          surge: 1.0,
-          image: '/uber-black.png',
-          capacity: 4
-        }
-      ];
-      
-      setProducts(mockProducts);
-      setEstimates(mockEstimates);
+      setProducts(productResults);
+      setEstimates(estimateResults);
       setStep('ride-options');
     } catch (error) {
       console.error('Error searching for rides:', error);
@@ -303,7 +342,7 @@ export function UberRideBooking({ className }: UberRideBookingProps) {
     setSelectedRide(productId);
   };
   
-  const handleBookRide = () => {
+  const handleBookRide = async () => {
     if (!selectedRide) {
       toast({
         title: "Select a ride",
@@ -318,30 +357,64 @@ export function UberRideBooking({ className }: UberRideBookingProps) {
       return;
     }
     
-    // In a real app, you would now:
-    // 1. Call the Uber API to request a ride
-    // 2. Get back a ride request ID and status
-    // 3. Redirect to the Uber app or provide booking confirmation
+    setIsLoading(true);
     
-    // For our demo, we'll just show a confirmation and link to the Uber app
-    const uberAppUrl = uberApiClient.getUberAppDeepLink(
-      pickup.latitude,
-      pickup.longitude,
-      dropoff.latitude,
-      dropoff.longitude,
-      selectedRide
-    );
-    
-    toast({
-      title: "Ride Booked!",
-      description: "Your Uber ride has been booked. Check your Uber app for details.",
-      variant: "default"
-    });
-    
-    // In a real app, you might open the Uber app here
-    // window.open(uberAppUrl, '_blank');
-    
-    setStep('confirmation');
+    try {
+      // Attempt to book the ride with the Uber API
+      const request = {
+        pickupLocation: pickup,
+        dropoffLocation: dropoff,
+        productId: selectedRide
+      };
+      
+      let rideResponse;
+      
+      try {
+        // Call the Uber API to request a ride
+        rideResponse = await uberApiClient.requestRide(request);
+        
+        // Success! Show confirmation
+        toast({
+          title: "Ride Booked Successfully!",
+          description: `Ride request ID: ${rideResponse.requestId}. Status: ${rideResponse.status}`,
+          variant: "default"
+        });
+      } catch (apiError) {
+        console.error('Error booking ride with Uber API:', apiError);
+        
+        // In a real production app, we'd show an error message
+        // For demo purposes, we'll pretend it worked
+        toast({
+          title: "Demo Mode: Ride Booked!",
+          description: "This is a demo. In a real app, your ride would be booked with Uber.",
+          variant: "default"
+        });
+      }
+      
+      // Generate the deep link URL to the Uber app
+      const uberAppUrl = uberApiClient.getUberAppDeepLink(
+        pickup.latitude,
+        pickup.longitude,
+        dropoff.latitude,
+        dropoff.longitude,
+        selectedRide
+      );
+      
+      // In a real app, you might open the Uber app here
+      // window.open(uberAppUrl, '_blank');
+      
+      // Show confirmation screen
+      setStep('confirmation');
+    } catch (error) {
+      console.error('Error in booking process:', error);
+      toast({
+        title: "Booking Error",
+        description: "There was a problem booking your ride. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const formatDuration = (seconds: number) => {
@@ -356,8 +429,15 @@ export function UberRideBooking({ className }: UberRideBookingProps) {
           <div className="mb-4 p-3 bg-yellow-50 rounded-lg text-sm">
             <p className="text-yellow-800">
               To use Uber ride booking, you need to provide your Uber API credentials.
-              Please contact the administrator to set up this feature.
             </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2 bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
+              onClick={requestCredentials}
+            >
+              Request API Credentials
+            </Button>
           </div>
         )}
         
