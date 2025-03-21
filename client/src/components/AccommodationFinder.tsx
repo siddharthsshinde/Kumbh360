@@ -11,7 +11,7 @@ import { tripAdvisorApiClient, TripAdvisorHotel } from "@/lib/tripAdvisorApi";
 import { ask_secrets } from "@/lib/secrets";
 
 // Sample accommodation data for fallback/demo purposes
-const sampleAccommodations = [
+const sampleAccommodations: TripAdvisorHotel[] = [
   {
     id: "1",
     name: "Ganga View Hotel",
@@ -222,8 +222,7 @@ export function AccommodationFinder() {
   const [accommodations, setAccommodations] = useState<TripAdvisorHotel[]>([]);
   const [tab, setTab] = useState<'all' | 'nearby' | 'popular'>('all');
   
-  // Cast sample data to match TripAdvisorHotel type
-  const typedSampleAccommodations = sampleAccommodations as unknown as TripAdvisorHotel[];
+  // Sample data is already typed as TripAdvisorHotel[]
 
   useEffect(() => {
     // Check if API key is set when component loads
@@ -301,7 +300,7 @@ export function AccommodationFinder() {
           console.error('Error loading from TripAdvisor API:', apiError);
           
           // Fall back to sample data
-          setAccommodations(typedSampleAccommodations);
+          setAccommodations(sampleAccommodations);
           
           toast({
             title: "Using Sample Data",
@@ -311,11 +310,11 @@ export function AccommodationFinder() {
         }
       } else {
         // Use sample data if no API key
-        setAccommodations(typedSampleAccommodations);
+        setAccommodations(sampleAccommodations);
       }
     } catch (error) {
       console.error('Error loading accommodations:', error);
-      setAccommodations(typedSampleAccommodations);
+      setAccommodations(sampleAccommodations);
       
       toast({
         title: "Error Loading Data",
