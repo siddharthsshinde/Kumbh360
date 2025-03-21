@@ -123,8 +123,18 @@ export function NewsWidget() {
     ]
   };
 
-  // Add news based on selected language
-  const allNews = [...filteredNews, ...(prayagrajNews[i18n.language as keyof typeof prayagrajNews] || [])];
+  // Add news based on selected language with unique IDs to avoid conflicts
+  // First get the maximum ID from server data
+  const maxServerNewsId = filteredNews.reduce((maxId, news) => Math.max(maxId, news.id), 0);
+  
+  // Add local news with IDs that start after server news IDs
+  const localNews = (prayagrajNews[i18n.language as keyof typeof prayagrajNews] || [])
+    .map((news, index) => ({
+      ...news,
+      id: maxServerNewsId + 10000 + index // Ensure local news IDs are well above server IDs
+    }));
+  
+  const allNews = [...filteredNews, ...localNews];
 
   // Group news by category
   const groupedNews = allNews.reduce((acc, news) => {
