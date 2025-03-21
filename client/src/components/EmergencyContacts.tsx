@@ -40,7 +40,7 @@ export function EmergencyContacts() {
   });
 
   // Fetch emergency contacts
-  const { data: contacts = [], isLoading } = useQuery<EmergencyContact[]>({
+  const { data: contacts = [], isLoading } = useQuery({
     queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`],
     refetchOnWindowFocus: false,
   });
@@ -53,7 +53,7 @@ export function EmergencyContacts() {
       contactNumber: string;
       relationship: string;
     }) => {
-      return apiRequest<{ id: number }>("/api/user-emergency-contacts", {
+      return apiRequest("/api/user-emergency-contacts", {
         method: "POST",
         body: JSON.stringify(contact),
       });

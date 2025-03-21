@@ -10,19 +10,75 @@ import { KumbhLocationsInfo } from "@/components/KumbhLocationsInfo";
 import { AccommodationFinder } from "@/components/AccommodationFinder";
 import { TransportationGuide } from "@/components/TransportationGuide";
 import { EmergencyTransport } from "@/components/EmergencyTransport";
+import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { StreetView } from "@/components/StreetView";
 import { LostAndFound } from "@/components/LostAndFound";
-import { MapPin, AlertCircle, Camera, UserSearch } from "lucide-react";
+import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { PrayerSubmission } from "@/components/PrayerSubmission";
+import { Textarea } from "@/components/ui/textarea";
+import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+// Placeholder user ID - in a real app, this would come from authentication
+const CURRENT_USER_ID = "user123";
+
+interface EmergencyContact {
+  id: number;
+  userId: string;
+  contactName: string;
+  contactNumber: string;
+  relationship: string | null;
+  createdAt: string;
+}
+
+interface Location {
+  lat: number;
+  lng: number;
+}
 
 export default function Home() {
   const { i18n } = useTranslation();
   const { toast } = useToast();
   const [showStreetView, setShowStreetView] = useState(false);
   const [showLostAndFound, setShowLostAndFound] = useState(false);
+  const [showEmergencyContacts, setShowEmergencyContacts] = useState(false);
   const [activeTab, setActiveTab] = useState("main");
+  const [sosMessage, setSosMessage] = useState("");
+  const [sosDialogOpen, setSosDialogOpen] = useState(false);
+  const [sendingEmergency, setSendingEmergency] = useState(false);
+  const [notifyContacts, setNotifyContacts] = useState(true);
+  const [notifyControlRoom, setNotifyControlRoom] = useState(true);
+  
+  // Fetch emergency contacts
+  const { data: emergencyContacts = [] } = useQuery({
+    queryKey: [`/api/user-emergency-contacts/${CURRENT_USER_ID}`],
+    refetchOnWindowFocus: false,
+    enabled: sosDialogOpen, // Only fetch when dialog opens
+  });
 
   const handleShareLocation = () => {
     if (navigator.geolocation) {
@@ -53,12 +109,90 @@ export default function Home() {
   };
 
   const handleSOS = () => {
-    toast({
-      title: "Emergency Alert Sent",
-      description: "Emergency services have been notified. Stay calm, help is on the way.",
-      variant: "destructive",
-      duration: 10000
-    });
+    // Open the SOS dialog
+    setSosDialogOpen(true);
+  };
+  
+  const sendSOSMessage = () => {
+    if (!sosMessage.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide emergency details.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!notifyContacts && !notifyControlRoom) {
+      toast({
+        title: "Notification Options",
+        description: "Please select at least one notification option.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setSendingEmergency(true);
+    
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const location: Location = { lat: latitude, lng: longitude };
+          
+          try {
+            // Send SOS via API
+            await apiRequest("/api/sos-message", {
+              method: "POST",
+              body: JSON.stringify({
+                userId: CURRENT_USER_ID,
+                location,
+                message: sosMessage,
+                toControlRoom: notifyControlRoom,
+                toContacts: notifyContacts
+              }),
+            });
+            
+            // Show success
+            toast({
+              title: "Emergency Alert Sent",
+              description: "Emergency services have been notified. Stay calm, help is on the way.",
+              variant: "destructive",
+              duration: 10000
+            });
+            
+            // Close dialog and reset
+            setSosDialogOpen(false);
+            setSosMessage("");
+          } catch (error) {
+            console.error("Failed to send SOS message:", error);
+            toast({
+              title: "Failed to Send Alert",
+              description: "There was an error sending your emergency message. Please try again or call emergency services directly.",
+              variant: "destructive"
+            });
+          } finally {
+            setSendingEmergency(false);
+          }
+        },
+        (error) => {
+          setSendingEmergency(false);
+          toast({
+            title: "Location Error",
+            description: "Unable to get your location. Please enable location services and try again.",
+            variant: "destructive"
+          });
+        }
+      );
+    } else {
+      setSendingEmergency(false);
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser doesn't support location sharing. Please use a different device.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Mobile navigation tabs
@@ -233,6 +367,138 @@ export default function Home() {
       {/* Prayer Submission now shown as a floating action button */}
       <div className="fixed bottom-4 right-4 z-40">
         <PrayerSubmission />
+      </div>
+
+      {/* SOS Dialog */}
+      <Dialog open={sosDialogOpen} onOpenChange={setSosDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Emergency SOS
+            </DialogTitle>
+            <DialogDescription>
+              Send emergency alert to authorities and your emergency contacts. Your current location will be shared automatically.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="sos-message" className="font-medium">Describe your emergency:</Label>
+              <Textarea 
+                id="sos-message" 
+                placeholder="I need immediate help with..." 
+                className="min-h-[100px]"
+                value={sosMessage}
+                onChange={(e) => setSosMessage(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="notify-authorities" 
+                  checked={notifyControlRoom}
+                  onCheckedChange={() => setNotifyControlRoom(!notifyControlRoom)}
+                />
+                <Label htmlFor="notify-authorities">
+                  Notify Kumbh Control Room (Police, Medical & Safety Personnel)
+                </Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="notify-contacts" 
+                  checked={notifyContacts}
+                  onCheckedChange={() => setNotifyContacts(!notifyContacts)}
+                />
+                <Label htmlFor="notify-contacts">
+                  Notify my emergency contacts ({emergencyContacts.length || 0})
+                </Label>
+              </div>
+              
+              {/* Contact Information */}
+              {notifyContacts && (
+                <div className="border rounded-md p-3 bg-gray-50">
+                  {emergencyContacts.length > 0 ? (
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium">Your emergency contacts:</div>
+                      {emergencyContacts.map((contact) => (
+                        <div key={contact.id} className="text-sm">
+                          {contact.contactName} • {contact.contactNumber}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500 flex flex-col items-center space-y-2">
+                      <p>You haven't added any emergency contacts yet.</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-blue-600"
+                        onClick={() => {
+                          setSosDialogOpen(false);
+                          setShowEmergencyContacts(true);
+                        }}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Add Emergency Contacts
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setSosDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={sendSOSMessage}
+              disabled={sendingEmergency}
+            >
+              {sendingEmergency ? "Sending..." : "Send Emergency Alert"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Emergency Contacts Section */}
+      {showEmergencyContacts && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
+          <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Emergency Contacts</h2>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowEmergencyContacts(false)}
+                >
+                  Close
+                </Button>
+              </div>
+              <div className="p-4">
+                <EmergencyContacts />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Add Emergency Contacts button */}
+      <div className="fixed bottom-4 left-4 z-40">
+        <Button
+          variant="outline"
+          className="rounded-full shadow-lg bg-white text-blue-600 border border-blue-200 hover:bg-blue-50"
+          onClick={() => setShowEmergencyContacts(true)}
+        >
+          <Phone className="h-4 w-4 mr-2" />
+          Emergency Contacts
+        </Button>
       </div>
     </div>
   );
