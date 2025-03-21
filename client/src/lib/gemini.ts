@@ -2,7 +2,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { ChatMessage } from "@shared/types";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+// Initialize Gemini API with the key from environment variables
+// We use a function to get API key at runtime to handle late-loading of environment variables
+const getGenAI = () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("Gemini API key not found in environment variables");
+    throw new Error("Gemini API key is not configured");
+  }
+  return new GoogleGenerativeAI(apiKey);
+};
 
 export async function getGeminiResponse(messages: ChatMessage[]): Promise<string> {
   try {

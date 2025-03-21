@@ -444,7 +444,7 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     });
     
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Chat error:", error);
     return "I apologize, but I'm having trouble understanding. Could you please rephrase your question about the Kumbh Mela?";
   }
