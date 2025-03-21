@@ -14,6 +14,8 @@ import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { StreetView } from "@/components/StreetView";
 import { LostAndFound } from "@/components/LostAndFound";
 import { SmartTransportationHub } from "@/components/SmartTransportationHub";
+import { FoodWaterSafety } from "@/components/FoodWaterSafety";
+import { CommunityFeatures } from "@/components/CommunityFeatures";
 import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -338,6 +340,14 @@ export default function Home() {
           
           <div className="rounded-lg overflow-hidden shadow-md">
             <NewsWidget />
+          </div>
+          
+          <div className="rounded-lg overflow-hidden shadow-md">
+            <FoodWaterSafety />
+          </div>
+          
+          <div className="rounded-lg overflow-hidden shadow-md">
+            <CommunityFeatures />
           </div>
         </div>
 
