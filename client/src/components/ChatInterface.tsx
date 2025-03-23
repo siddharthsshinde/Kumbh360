@@ -1,16 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, Lightbulb, Search, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Send, Lightbulb, Search, ThumbsUp, ThumbsDown, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
 import { getChatResponse, getSuggestions } from "@/lib/chatbot";
 import { TFIDF, extractEntities, computeJaccardSimilarity } from "@/lib/nlp";
 import { apiRequest } from "@/lib/queryClient";
-import { expandKnowledgeBase, isGeminiAvailable } from "@/lib/gemini";
+import { 
+  expandKnowledgeBase, 
+  isGeminiAvailable, 
+  getGeminiResponse, 
+  detectLanguage, 
+  translateText 
+} from "@/lib/gemini";
 
 // Knowledge base data with Kumbh Mela related information
 const kumbhMelaKnowledgeBase = [
@@ -49,8 +56,20 @@ interface ResponseFeedback {
   feedback: number | null; // 1 for 👍, -1 for 👎, null for no feedback
 }
 
+// Define supported languages
+const SUPPORTED_LANGUAGES = {
+  en: "English",
+  hi: "Hindi",
+  mr: "Marathi", 
+  gu: "Gujarati",
+  bn: "Bengali",
+  pa: "Punjabi",
+  te: "Telugu",
+  ta: "Tamil"
+};
+
 export function ChatInterface() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", content: "Namaste! 🙏 I'm your Kumbh Mela guide powered by advanced NLP. How can I assist you with your pilgrimage today?" }
@@ -63,6 +82,13 @@ export function ChatInterface() {
   const [searchResults, setSearchResults] = useState<{text: string, score: number}[]>([]);
   const [feedbacks, setFeedbacks] = useState<ResponseFeedback[]>([]);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  
+  // Translation-related states
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+  const [detectedLanguage, setDetectedLanguage] = useState<string | null>(null);
+  const [isLanguageDetectionEnabled, setIsLanguageDetectionEnabled] = useState<boolean>(true);
+  const [isTranslating, setIsTranslating] = useState<boolean>(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -114,13 +140,93 @@ export function ChatInterface() {
     }
   }, [input]);
 
+  // Handle automatic language detection and translation
+  const handleLanguageDetection = async (text: string): Promise<{detectedLanguage: string, translatedText?: string}> => {
+    if (!isLanguageDetectionEnabled) {
+      return { detectedLanguage: selectedLanguage };
+    }
+    
+    try {
+      setIsTranslating(true);
+      // Detect language of the text
+      const languageInfo = await detectLanguage(text);
+      const detectedLang = languageInfo.detectedLanguage || "en";
+      
+      // Store the detected language
+      setDetectedLanguage(detectedLang);
+      
+      // If detected language is different from selected language, translate
+      if (detectedLang !== selectedLanguage && text.length > 3) {
+        const translatedText = await translateText(text, detectedLang, selectedLanguage);
+        return { 
+          detectedLanguage: detectedLang,
+          translatedText: translatedText 
+        };
+      }
+      
+      return { detectedLanguage: detectedLang };
+    } catch (error) {
+      console.error("Language detection error:", error);
+      return { detectedLanguage: selectedLanguage };
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+  
+  // Translate assistant's response to the desired language
+  const translateResponse = async (text: string, targetLanguage: string): Promise<string> => {
+    if (targetLanguage === "en") {
+      return text; // No translation needed for English
+    }
+    
+    try {
+      setIsTranslating(true);
+      const translatedText = await translateText(text, "en", targetLanguage);
+      return translatedText;
+    } catch (error) {
+      console.error("Translation error:", error);
+      return text; // Return original text if translation fails
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const handleSend = async (messageText = input) => {
     if (!messageText.trim() || isLoading) return;
 
     // Log the query for debugging
     console.log("User query:", messageText);
+    
+    // Process language detection and translation if needed
+    const originalText = messageText;
+    let processedText = messageText;
+    let detectedLang = selectedLanguage;
+    
+    // Only perform language detection/translation if not using English
+    // or if auto-detection is enabled
+    if (selectedLanguage !== "en" || isLanguageDetectionEnabled) {
+      try {
+        const languageResult = await handleLanguageDetection(messageText);
+        detectedLang = languageResult.detectedLanguage;
+        
+        // If translation was performed, use the translated text
+        if (languageResult.translatedText) {
+          processedText = languageResult.translatedText;
+        }
+      } catch (error) {
+        console.error("Language processing error:", error);
+      }
+    }
 
-    const userMessage: ChatMessage = { role: "user", content: messageText };
+    // Create user message with original text and metadata
+    const userMessage: ChatMessage = { 
+      role: "user", 
+      content: originalText,
+      metadata: {
+        detectedLanguage: detectedLang
+      }
+    };
+    
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setSuggestions([]);
@@ -129,15 +235,32 @@ export function ChatInterface() {
 
     try {
       // Handle specific questions that need direct responses
-      const lowerQuery = messageText.toLowerCase().trim();
+      // Note: Using the processed (translated) text for matching
+      const lowerQuery = processedText.toLowerCase().trim();
       
       // Special handling for "How crowded is nashik currently?" and similar variations
       if (lowerQuery.includes("how crowded") && 
           (lowerQuery.includes("nashik") || lowerQuery.includes("kumbh"))) {
         console.log("Direct match for crowd question");
-        const crowdResponse = "Currently, the crowd level at Ramkund is moderate (50% capacity), while Tapovan is experiencing high crowd density (80% capacity). Trimbakeshwar is relatively less crowded (30% capacity). If you're planning to visit, early morning is recommended for a more peaceful experience. The crowd levels fluctuate throughout the day, with peaks typically occurring in the late morning and evening hours.";
+        let crowdResponse = "Currently, the crowd level at Ramkund is moderate (50% capacity), while Tapovan is experiencing high crowd density (80% capacity). Trimbakeshwar is relatively less crowded (30% capacity). If you're planning to visit, early morning is recommended for a more peaceful experience. The crowd levels fluctuate throughout the day, with peaks typically occurring in the late morning and evening hours.";
         
-        setMessages(prev => [...prev, { role: "assistant", content: crowdResponse }]);
+        // Translate the response if needed
+        if (selectedLanguage !== "en") {
+          try {
+            crowdResponse = await translateResponse(crowdResponse, selectedLanguage);
+          } catch (error) {
+            console.error("Failed to translate response:", error);
+          }
+        }
+        
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: crowdResponse,
+          metadata: {
+            translatedFrom: "en",
+            translatedTo: selectedLanguage
+          }
+        }]);
         setIsLoading(false);
         return;
       }
@@ -146,9 +269,25 @@ export function ChatInterface() {
       if ((lowerQuery.includes("where") || lowerQuery.includes("location")) && 
           (lowerQuery.includes("cbs") || lowerQuery.includes("central bus"))) {
         console.log("Direct match for CBS question");
-        const cbsResponse = "The Central Bus Stand (CBS) in Nashik is located in the heart of the city, about 5 km from Ramkund and other main Kumbh Mela sites. The exact address is Central Bus Stand, CBS Road, Old Nashik, Maharashtra 422001. It is well-connected to all major Kumbh locations by special shuttle services during the festival.";
+        let cbsResponse = "The Central Bus Stand (CBS) in Nashik is located in the heart of the city, about 5 km from Ramkund and other main Kumbh Mela sites. The exact address is Central Bus Stand, CBS Road, Old Nashik, Maharashtra 422001. It is well-connected to all major Kumbh locations by special shuttle services during the festival.";
         
-        setMessages(prev => [...prev, { role: "assistant", content: cbsResponse }]);
+        // Translate the response if needed
+        if (selectedLanguage !== "en") {
+          try {
+            cbsResponse = await translateResponse(cbsResponse, selectedLanguage);
+          } catch (error) {
+            console.error("Failed to translate response:", error);
+          }
+        }
+        
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: cbsResponse,
+          metadata: {
+            translatedFrom: "en",
+            translatedTo: selectedLanguage
+          }
+        }]);
         setIsLoading(false);
         return;
       }
@@ -157,9 +296,25 @@ export function ChatInterface() {
       if ((lowerQuery.includes("where") || lowerQuery.includes("location")) && 
           lowerQuery.includes("nashik road")) {
         console.log("Direct match for Nashik Road question");
-        const roadResponse = "Nashik Road Railway Station is located about 10 km from the main Kumbh Mela sites. The exact address is Station Road, Nashik Road, Nashik, Maharashtra 422101. During Kumbh Mela, there are special shuttle services connecting the railway station to all major festival locations. Taxis and auto-rickshaws are also readily available from the station to reach your destination.";
+        let roadResponse = "Nashik Road Railway Station is located about 10 km from the main Kumbh Mela sites. The exact address is Station Road, Nashik Road, Nashik, Maharashtra 422101. During Kumbh Mela, there are special shuttle services connecting the railway station to all major festival locations. Taxis and auto-rickshaws are also readily available from the station to reach your destination.";
         
-        setMessages(prev => [...prev, { role: "assistant", content: roadResponse }]);
+        // Translate the response if needed
+        if (selectedLanguage !== "en") {
+          try {
+            roadResponse = await translateResponse(roadResponse, selectedLanguage);
+          } catch (error) {
+            console.error("Failed to translate response:", error);
+          }
+        }
+        
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: roadResponse,
+          metadata: {
+            translatedFrom: "en",
+            translatedTo: selectedLanguage
+          }
+        }]);
         setIsLoading(false);
         return;
       }
@@ -215,7 +370,25 @@ export function ChatInterface() {
         setFollowUpSuggestions(followUps);
       }
       
-      setMessages(prev => [...prev, { role: "assistant", content: response }]);
+      // Translate the response if needed
+      if (selectedLanguage !== "en") {
+        try {
+          const translatedResponse = await translateResponse(response, selectedLanguage);
+          setMessages(prev => [...prev, { 
+            role: "assistant", 
+            content: translatedResponse,
+            metadata: {
+              translatedFrom: "en",
+              translatedTo: selectedLanguage
+            }
+          }]);
+        } catch (error) {
+          console.error("Failed to translate final response:", error);
+          setMessages(prev => [...prev, { role: "assistant", content: response }]);
+        }
+      } else {
+        setMessages(prev => [...prev, { role: "assistant", content: response }]);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -389,7 +562,7 @@ export function ChatInterface() {
                 <span className="w-2 h-2 rounded-full bg-green-400 mr-1"></span>
                 <span>Knowledge Base: 23 Entries</span>
               </div>
-              <div className="text-xs mt-1 opacity-75">Supports Hindi & English</div>
+              <div className="text-xs mt-1 opacity-75">Supports multiple languages</div>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
@@ -398,6 +571,28 @@ export function ChatInterface() {
             <span className="bg-white/10 px-2 py-0.5 rounded-full">TF-IDF Analysis</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Entity Recognition</span>
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Contextual Suggestions</span>
+          </div>
+          
+          {/* Language selector */}
+          <div className="mt-3 flex items-center justify-end">
+            <div className="flex items-center gap-2 bg-white/10 p-1 rounded-md">
+              <Globe className="h-4 w-4 text-white/80" />
+              <Select
+                value={selectedLanguage}
+                onValueChange={(value) => setSelectedLanguage(value)}
+              >
+                <SelectTrigger className="w-32 h-7 text-xs bg-transparent border-none text-white focus:ring-0 focus:ring-offset-0">
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => (
+                    <SelectItem key={code} value={code}>
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
         
