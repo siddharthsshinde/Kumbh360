@@ -365,13 +365,51 @@ export class TFIDF {
     const queryVec = this.queryVector(query);
     const similarities: {index: number, text: string, score: number}[] = [];
     
+    // Preprocess query for additional matching methods
+    const normalizedQuery = query.toLowerCase().trim();
+    const queryTokens = new Set(removeStopwords(tokenize(normalizedQuery)).map(stemWord));
+    
     // Calculate similarity with each document
     for (let i = 0; i < this.documentVectors.length; i++) {
-      const similarity = this.cosineSimilarity(queryVec, this.documentVectors[i]);
+      // Primary cosine similarity score
+      const cosineSim = this.cosineSimilarity(queryVec, this.documentVectors[i]);
+      
+      // Get document tokens for additional matching methods
+      const docText = this.rawTexts[i];
+      const normalizedDocText = docText.toLowerCase().trim();
+      const docTokens = new Set(removeStopwords(tokenize(normalizedDocText)).map(stemWord));
+      
+      // Jaccard similarity (token overlap)
+      const intersection = new Set<string>();
+      queryTokens.forEach(token => {
+        if (docTokens.has(token)) {
+          intersection.add(token);
+        }
+      });
+      const union = new Set<string>([...Array.from(queryTokens), ...Array.from(docTokens)]);
+      const jaccardSim = intersection.size / union.size;
+      
+      // Word order similarity (simpler version of edit distance)
+      const queryTokenArr = Array.from(queryTokens);
+      const docTokenArr = Array.from(docTokens);
+      
+      // Count of matching tokens in the same relative position
+      let orderMatches = 0;
+      for (let j = 0; j < Math.min(queryTokenArr.length, docTokenArr.length); j++) {
+        if (queryTokenArr[j] === docTokenArr[j]) {
+          orderMatches++;
+        }
+      }
+      const orderSim = orderMatches / Math.max(queryTokenArr.length, docTokenArr.length);
+      
+      // Combined similarity score - weighted average of different metrics
+      // Cosine similarity is given the highest weight
+      const combinedScore = (cosineSim * 0.6) + (jaccardSim * 0.3) + (orderSim * 0.1);
+      
       similarities.push({
         index: i,
         text: this.rawTexts[i],
-        score: similarity
+        score: combinedScore
       });
     }
     
@@ -381,7 +419,18 @@ export class TFIDF {
       
       // Check for exact phrase matches and boost score
       if (docText.toLowerCase().includes(query.toLowerCase())) {
-        similarities[i].score *= 1.5; // 50% boost for exact phrase match
+        similarities[i].score *= 1.8; // 80% boost for exact phrase match
+      }
+      
+      // Check for partial phrase matches
+      const queryWords = query.toLowerCase().split(/\s+/);
+      if (queryWords.length > 1) {
+        for (let j = 0; j < queryWords.length - 1; j++) {
+          const phrase = queryWords[j] + ' ' + queryWords[j+1];
+          if (docText.toLowerCase().includes(phrase)) {
+            similarities[i].score *= 1.2; // 20% boost for partial phrase match
+          }
+        }
       }
       
       // Check for entity matches
@@ -393,7 +442,7 @@ export class TFIDF {
         docEntities.locations.includes(loc)
       ).length;
       if (locationMatches > 0) {
-        similarities[i].score *= (1 + 0.2 * locationMatches);
+        similarities[i].score *= (1 + 0.25 * locationMatches);
       }
       
       // Boost score based on event matches
@@ -401,15 +450,26 @@ export class TFIDF {
         docEntities.events.includes(event)
       ).length;
       if (eventMatches > 0) {
-        similarities[i].score *= (1 + 0.2 * eventMatches);
+        similarities[i].score *= (1 + 0.25 * eventMatches);
+      }
+      
+      // Boost score based on question type match (what, when, where, etc.)
+      if (queryEntities.questions.length > 0 && docEntities.questions.length > 0) {
+        // Check if the question types match
+        const queryQuestionType = queryEntities.questions[0].split(' ')[0].toLowerCase();
+        const docQuestionType = docEntities.questions[0].split(' ')[0].toLowerCase();
+        
+        if (queryQuestionType === docQuestionType) {
+          similarities[i].score *= 1.3; // 30% boost for matching question type
+        }
       }
     }
     
     // Sort by similarity (descending)
     similarities.sort((a, b) => b.score - a.score);
     
-    // Filter out low-scoring results
-    const threshold = 0.1;
+    // Filter out low-scoring results with lower threshold
+    const threshold = 0.08; // Lower threshold to catch more results
     const filteredResults = similarities.filter(item => item.score > threshold);
     
     // Return top K results

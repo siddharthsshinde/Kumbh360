@@ -335,18 +335,64 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
       }
     }
     
-    // For other common questions, try direct matching by tokenizing
+    // For other common questions, try semantic matching by tokenizing
     // This is faster than full embeddings
     const queryTokens = new Set(tokenize(lowerQuery).map(t => t.toLowerCase()));
     
+    // Add additional tokens from query - synonyms and related terms
+    // This helps match questions with different phrasing
+    const synonymMap: Record<string, string[]> = {
+      'what': ['tell', 'explain', 'describe', 'information', 'info', 'details', 'know'],
+      'when': ['time', 'date', 'schedule', 'during', 'timing', 'hour'],
+      'where': ['location', 'place', 'spot', 'site', 'venue', 'area', 'located'],
+      'how': ['way', 'method', 'process', 'procedure', 'manner', 'means'],
+      'reach': ['get to', 'travel to', 'arrive at', 'go to', 'visit', 'commute', 'access'],
+      'nashik': ['nasik', 'nashikm', 'nasika', 'nasick'],
+      'kumbh': ['kumb', 'kumbha', 'kumbhamela', 'kumba', 'festival', 'mela', 'event'],
+      'find': ['locate', 'discover', 'search', 'spot', 'identify', 'see'],
+      'temple': ['mandir', 'shrine', 'place of worship', 'sacred place', 'holy site'],
+      'stay': ['accommodation', 'hotel', 'lodging', 'place to stay', 'residence', 'living'],
+      'food': ['eat', 'meal', 'restaurant', 'cuisine', 'dining', 'eatery', 'catering'],
+    };
+    
+    // Expand the query tokens with synonyms
+    const expandedQueryTokens = new Set(queryTokens);
+    queryTokens.forEach(token => {
+      const synonyms = synonymMap[token] || [];
+      synonyms.forEach(synonym => expandedQueryTokens.add(synonym));
+    });
+    
+    const matches: {index: number, score: number}[] = [];
+    
     for (let i = 0; i < faqData.length; i++) {
       const faqTokens = new Set(tokenize(faqData[i].question.toLowerCase()).map(t => t.toLowerCase()));
-      const overlap = Array.from(queryTokens).filter(token => faqTokens.has(token)).length;
       
-      // If more than 60% of the tokens match (normalized by total tokens in query)
-      if (overlap > 0 && overlap / queryTokens.size > 0.6) {
-        return faqData[i];
+      // Expand FAQ tokens with synonyms as well
+      const expandedFaqTokens = new Set(faqTokens);
+      faqTokens.forEach(token => {
+        const synonyms = synonymMap[token] || [];
+        synonyms.forEach(synonym => expandedFaqTokens.add(synonym));
+      });
+      
+      // Calculate overlap score considering both original and expanded tokens
+      const directOverlap = Array.from(queryTokens).filter(token => faqTokens.has(token)).length;
+      const expandedOverlap = Array.from(expandedQueryTokens).filter(token => expandedFaqTokens.has(token)).length;
+      
+      // Combined score - weigh direct matches more heavily
+      const overlapScore = (directOverlap * 1.5 + expandedOverlap) / (queryTokens.size + expandedQueryTokens.size);
+      
+      if (overlapScore > 0.3) { // Lower threshold for better matching
+        matches.push({index: i, score: overlapScore});
       }
+    }
+    
+    // Sort matches by score (highest first)
+    matches.sort((a, b) => b.score - a.score);
+    
+    // If we have a good match, return it
+    if (matches.length > 0 && matches[0].score > 0.4) {
+      console.log("Found token match with score:", matches[0].score, "for question:", faqData[matches[0].index].question);
+      return faqData[matches[0].index];
     }
     
     // If still no match, try with TFIDF (faster than embeddings)
@@ -374,20 +420,38 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
       }
     }
     
-    // As a last resort, only use embeddings for complex queries
+    // As a last resort, use embeddings for complex queries
     try {
-      // Try using embeddings last (most processing intensive)
+      // Try using embeddings with a lower threshold to catch more similar questions
       const results = await embeddingsManager.findMostSimilar(
         query,
         faqData.map(item => item.question),
-        0.5 // Higher threshold for more accurate FAQ matching
+        0.3 // Lower threshold to catch more semantic variations
       );
       
       if (results) {
         // Find the FAQ that matches
         const faqIndex = faqData.findIndex(item => item.question === results.text);
         if (faqIndex >= 0) {
+          console.log("Found match via embeddings with score:", results.score, "for question:", faqData[faqIndex].question);
           return faqData[faqIndex];
+        }
+      }
+      
+      // If still no match at 0.3 threshold, try with an even lower threshold as a fallback
+      if (!results) {
+        const fallbackResults = await embeddingsManager.findMostSimilar(
+          query,
+          faqData.map(item => item.question),
+          0.2 // Very low threshold as last resort
+        );
+        
+        if (fallbackResults) {
+          const faqIndex = faqData.findIndex(item => item.question === fallbackResults.text);
+          if (faqIndex >= 0) {
+            console.log("Found match via embeddings last resort with score:", fallbackResults.score, "for question:", faqData[faqIndex].question);
+            return faqData[faqIndex];
+          }
         }
       }
     } catch (embeddingError) {
@@ -415,7 +479,13 @@ function findRelevantFAQWithTFIDF(query: string): KumbhFAQItem | null {
   const bestMatch = similarDocs[0];
   
   // Only return if similarity is above threshold
-  return bestMatch.score > 0.2 ? faqData[bestMatch.index] : null;
+  // Lower threshold to 0.15 to catch more variations
+  const matchThreshold = 0.15;
+  if (bestMatch.score > matchThreshold) {
+    console.log("Found TFIDF match with score:", bestMatch.score, "for question:", faqData[bestMatch.index].question);
+    return faqData[bestMatch.index];
+  }
+  return null;
 }
 
 /**
