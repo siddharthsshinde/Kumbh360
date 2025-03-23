@@ -198,7 +198,7 @@ class VectorSearchManager {
   /**
    * Generate embedding for text using Gemini API
    */
-  private async getEmbedding(text: string): Promise<number[]> {
+  public async getEmbedding(text: string): Promise<number[]> {
     try {
       if (this.genAI) {
         const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });

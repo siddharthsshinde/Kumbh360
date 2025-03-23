@@ -80,9 +80,10 @@ export class EmbeddingsManager {
       console.error('Error loading embedding model:', error);
       // Instead of throwing, provide a fallback proxy pipeline
       // This will return empty embeddings but allow the app to continue functioning
-      this.embeddingModel = (text: string) => {
-        return Promise.resolve({ data: new Array(384).fill(0) }); // Empty embeddings array
+      const fallbackFn = async (text: string) => {
+        return { data: new Array(384).fill(0) }; // Empty embeddings array
       };
+      this.embeddingModel = fallbackFn;
     } finally {
       this.isLoading = false;
     }
