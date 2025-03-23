@@ -47,14 +47,17 @@ app.use((req, res, next) => {
 (async () => {
   // Initialize the cache manager
   cacheManager.initialize({ 
-    enabled: true,
-    url: process.env.REDIS_URL, 
+    enabled: process.env.REDIS_URL ? true : false, // Only enable Redis if URL is provided
+    url: process.env.REDIS_URL,
     ttl: {
       [CacheType.QUERY_RESULTS]: 3600, // 1 hour
       [CacheType.GEMINI_RESPONSES]: 7200, // 2 hours
       [CacheType.EMBEDDINGS]: 86400, // 24 hours
     }
   });
+  
+  // Set NODE_ENV for proper environment detection
+  process.env.NODE_ENV = process.env.NODE_ENV || 'development';
   
   // Initialize vector search with knowledge base data
   const knowledgeBase = await storage.getKnowledgeBase();

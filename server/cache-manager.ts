@@ -81,35 +81,65 @@ class CacheManager {
         };
       }
 
+      // Check if we're in a development environment without Redis
+      if (process.env.NODE_ENV === 'development' && (!options?.url || options.url === 'redis://localhost:6379')) {
+        log('Development environment detected, running without Redis', 'cache-manager');
+        this.options.enabled = false;
+        this.isInitialized = true;
+        return;
+      }
+
       // Connect to Redis
-      this.redis = new Redis(options?.url || 'redis://localhost:6379', {
-        password: options?.password,
-        retryStrategy: (times) => {
-          const delay = Math.min(times * 100, 3000);
-          log(`Redis connection retry in ${delay}ms...`, 'cache-manager');
-          return delay;
-        }
-      });
+      try {
+        this.redis = new Redis(options?.url || 'redis://localhost:6379', {
+          password: options?.password,
+          connectTimeout: 5000, // 5 seconds timeout
+          maxRetriesPerRequest: 3,
+          retryStrategy: (times) => {
+            if (times > 5) {
+              // After 5 retries, disable Redis and continue without it
+              log('Maximum Redis connection retries reached, disabling Redis cache', 'cache-manager');
+              this.options.enabled = false;
+              this.isConnected = false;
+              return null; // Stop retrying
+            }
+            const delay = Math.min(times * 100, 3000);
+            log(`Redis connection retry in ${delay}ms...`, 'cache-manager');
+            return delay;
+          }
+        });
 
-      // Set up event handlers
-      this.redis.on('connect', () => {
-        log('Connected to Redis server', 'cache-manager');
-        this.isConnected = true;
-      });
+        // Set up event handlers
+        this.redis.on('connect', () => {
+          log('Connected to Redis server', 'cache-manager');
+          this.isConnected = true;
+        });
 
-      this.redis.on('error', (error) => {
-        log(`Redis connection error: ${error}`, 'cache-manager');
-        this.isConnected = false;
-      });
+        this.redis.on('error', (error) => {
+          log(`Redis connection error: ${error}`, 'cache-manager');
+          if (this.isConnected) {
+            this.isConnected = false;
+          }
+        });
 
-      this.redis.on('ready', () => {
-        log('Redis client is ready', 'cache-manager');
-      });
+        this.redis.on('ready', () => {
+          log('Redis client is ready', 'cache-manager');
+        });
+
+        this.redis.on('end', () => {
+          log('Redis connection closed', 'cache-manager');
+          this.isConnected = false;
+        });
+      } catch (redisError) {
+        log(`Failed to initialize Redis client: ${redisError}`, 'cache-manager');
+        this.options.enabled = false;
+      }
 
       this.isInitialized = true;
     } catch (error) {
       log(`Failed to initialize Redis cache: ${error}`, 'cache-manager');
       this.options.enabled = false;
+      this.isInitialized = true; // Still mark as initialized to avoid repeated init attempts
     }
   }
 
