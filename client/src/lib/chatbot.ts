@@ -16,6 +16,7 @@ interface KumbhData {
 const kumbhData = kumbhDataRaw as KumbhData;
 import { TFIDF, tokenize, removeStopwords } from "./nlp";
 import { embeddingsManager, ConversationState } from "./embeddings";
+import { getGeminiResponse } from "./gemini";
 
 // Define type for intent data
 interface IntentData {

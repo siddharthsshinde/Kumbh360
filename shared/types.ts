@@ -48,3 +48,26 @@ export interface ChatResponse {
     category?: string;
   };
 }
+
+/**
+ * Gemini API request format - specifically designed for our RAG implementation
+ */
+export interface GeminiRequest {
+  messages: ChatMessage[];
+  sessionId: string;
+  options?: {
+    temperature?: number;
+    useRag?: boolean;
+    useCache?: boolean;
+    maxContextItems?: number;
+    includeSources?: boolean;
+    maxOutputTokens?: number;
+    topK?: number;
+    topP?: number;
+  };
+}
+
+/**
+ * Gemini API message format - based on our ChatMessage type
+ */
+export type GeminiMessage = ChatMessage;
