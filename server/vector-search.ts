@@ -26,7 +26,7 @@ class VectorSearchManager {
   private index: faiss.IndexFlatL2 | null = null;
   private initialized: boolean = false;
   private isInitializing: boolean = false;
-  private initPromise: Promise<void> | null = null;
+  private initPromise: Promise<void> = Promise.resolve();
   private idToKnowledgeMap: Map<number, KnowledgeBase> = new Map();
   private genAI: GoogleGenerativeAI | null = null;
 
@@ -45,40 +45,47 @@ class VectorSearchManager {
    * Initialize the FAISS index and Gemini API
    */
   public async initialize(knowledgeBase: KnowledgeBase[], apiKey?: string): Promise<void> {
+    // If already initialized or initializing, return the promise
     if (this.initialized || this.isInitializing) {
       return this.initPromise;
     }
 
     this.isInitializing = true;
-    this.initPromise = new Promise<void>(async (resolve, reject) => {
-      try {
-        log('Initializing FAISS vector index', 'vector-search');
-        
-        // Create a new FAISS index
-        this.index = new faiss.IndexFlatL2(EMBEDDING_DIMENSION);
-        
-        // Initialize Gemini API if key is provided
-        if (apiKey) {
-          this.genAI = new GoogleGenerativeAI(apiKey);
-          log('Gemini API initialized', 'vector-search');
-        } else {
-          log('Gemini API key not provided, using alternative embedding method', 'vector-search');
+    this.initPromise = new Promise<void>((resolve, reject) => {
+      // Create an inner async function to handle async operations
+      const initAsync = async () => {
+        try {
+          log('Initializing FAISS vector index', 'vector-search');
+          
+          // Create a new FAISS index
+          this.index = new faiss.IndexFlatL2(EMBEDDING_DIMENSION);
+          
+          // Initialize Gemini API if key is provided
+          if (apiKey) {
+            this.genAI = new GoogleGenerativeAI(apiKey);
+            log('Gemini API initialized', 'vector-search');
+          } else {
+            log('Gemini API key not provided, using alternative embedding method', 'vector-search');
+          }
+          
+          // Add existing knowledge base items to the index
+          if (knowledgeBase && knowledgeBase.length > 0) {
+            await this.addKnowledgeBaseToIndex(knowledgeBase);
+          }
+          
+          this.initialized = true;
+          this.isInitializing = false;
+          log('FAISS vector index initialized successfully', 'vector-search');
+          resolve();
+        } catch (error) {
+          this.isInitializing = false;
+          log(`Failed to initialize FAISS vector index: ${error}`, 'vector-search');
+          reject(error);
         }
-        
-        // Add existing knowledge base items to the index
-        if (knowledgeBase && knowledgeBase.length > 0) {
-          await this.addKnowledgeBaseToIndex(knowledgeBase);
-        }
-        
-        this.initialized = true;
-        this.isInitializing = false;
-        log('FAISS vector index initialized successfully', 'vector-search');
-        resolve();
-      } catch (error) {
-        this.isInitializing = false;
-        log(`Failed to initialize FAISS vector index: ${error}`, 'vector-search');
-        reject(error);
-      }
+      };
+      
+      // Call the async function
+      initAsync();
     });
 
     return this.initPromise;
