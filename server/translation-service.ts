@@ -47,8 +47,7 @@ class TranslationService {
     if (this.isInitialized) return;
 
     try {
-      // Initialize with API version explicitly set to v1
-      this.genAI = new GoogleGenerativeAI(apiKey, { apiVersion: "v1" });
+      this.genAI = new GoogleGenerativeAI(apiKey);
       this.isInitialized = true;
       log('Translation Service initialized successfully', 'translation');
     } catch (error) {
