@@ -43,6 +43,14 @@ const intents: Intents = {
     ],
     description: "Questions about locations, navigation, places and directions"
   },
+  transportation: {
+    patterns: [
+      'reach', 'travel', 'transport', 'how to get', 'how to reach', 'bus', 'train', 'flight', 'car', 'taxi', 'shuttle', 
+      'airport', 'station', 'road', 'drive', 'parking', 'vehicle', 'route', 'navigate', 'directions to', 'travel to', 
+      'get to', 'reach nashik', 'travel nashik', 'कैसे पहुंचें', 'यात्रा', 'परिवहन'
+    ],
+    description: "Questions about transportation, how to reach Kumbh Mela, travel options to and from Nashik"
+  },
   facilities: {
     patterns: [
       'facilities', 'services', 'accommodation', 'food', 'stay', 'hotel', 'restaurant', 'सुविधाएं', 'सेवाएं', 'सुविधा'
@@ -111,6 +119,12 @@ const followUpQuestions: Record<string, string[]> = {
     "Would you like directions to get there?",
     "Do you need information about the facilities available at this location?",
     "Shall I tell you about the current crowd levels at this spot?"
+  ],
+  transportation: [
+    "Would you like to know about bus services to Nashik?",
+    "Do you need information about train schedules to Nashik?",
+    "Would you like to know about parking facilities at Kumbh Mela?",
+    "Shall I tell you about the shuttle services available within Nashik during Kumbh Mela?"
   ],
   facilities: [
     "Would you like to know about accommodation options?",
@@ -291,6 +305,27 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
       }
     }
     
+    // Special handling for transportation questions
+    if (lowerQuery.includes("how can i reach") || 
+        lowerQuery.includes("how to reach") || 
+        lowerQuery.includes("reach nashik") ||
+        lowerQuery.includes("get to nashik") ||
+        lowerQuery.includes("travel to nashik") ||
+        lowerQuery.includes("transportation") ||
+        lowerQuery.includes("reaching kumbh")) {
+      
+      // Look for transportation-specific FAQs
+      for (let i = 0; i < faqData.length; i++) {
+        const question = faqData[i].question.toLowerCase();
+        if (question.includes("reach nashik") || 
+            question.includes("how can i reach") || 
+            question.includes("how to reach")) {
+          console.log("Found transportation FAQ match:", faqData[i].question);
+          return faqData[i];
+        }
+      }
+    }
+    
     // For other common questions, try direct matching by tokenizing
     // This is faster than full embeddings
     const queryTokens = new Set(tokenize(lowerQuery).map(t => t.toLowerCase()));
@@ -309,6 +344,25 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
     const tfidfMatch = findRelevantFAQWithTFIDF(query);
     if (tfidfMatch) {
       return tfidfMatch;
+    }
+    
+    // Reduce the threshold to find more potential matches for transportation questions
+    if (lowerQuery.includes("reach") || 
+        lowerQuery.includes("travel") || 
+        lowerQuery.includes("get to") ||
+        lowerQuery.includes("transport")) {
+      // Use TFIDF with lower threshold for transportation questions
+      const similarDocs = tfidf.findSimilarDocuments(query, 5);
+      
+      for (const doc of similarDocs) {
+        if (doc.score > 0.1) {  // Lower threshold
+          const faqText = faqData[doc.index].question.toLowerCase();
+          if (faqText.includes("reach") || faqText.includes("nashik") || faqText.includes("how can")) {
+            console.log("Found transportation match via lower threshold TFIDF:", faqData[doc.index].question);
+            return faqData[doc.index];
+          }
+        }
+      }
     }
     
     // As a last resort, only use embeddings for complex queries
@@ -418,6 +472,27 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
       lastIntent: intent,
       lastQuestion: userMessage
     });
+    
+    // Special handling for transportation questions
+    if (intent === 'transportation') {
+      // Try to find transportation-specific FAQ
+      const faqMatch = await findRelevantFAQWithEmbeddings(userMessage);
+      if (faqMatch && faqMatch.answer) {
+        console.log("Found transportation FAQ match, using that instead of RAG");
+        let response = faqMatch.answer;
+        
+        // Add follow-up specific to transportation
+        const followUp = getFollowUpSuggestions('transportation', state);
+        response += "\n\n" + followUp;
+        
+        // Update state with the answer
+        embeddingsManager.updateConversationState(SESSION_ID, {
+          lastAnswer: response
+        });
+  
+        return response;
+      }
+    }
     
     // For simple factual questions, try a quick local FAQ match first
     if (intent === 'faqs' || intent === 'general' || intent === 'events' || intent === 'religious') {
