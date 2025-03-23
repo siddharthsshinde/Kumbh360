@@ -42,7 +42,7 @@ class RAGGeminiService {
     if (this.isInitialized) return;
 
     try {
-      // Initialize with API version explicitly set to v1
+      // Initialize the Gemini API client
       this.genAI = new GoogleGenerativeAI(apiKey);
       this.isInitialized = true;
       log('Gemini RAG Service initialized successfully', 'rag-gemini');
@@ -132,7 +132,7 @@ class RAGGeminiService {
         chatHistory.slice(0, -1) // Exclude the last message (current query)
       );
       
-      // Create the model
+      // Create the model with API version set to v1
       const model = this.genAI.getGenerativeModel({
         model: "gemini-pro",
         generationConfig: {
@@ -141,7 +141,7 @@ class RAGGeminiService {
           topP: options.topP || 0.95,
           maxOutputTokens: MAX_OUTPUT_TOKENS,
         },
-      });
+      }, { apiVersion: "v1" });
       
       // Build the prompt with context
       const systemPrompt = `You are a helpful assistant for the Nashik Kumbh Mela 2025. Your role is to assist visitors with information about locations, crowd management, facilities, and religious aspects of the event.
