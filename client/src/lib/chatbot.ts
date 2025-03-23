@@ -91,8 +91,54 @@ const faqData: KumbhFAQItem[] = kumbhData.questions.map(item => ({
   category: 'general'
 }));
 
+// Add canonical question mappings for common variations
+// This helps direct question variations to their official versions
+const questionVariations: Record<string, string[]> = {
+  "Where is CBS (Central Bus Stand) in Nashik?": [
+    "where is cbs",
+    "cbs location",
+    "central bus stand location",
+    "where can i find cbs",
+    "how to reach cbs",
+    "where is the central bus stand",
+    "cbs nashik",
+    "central bus stand nashik",
+    "bus stand location"
+  ],
+  "How crowded does it get during Kumbh Mela?": [
+    "how crowded is nashik currently",
+    "how crowded is nashik",
+    "current crowd level",
+    "crowd status",
+    "is it crowded now",
+    "crowd situation nashik",
+    "is nashik crowded",
+    "crowding in nashik",
+    "crowd density"
+  ],
+  "How can I reach Nashik for Kumbh Mela?": [
+    "where is nashik road",
+    "nashik road location",
+    "how to get to nashik road",
+    "directions to nashik road",
+    "nashik road railway station",
+    "where is the railway station",
+    "train station location",
+    "nashik road station"
+  ]
+};
+
+// Create a quick lookup map for variations
+let variationMap = new Map<string, string>();
+Object.entries(questionVariations).forEach(([canonicalQuestion, variations]) => {
+  variations.forEach(variation => {
+    variationMap.set(variation.toLowerCase().trim(), canonicalQuestion);
+  });
+});
+
 // Debug log the data length
 console.log(`Loaded ${faqData.length} FAQ items from kumbh_mela_main.json`);
+console.log(`Added ${Object.values(questionVariations).flat().length} question variations for better matching`);
 
 // Log the first few items to verify content
 console.log("First 3 FAQ items:", faqData.slice(0, 3));
@@ -297,6 +343,32 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
   try {
     // First try direct matching for common questions (fastest)
     const lowerQuery = query.toLowerCase().trim();
+    
+    // Check if this is a known variation of a canonical question
+    // This is the fastest way to match common alternative phrasings
+    if (variationMap.has(lowerQuery)) {
+      const canonicalQuestion = variationMap.get(lowerQuery);
+      console.log(`Found direct variation match: "${lowerQuery}" maps to "${canonicalQuestion}"`);
+      
+      // Find the canonical question in the FAQ data
+      const faqMatch = faqData.find(item => item.question === canonicalQuestion);
+      if (faqMatch) {
+        return faqMatch;
+      }
+    }
+    
+    // For partial matches, check if the query is a substring of any variation
+    for (const [variation, canonicalQuestion] of variationMap.entries()) {
+      if (lowerQuery.includes(variation) || variation.includes(lowerQuery)) {
+        console.log(`Found partial variation match: "${lowerQuery}" matches pattern "${variation}" for "${canonicalQuestion}"`);
+        
+        // Find the canonical question in the FAQ data
+        const faqMatch = faqData.find(item => item.question === canonicalQuestion);
+        if (faqMatch) {
+          return faqMatch;
+        }
+      }
+    }
     
     // Direct lookup for "What is Kumbh Mela?" type questions
     if (lowerQuery.includes("what is kumbh") || 
