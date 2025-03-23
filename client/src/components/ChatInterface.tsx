@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, Lightbulb, Search } from "lucide-react";
+import { Send, Lightbulb, Search, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/types";
 import { getChatResponse, getSuggestions } from "@/lib/chatbot";
 import { TFIDF, extractEntities, computeJaccardSimilarity } from "@/lib/nlp";
+import { apiRequest } from "@/lib/queryClient";
 
 // Knowledge base data with Kumbh Mela related information
 const kumbhMelaKnowledgeBase = [
@@ -40,6 +41,13 @@ const kumbhMelaKnowledgeBase = [
 // Initialize TFIDF with our knowledge base for semantic search
 const nlpEngine = new TFIDF(kumbhMelaKnowledgeBase);
 
+// Interface for storing feedback information
+interface ResponseFeedback {
+  messageIndex: number;
+  queryId?: number;
+  feedback: number | null; // 1 for 👍, -1 for 👎, null for no feedback
+}
+
 export function ChatInterface() {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -52,6 +60,8 @@ export function ChatInterface() {
   const [followUpSuggestions, setFollowUpSuggestions] = useState<string[]>([]);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [searchResults, setSearchResults] = useState<{text: string, score: number}[]>([]);
+  const [feedbacks, setFeedbacks] = useState<ResponseFeedback[]>([]);
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {

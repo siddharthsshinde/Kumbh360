@@ -84,9 +84,15 @@ export interface IStorage {
     query: string;
     response: string;
     sources: string[];
-    feedback: number | null;
+    feedback?: number | null;
+    confidence?: number;
+    learnedFromGemini?: boolean;
+    autoLearned?: boolean;
   }): Promise<number>; // Returns the query ID
   updateQueryFeedback(queryId: number, feedback: number): Promise<void>;
+  getFlaggedQueriesForReview(): Promise<UserQuery[]>;
+  addQueryToKnowledgeBase(queryId: number): Promise<void>; // Adds a user query to knowledge base
+  getQueriesWithFeedback(feedbackValue: number): Promise<UserQuery[]>; // Get queries with specific feedback
   getKnowledgeBase(topic?: string): Promise<KnowledgeBase[]>;
   // New methods for enhanced chat functionality
   getChatHistory(sessionId: string): Promise<ChatMessage[]>;
@@ -134,6 +140,11 @@ interface UserQuery {
   sources: string[];
   timestamp: string;
   feedback: number | null;
+  flaggedForReview?: boolean;
+  autoLearned?: boolean;
+  confidence?: number;
+  learnedFromGemini?: boolean;
+  queryEmbedding?: number[];
 }
 
 
@@ -936,7 +947,10 @@ export class MemStorage implements IStorage {
     query: string;
     response: string;
     sources: string[];
-    feedback: number | null;
+    feedback?: number | null;
+    confidence?: number;
+    learnedFromGemini?: boolean;
+    autoLearned?: boolean;
   }): Promise<number> {
     const queryId = this.queryIdCounter++;
 
@@ -945,8 +959,9 @@ export class MemStorage implements IStorage {
     if (kbResult) {
       data.response = kbResult.content;
       data.sources = [kbResult.source || 'Internal Knowledge Base'];
+      // If we have a knowledge base match, confidence is higher
+      data.confidence = data.confidence || 90;
     }
-
 
     // Check if query is about crowd levels
     if (data.query.toLowerCase().includes('crowd') || data.query.toLowerCase().includes('people')) {
@@ -960,15 +975,19 @@ export class MemStorage implements IStorage {
       }
     }
 
-    // Store the enhanced query
+    // Store the enhanced query with all new fields
     this.userQueriesData.push({
       id: queryId,
       query: data.query,
       response: data.response,
       sources: data.sources,
       timestamp: new Date().toISOString(),
-      feedback: data.feedback
-    });
+      feedback: data.feedback || null,
+      confidence: data.confidence || 70, // Default confidence if not provided
+      learnedFromGemini: data.learnedFromGemini || false,
+      autoLearned: data.autoLearned || false,
+      flaggedForReview: false // Not flagged by default
+    } as any); // Using 'any' since the UserQuery type might not be updated yet
 
     return queryId;
   }
@@ -977,7 +996,36 @@ export class MemStorage implements IStorage {
     const query = this.userQueriesData.find(q => q.id === queryId);
     if (query) {
       query.feedback = feedback;
+      
+      // If feedback is negative (👎), flag it for review
+      if (feedback < 0) {
+        (query as any).flaggedForReview = true;
+      }
     }
+  }
+
+  async getFlaggedQueriesForReview(): Promise<UserQuery[]> {
+    return this.userQueriesData.filter(q => (q as any).flaggedForReview === true);
+  }
+
+  async addQueryToKnowledgeBase(queryId: number): Promise<void> {
+    const query = this.userQueriesData.find(q => q.id === queryId);
+    if (query) {
+      // Add the query and response to the knowledge base
+      await this.storeKnowledgeBase({
+        topic: query.query,
+        content: query.response,
+        source: "User Feedback",
+        confidence: 85 // Higher confidence since it was verified
+      });
+      
+      // Mark query as auto-learned
+      (query as any).autoLearned = true;
+    }
+  }
+
+  async getQueriesWithFeedback(feedbackValue: number): Promise<UserQuery[]> {
+    return this.userQueriesData.filter(q => q.feedback === feedbackValue);
   }
 
   async getKnowledgeBase(topic?: string): Promise<KnowledgeBase[]> {

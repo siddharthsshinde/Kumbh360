@@ -62,8 +62,12 @@ export const userQueries = pgTable("user_queries", {
   response: text("response").notNull(),
   sources: jsonb("sources").notNull(), // Array of source URLs
   timestamp: timestamp("timestamp").defaultNow(),
-  feedback: integer("feedback"), // User feedback score (1-5)
+  feedback: integer("feedback"), // 1 for 👍, -1 for 👎, null for no feedback
   queryEmbedding: jsonb("query_embedding"), // Store query embeddings for semantic matching
+  flaggedForReview: boolean("flagged_for_review").default(false), // Flag for review if user gives negative feedback
+  autoLearned: boolean("auto_learned").default(false), // Whether this was auto-added to knowledge base
+  confidence: integer("confidence").default(0), // Confidence score of the matching/response (0-100)
+  learnedFromGemini: boolean("learned_from_gemini").default(false), // Whether response came from Gemini
 });
 
 // Enhanced chat history table
