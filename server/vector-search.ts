@@ -59,7 +59,7 @@ class VectorSearchManager {
         
         // Initialize Gemini API if key is provided
         if (apiKey) {
-          this.genAI = new GoogleGenerativeAI(apiKey, { apiVersion: "v1" });
+          this.genAI = new GoogleGenerativeAI(apiKey);
           log('Gemini API initialized', 'vector-search');
         } else {
           log('Gemini API key not provided, using alternative embedding method', 'vector-search');
@@ -201,7 +201,7 @@ class VectorSearchManager {
   public async getEmbedding(text: string): Promise<number[]> {
     try {
       if (this.genAI) {
-        const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
         const embeddingResult = await model.embedContent({
           content: text,
           taskType: "RETRIEVAL_DOCUMENT",

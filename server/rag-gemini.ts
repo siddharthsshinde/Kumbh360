@@ -134,7 +134,7 @@ class RAGGeminiService {
       
       // Create the model with API version set to v1
       const model = this.genAI.getGenerativeModel({
-        model: "gemini-pro",
+        model: "gemini-1.5-pro",  // Updated to use gemini-1.5-pro which is available in v1
         generationConfig: {
           temperature: options.temperature || 0.7,
           topK: options.topK || 40,
@@ -216,8 +216,8 @@ Provide specific, accurate information while being respectful of religious and c
     }
 
     try {
-      // Create a model that can handle images
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+      // Create a model that can handle images with API version set to v1
+      const model = this.genAI.getGenerativeModel({ model: "gemini-pro-vision" }, { apiVersion: "v1" });
       
       // Prepare the image data
       const imagePart: Part = {

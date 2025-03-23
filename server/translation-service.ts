@@ -47,7 +47,7 @@ class TranslationService {
     if (this.isInitialized) return;
 
     try {
-      this.genAI = new GoogleGenerativeAI(apiKey, { apiVersion: "v1" });
+      this.genAI = new GoogleGenerativeAI(apiKey);
       this.isInitialized = true;
       log('Translation Service initialized successfully', 'translation');
     } catch (error) {
@@ -74,8 +74,8 @@ class TranslationService {
         return cachedResult;
       }
 
-      // Use Gemini to detect language
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+      // Use Gemini to detect language with API version set to v1
+      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
       
       const prompt = `Detect the language of the following text. 
 Respond with only the language code (e.g., 'en' for English, 'hi' for Hindi, 'mr' for Marathi, etc.):
@@ -136,8 +136,8 @@ If you're unsure, respond with 'en'.`;
         return text;
       }
 
-      // Use Gemini for translation
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+      // Use Gemini for translation with API version set to v1
+      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
       
       const targetLanguageName = SUPPORTED_LANGUAGES[targetLanguage as keyof typeof SUPPORTED_LANGUAGES] || 'English';
       const sourceLanguageName = SUPPORTED_LANGUAGES[sourceLanguage as keyof typeof SUPPORTED_LANGUAGES] || 'unknown language';
