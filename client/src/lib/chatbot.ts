@@ -418,55 +418,76 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
       lastQuestion: userMessage
     });
     
-    // Find FAQ match with enhanced recognition
-    const faqMatch = await findRelevantFAQWithEmbeddings(userMessage);
+    // For simple factual questions, try a quick local FAQ match first
+    if (intent === 'faqs' || intent === 'general' || intent === 'events' || intent === 'religious') {
+      const faqMatch = await findRelevantFAQWithEmbeddings(userMessage);
+      
+      if (faqMatch && faqMatch.answer) {
+        console.log("Found direct FAQ match, using that instead of RAG");
+        let response = faqMatch.answer;
+  
+        // Add real-time update if available
+        const realtimeUpdate = getRealTimeUpdate(intent, state);
+        if (realtimeUpdate) {
+          response += "\n\n" + realtimeUpdate;
+        }
+        
+        // Only add follow-up if we're a few turns into the conversation
+        if (state.turnCount > 1) {
+          const followUp = getFollowUpSuggestions(intent, state);
+          response += "\n\n" + followUp;
+        }
+        
+        // Update state with the answer
+        embeddingsManager.updateConversationState(SESSION_ID, {
+          lastAnswer: response
+        });
+  
+        return response;
+      }
+    }
     
-    if (faqMatch) {
-      let response = faqMatch.answer;
-
-      // Add real-time update if available
+    // For real-time information, prioritize local data over RAG
+    if (intent === 'crowd_levels' || intent === 'weather' || intent === 'emergency') {
       const realtimeUpdate = getRealTimeUpdate(intent, state);
+      
       if (realtimeUpdate) {
-        response += "\n\n" + realtimeUpdate;
-      }
-      
-      // Only add follow-up if we're a few turns into the conversation
-      if (state.turnCount > 1) {
+        console.log("Using real-time data for response");
         const followUp = getFollowUpSuggestions(intent, state);
-        response += "\n\n" + followUp;
+        const response = realtimeUpdate + (state.turnCount > 0 ? "\n\n" + followUp : "");
+        
+        // Update state with the answer
+        embeddingsManager.updateConversationState(SESSION_ID, {
+          lastAnswer: response
+        });
+        
+        return response;
       }
-      
-      // Update state with the answer
-      embeddingsManager.updateConversationState(SESSION_ID, {
-        lastAnswer: response
-      });
-
-      return response;
     }
 
-    // If no FAQ match, provide a helpful response based on intent and context
-    const realtimeUpdate = getRealTimeUpdate(intent, state);
-    const followUp = getFollowUpSuggestions(intent, state);
+    // For more complex or contextual questions, use our RAG backend
+    console.log("Using backend RAG service for response");
     
-    // Safely access intent description with a fallback
-    const intentDescription = intents[intent as keyof typeof intents]?.description || "information about Kumbh Mela";
+    // Add metadata about the detected intent and conversation state
+    const messagesWithMetadata = messages.map((msg, index) => {
+      if (index === messages.length - 1) {
+        // Add metadata to the last message (user query)
+        return {
+          ...msg,
+          metadata: {
+            intent: intent,
+            context: state.recentTopics.size > 0 ? Array.from(state.recentTopics).join(', ') : undefined,
+            turnCount: state.turnCount
+          }
+        };
+      }
+      return msg;
+    });
     
-    let response = realtimeUpdate || 
-      "I understand you're asking about " + intentDescription + ". " +
-      "To help you better, you can ask about:\n" +
-      "- Locations and directions\n" +
-      "- Event schedules and timings\n" +
-      "- Facilities and accommodations\n" +
-      "- Emergency services\n" +
-      "- Current crowd levels\n\n" +
-      "Could you please be more specific about what you'd like to know?";
+    // Use the Gemini API through our RAG backend
+    const response = await getGeminiResponse(messagesWithMetadata);
     
-    // Add follow-up suggestion
-    if (state.turnCount > 0) {
-      response += "\n\n" + followUp;
-    }
-    
-    // Update state with the answer
+    // Update conversation state with the response
     embeddingsManager.updateConversationState(SESSION_ID, {
       lastAnswer: response
     });
@@ -474,6 +495,12 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     return response;
   } catch (error: any) {
     console.error("Chat error:", error);
+    
+    // Provide a fallback response based on intent if available
+    if (error.message && error.message.includes("API key")) {
+      return "I apologize, but the Gemini API is not configured properly. Please contact the system administrator.";
+    }
+    
     return "I apologize, but I'm having trouble understanding. Could you please rephrase your question about the Kumbh Mela?";
   }
 }

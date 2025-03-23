@@ -1,47 +1,54 @@
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { ChatMessage } from "@shared/types";
+import type { ChatMessage, GeminiRequest, GeminiMessage } from "@shared/types";
+import { apiRequest } from './queryClient';
 
-// Initialize Gemini API with the key from environment variables
-// We use a function to get API key at runtime to handle late-loading of environment variables
-const getGenAI = () => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn("Gemini API key not found in environment variables");
-    throw new Error("Gemini API key is not configured");
-  }
-  return new GoogleGenerativeAI(apiKey);
-};
+const SESSION_ID = 'default-session';
 
+/**
+ * Get chat response using backend RAG service with Gemini
+ * This uses our server's Retrieval-Augmented Generation capabilities
+ * rather than directly accessing the Gemini API
+ */
 export async function getGeminiResponse(messages: ChatMessage[]): Promise<string> {
   try {
-    if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      throw new Error("Gemini API key is not configured");
-    }
-
-    // Initialize the model
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-    // Convert ChatMessage[] to format expected by Gemini
-    const geminiMessages = messages.map(msg => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }]
+    // Format messages for backend
+    const formattedMessages = messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+      timestamp: msg.timestamp || new Date().toISOString(),
+      metadata: msg.metadata || {}
     }));
 
-    // Start a chat session
-    const chat = model.startChat({
-      history: geminiMessages.slice(0, -1) // All but last message
+    // Create request payload for backend
+    const payload: GeminiRequest = {
+      messages: formattedMessages,
+      sessionId: SESSION_ID,
+      options: {
+        temperature: 0.2,         // Lower temperature for more factual responses
+        useRag: true,             // Enable Retrieval-Augmented Generation
+        useCache: true,           // Use caching for faster repeat responses
+        maxContextItems: 3,       // Number of knowledge base items to retrieve
+        includeSources: false     // Don't include source citations in response
+      }
+    };
+
+    // Call backend API
+    const response = await apiRequest<{content: string; sources?: string[]}>('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
 
-    // Send the last message to the chat
-    const lastMessage = messages[messages.length - 1];
-    const result = await chat.sendMessage(lastMessage.content);
-    const response = result.response;
-    
-    return response.text() || "I apologize, but I'm having trouble processing your request right now.";
+    if (!response || !response.content) {
+      throw new Error('Invalid response from chat API');
+    }
+
+    // Return the response content
+    return response.content;
   } catch (error: any) {
-    console.error("Gemini API error:", error);
-    return "I apologize, but I'm having trouble processing your request right now.";
+    console.error("Chat API error:", error);
+    return "I apologize, but I'm having trouble processing your request right now. Please try again later.";
   }
 }
