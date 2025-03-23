@@ -9,7 +9,14 @@ const SESSION_ID = 'default-session';
  * This uses our server's Retrieval-Augmented Generation capabilities
  * rather than directly accessing the Gemini API
  */
-export async function getGeminiResponse(messages: ChatMessage[]): Promise<string> {
+export async function getGeminiResponse(
+  messages: ChatMessage[],
+  options?: {
+    targetLanguage?: string;
+    sourceLanguage?: string;
+    imageData?: string;
+  }
+): Promise<string> {
   try {
     // Format messages for backend
     const formattedMessages = messages.map(msg => ({
@@ -32,15 +39,27 @@ export async function getGeminiResponse(messages: ChatMessage[]): Promise<string
       }
     };
 
-    // Call backend API
-    const response = await apiRequest<{answer: string; source?: string; queryId?: number}>('/api/nlp/query', {
+    // Call backend API with translation parameters if specified
+    const response = await apiRequest<{
+      answer: string; 
+      originalAnswer?: string;
+      source?: string; 
+      queryId?: number;
+      context?: {
+        originalLanguage?: string;
+        targetLanguage?: string;
+      };
+    }>('/api/nlp/query', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         query: messages[messages.length - 1].content,
-        sessionId: SESSION_ID
+        sessionId: SESSION_ID,
+        targetLanguage: options?.targetLanguage,
+        sourceLanguage: options?.sourceLanguage,
+        imageData: options?.imageData
       })
     });
 
@@ -107,5 +126,78 @@ export async function isGeminiAvailable(): Promise<boolean> {
   } catch (error) {
     console.error("Gemini availability check error:", error);
     return false;
+  }
+}
+
+/**
+ * Detect language of a text using Gemini
+ */
+export async function detectLanguage(text: string): Promise<{ 
+  detectedLanguage: string;
+  languageName: string;
+}> {
+  try {
+    const response = await apiRequest<{
+      detectedLanguage: string;
+      languageName: string;
+    }>('/api/translate/detect-language', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text })
+    });
+    
+    if (!response || !response.detectedLanguage) {
+      throw new Error("Failed to detect language");
+    }
+    
+    return {
+      detectedLanguage: response.detectedLanguage,
+      languageName: response.languageName
+    };
+  } catch (error) {
+    console.error("Error detecting language:", error);
+    // Default to English on error
+    return {
+      detectedLanguage: 'en',
+      languageName: 'English'
+    };
+  }
+}
+
+/**
+ * Translate text using Gemini
+ */
+export async function translateText(
+  text: string,
+  targetLanguage: string,
+  sourceLanguage?: string
+): Promise<string> {
+  try {
+    const response = await apiRequest<{
+      translatedText: string;
+      sourceLanguage: string;
+    }>('/api/translate/text', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text,
+        targetLanguage,
+        sourceLanguage
+      })
+    });
+    
+    if (!response?.translatedText) {
+      throw new Error("Failed to translate text");
+    }
+    
+    return response.translatedText;
+  } catch (error) {
+    console.error("Error translating text:", error);
+    // Return original text on error
+    return text;
   }
 }

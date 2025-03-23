@@ -9,6 +9,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { vectorSearchManager } from './vector-search';
 import { cacheManager, CacheType } from './cache-manager';
 import { ragGeminiService } from './rag-gemini';
+import { translationService, SUPPORTED_LANGUAGES } from './translation-service';
 import { log } from './vite';
 
 export async function registerRoutes(app: Express) {
@@ -317,7 +318,7 @@ export async function registerRoutes(app: Express) {
   // Enhanced NLP query route with RAG and caching
   app.post("/api/nlp/query", async (req, res) => {
     try {
-      const { query, sessionId, imageData } = req.body;
+      const { query, sessionId, imageData, targetLanguage } = req.body;
 
       if (!query || typeof query !== "string") {
         return res.status(400).json({ error: "Query is required" });
@@ -325,8 +326,30 @@ export async function registerRoutes(app: Express) {
 
       log("Processing query:", 'api');
 
+      // Initialize translation service if needed
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      if (targetLanguage && GEMINI_API_KEY && !translationService.isInitialized) {
+        translationService.initialize(GEMINI_API_KEY);
+      }
+
+      // Detect language and translate to English for processing if needed
+      let processedQuery = query;
+      let detectedLanguage = 'en';
+      
+      if (translationService.isInitialized) {
+        // Detect the language of the original query
+        detectedLanguage = await translationService.detectLanguage(query);
+        log(`Detected language: ${detectedLanguage}`, 'translation');
+        
+        // If not in English, translate to English for better processing
+        if (detectedLanguage !== 'en') {
+          processedQuery = await translationService.translateText(query, 'en', detectedLanguage);
+          log(`Translated query for processing: ${processedQuery}`, 'translation');
+        }
+      }
+
       // Check if we can use cache
-      const cacheKey = `query-${query}-${sessionId || ''}`;
+      const cacheKey = `query-${processedQuery}-${sessionId || ''}-${targetLanguage || 'en'}`;
       const cachedResponse = await cacheManager.get(CacheType.GEMINI_RESPONSES, cacheKey);
       
       if (cachedResponse) {
@@ -436,15 +459,34 @@ export async function registerRoutes(app: Express) {
         feedback: null
       });
 
+      // Translate the answer if needed
+      let finalAnswer = answer;
+      
+      // If a target language is provided and it's not English, translate the answer
+      if (targetLanguage && targetLanguage !== 'en' && translationService.isInitialized) {
+        try {
+          log(`Translating answer to ${targetLanguage}`, 'translation');
+          finalAnswer = await translationService.translateText(answer, targetLanguage, 'en');
+          log('Answer translated successfully', 'translation');
+        } catch (translationError) {
+          log(`Error translating answer: ${translationError}`, 'translation');
+          // Continue with original answer if translation fails
+          finalAnswer = answer;
+        }
+      }
+      
       const responseData = {
         queryId,
-        answer,
+        answer: finalAnswer,
+        originalAnswer: targetLanguage && targetLanguage !== 'en' ? answer : undefined,
         source,
         knowledgeBaseId,
         context: {
           sessionId,
           messageCount: sessionId ? (await storage.getChatHistory(sessionId)).length : 0,
-          intent: determineQueryIntent(query)
+          intent: determineQueryIntent(query),
+          originalLanguage: detectedLanguage,
+          targetLanguage: targetLanguage || 'en'
         }
       };
       
@@ -490,6 +532,115 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("API status check error:", error);
       res.json({ available: false });
+    }
+  });
+  
+  // Translation endpoints
+  
+  // Initialize translation service when first called
+  const initTranslationService = () => {
+    if (!translationService.isInitialized) {
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      if (!GEMINI_API_KEY) {
+        throw new Error("Gemini API key is required for translation");
+      }
+      translationService.initialize(GEMINI_API_KEY);
+    }
+  };
+  
+  // Language detection endpoint
+  app.post("/api/translate/detect-language", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ error: "Text is required" });
+      }
+      
+      initTranslationService();
+      
+      const detectedLanguage = await translationService.detectLanguage(text);
+      
+      res.json({
+        text,
+        detectedLanguage,
+        languageName: SUPPORTED_LANGUAGES[detectedLanguage as keyof typeof SUPPORTED_LANGUAGES] || "Unknown"
+      });
+    } catch (error: any) {
+      log(`Language detection error: ${error}`, 'translation');
+      res.status(500).json({
+        error: "Failed to detect language",
+        details: error.message || 'Unknown error'
+      });
+    }
+  });
+  
+  // Text translation endpoint
+  app.post("/api/translate/text", async (req, res) => {
+    try {
+      const { text, targetLanguage, sourceLanguage } = req.body;
+      
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ error: "Text is required" });
+      }
+      
+      if (!targetLanguage || typeof targetLanguage !== "string") {
+        return res.status(400).json({ error: "Target language is required" });
+      }
+      
+      initTranslationService();
+      
+      const translatedText = await translationService.translateText(
+        text,
+        targetLanguage,
+        sourceLanguage || null
+      );
+      
+      res.json({
+        originalText: text,
+        translatedText,
+        sourceLanguage: sourceLanguage || await translationService.detectLanguage(text),
+        targetLanguage
+      });
+    } catch (error: any) {
+      log(`Translation error: ${error}`, 'translation');
+      res.status(500).json({
+        error: "Failed to translate text",
+        details: error.message || 'Unknown error'
+      });
+    }
+  });
+  
+  // Chat message translation endpoint
+  app.post("/api/translate/message", async (req, res) => {
+    try {
+      const { message, targetLanguage } = req.body;
+      
+      if (!message || typeof message.content !== "string") {
+        return res.status(400).json({ error: "Message with content is required" });
+      }
+      
+      if (!targetLanguage || typeof targetLanguage !== "string") {
+        return res.status(400).json({ error: "Target language is required" });
+      }
+      
+      initTranslationService();
+      
+      const translatedMessage = await translationService.translateMessage(
+        message,
+        targetLanguage
+      );
+      
+      res.json({
+        originalMessage: message,
+        translatedMessage
+      });
+    } catch (error: any) {
+      log(`Message translation error: ${error}`, 'translation');
+      res.status(500).json({
+        error: "Failed to translate message",
+        details: error.message || 'Unknown error'
+      });
     }
   });
   
