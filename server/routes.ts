@@ -348,7 +348,11 @@ export async function registerRoutes(app: Express) {
         }
       }
 
-      // Check if we can use cache
+      // ===============================================
+      // STEP 1: Check if the answer exists in the database
+      // ===============================================
+      
+      // First check for exact match in the cache
       const cacheKey = `query-${processedQuery}-${sessionId || ''}-${targetLanguage || 'en'}`;
       const cachedResponse = await cacheManager.get(CacheType.GEMINI_RESPONSES, cacheKey);
       
@@ -356,16 +360,19 @@ export async function registerRoutes(app: Express) {
         log("Using cached response", 'api');
         return res.json({
           ...cachedResponse,
-          fromCache: true
+          fromCache: true,
+          source: 'cache'
         });
       }
-
-      // Try vector search in the knowledge base first
+      
+      // Initialize variables for response
       let answer: string;
       let source: string;
       let knowledgeBaseId: number | null = null;
+      let queryConfidence: number = 0;
+      let isLearned: boolean = false;
 
-      // Check if we have image data for multimodal queries
+      // Handle image data separately (special case)
       if (imageData && typeof imageData === 'string') {
         // Initialize Gemini RAG service if needed
         if (!ragGeminiService.isInitialized) {
@@ -376,22 +383,36 @@ export async function registerRoutes(app: Express) {
           ragGeminiService.initialize(GEMINI_API_KEY);
         }
         
-        // Process image-based query
+        // Process image-based query directly with Gemini
         const imageBase64 = imageData.replace(/^data:image\/\w+;base64,/, '');
         answer = await ragGeminiService.processImageInput(imageBase64, query);
         source = 'gemini_vision';
-      } else {
-        // First check if the vector search finds a match
-        const matchingKnowledge = await vectorSearchManager.search(query, 1, 0.85);
         
-        if (matchingKnowledge.length > 0) {
+        // We don't store image-based queries in the knowledge base
+        // as they're highly contextual to the specific image
+      } else {
+        // Step 1a: Check for a direct match in the knowledge base using vector search
+        log("Searching knowledge base for similar questions...", 'api');
+        const matchingKnowledge = await vectorSearchManager.search(processedQuery, 3, 0.80);
+        
+        if (matchingKnowledge.length > 0 && matchingKnowledge[0].confidence >= 80) {
+          // We found a good match in the knowledge base
           log("Found highly relevant match in knowledge base", 'api');
           answer = matchingKnowledge[0].content;
-          source = 'vector_knowledge_base';
+          source = 'knowledge_base';
           knowledgeBaseId = matchingKnowledge[0].id;
+          queryConfidence = matchingKnowledge[0].confidence;
+          
+          // Log if this was a learned answer
+          isLearned = matchingKnowledge[0].source?.includes('Gemini') || false;
+          if (isLearned) {
+            log("Using previously learned answer from Gemini", 'api');
+          }
         } else {
-          // No direct match, use RAG-enhanced Gemini
-          log("Using RAG-enhanced Gemini generation", 'api');
+          // ===============================================
+          // STEP 2: If no match, query Gemini API
+          // ===============================================
+          log("No good match found, using Gemini to generate response", 'api');
           
           // Initialize Gemini RAG service if needed
           if (!ragGeminiService.isInitialized) {
@@ -405,22 +426,30 @@ export async function registerRoutes(app: Express) {
           // Get chat history for context
           const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
           
-          // Generate RAG-enhanced response
-          answer = await ragGeminiService.generateRAGResponse(query, chatHistory, {
+          // Generate RAG-enhanced response from Gemini
+          answer = await ragGeminiService.generateRAGResponse(processedQuery, chatHistory, {
             temperature: 0.7,
             topK: 40,
             topP: 0.95
           });
           
-          source = 'rag_gemini';
+          source = 'gemini_new';
+          queryConfidence = 85; // Set confidence for new Gemini responses
           
-          // Store the new knowledge for future use
-          const newKnowledgeBase = await storage.storeKnowledgeBase({
-            topic: query,
+          // ===============================================
+          // STEP 3: Store the Gemini response for future queries
+          // ===============================================
+          log("Storing new knowledge from Gemini response", 'api');
+          
+          // Store the new response in the knowledge base
+          await storage.storeKnowledgeBase({
+            topic: processedQuery,
             content: answer,
-            source: 'Gemini RAG',
-            confidence: 90
+            source: 'Gemini RAG - Automatic Learning',
+            confidence: queryConfidence
           });
+          
+          isLearned = true;
         }
       }
 
@@ -481,6 +510,8 @@ export async function registerRoutes(app: Express) {
         originalAnswer: targetLanguage && targetLanguage !== 'en' ? answer : undefined,
         source,
         knowledgeBaseId,
+        isLearned,  // Adding information about whether this is a learned answer
+        confidence: queryConfidence, // Adding confidence score for the answer
         context: {
           sessionId,
           messageCount: sessionId ? (await storage.getChatHistory(sessionId)).length : 0,
