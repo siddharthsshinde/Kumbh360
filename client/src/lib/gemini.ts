@@ -16,7 +16,13 @@ export async function getGeminiResponse(
     sourceLanguage?: string;
     imageData?: string;
   }
-): Promise<string> {
+): Promise<{
+  answer: string;
+  source?: string;
+  isLearned?: boolean;
+  confidence?: number;
+  queryId?: number;
+}> {
   try {
     // Format messages for backend
     const formattedMessages = messages.map(msg => ({
@@ -45,6 +51,8 @@ export async function getGeminiResponse(
       originalAnswer?: string;
       source?: string; 
       queryId?: number;
+      isLearned?: boolean;    // Flag indicating if this answer was learned
+      confidence?: number;    // Confidence score of the answer
       context?: {
         originalLanguage?: string;
         targetLanguage?: string;
