@@ -34,6 +34,21 @@ export async function registerRoutes(app: Express) {
     try {
       const densityGrid = await storage.calculateDensityGrid();
       const crowdLevels = await storage.getAllCrowdLevels();
+      
+      // Add predictive analytics
+      const predictions = crowdLevels.map(level => ({
+        ...level,
+        predictedLevel: CrowdPredictor.predictCrowdLevel(
+          crowdLevels,
+          level.location,
+          new Date()
+        )
+      }));
+
+      // Check for alerts
+      crowdLevels.forEach(level => {
+        AlertManager.checkAndSendAlerts(level, wss.clients);
+      });
 
       // Group by nearest location for better visualization
       const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {

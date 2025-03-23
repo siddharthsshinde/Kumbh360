@@ -71,3 +71,35 @@ export interface GeminiRequest {
  * Gemini API message format - based on our ChatMessage type
  */
 export type GeminiMessage = ChatMessage;
+
+interface CrowdLevel {
+  id: number;
+  location: string;
+  level: number;
+  capacity: number;
+  currentCount: number;
+  status: string;
+  lastUpdated: string;
+  recommendations: string;
+  densityScore: number;
+  flowRate: number;
+  waitTime: number;
+  peakHours: {
+    start: string;
+    end: string;
+  }[];
+  historicalTrend: {
+    time: string;
+    count: number;
+  }[];
+  alertLevel: 'normal' | 'warning' | 'critical';
+  emergencyExits: {
+    location: string;
+    distance: number;
+  }[];
+  realTimeUpdates: {
+    timestamp: string;
+    message: string;
+    type: 'info' | 'alert' | 'emergency';
+  }[];
+}
