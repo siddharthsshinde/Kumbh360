@@ -210,7 +210,9 @@ class VectorSearchManager {
   public async getEmbedding(text: string): Promise<number[]> {
     try {
       if (this.genAI) {
-        const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" }, { apiVersion: "v1" });
+        // For v1 API, embedding models use a different name format
+        // Use the embedding-001 model which is designed specifically for text embeddings
+        const model = this.genAI.getGenerativeModel({ model: "embedding-001" }, { apiVersion: "v1" });
         // In v1 API, the embedContent method accepts text directly
         const embeddingResult = await model.embedContent(text);
         return embeddingResult.embedding.values;
