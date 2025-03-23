@@ -1,5 +1,10 @@
 // Enhanced embeddings using @xenova/transformers for better intent recognition
-import { pipeline, Pipeline } from '@xenova/transformers';
+import { pipeline } from '@xenova/transformers';
+
+// Define a custom interface for our embedding model that's compatible with what we need
+interface EmbeddingModel {
+  (text: string, options?: any): Promise<{ data: Float32Array | number[] }>;
+}
 
 // Conversation context state management
 export interface ConversationState {
@@ -15,7 +20,7 @@ export interface ConversationState {
 // Singleton class to manage embeddings and model loading
 export class EmbeddingsManager {
   private static instance: EmbeddingsManager;
-  private embeddingModel: Pipeline | null = null;
+  private embeddingModel: EmbeddingModel | null = null;
   private isLoading: boolean = false;
   private loadPromise: Promise<void> | null = null;
   private conversations: Map<string, ConversationState> = new Map();
@@ -34,7 +39,7 @@ export class EmbeddingsManager {
   /**
    * Get the embedding model, loading it if necessary
    */
-  public async getEmbeddingModel(): Promise<Pipeline> {
+  public async getEmbeddingModel(): Promise<EmbeddingModel> {
     if (this.embeddingModel) {
       return this.embeddingModel;
     }
@@ -58,11 +63,26 @@ export class EmbeddingsManager {
   private async loadModel(): Promise<void> {
     try {
       // Using a smaller model suitable for edge deployments
-      this.embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+      // Wrap the pipeline call in a timeout to prevent blocking the main thread
+      const model = await Promise.race([
+        pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'),
+        new Promise<any>((_, reject) => {
+          setTimeout(() => {
+            console.warn('Embedding model loading timed out, using server-side fallback');
+            reject(new Error('Model loading timeout'));
+          }, 10000); // 10 seconds timeout
+        })
+      ]);
+      
+      this.embeddingModel = model as EmbeddingModel;
       console.log('Embedding model loaded successfully');
     } catch (error) {
       console.error('Error loading embedding model:', error);
-      throw error;
+      // Instead of throwing, provide a fallback proxy pipeline
+      // This will return empty embeddings but allow the app to continue functioning
+      this.embeddingModel = (text: string) => {
+        return Promise.resolve({ data: new Array(384).fill(0) }); // Empty embeddings array
+      };
     } finally {
       this.isLoading = false;
     }
@@ -73,15 +93,87 @@ export class EmbeddingsManager {
    */
   public async getEmbeddings(text: string): Promise<number[]> {
     try {
+      // Try to use the local model first
       const model = await this.getEmbeddingModel();
       const result = await model(text, { pooling: 'mean', normalize: true });
-      // Convert to standard array
-      return Array.from(result.data);
+      
+      // Check if we got empty results (which indicates a fallback was used)
+      const embedArray = Array.from(result.data).map(val => Number(val));
+      const isEmptyEmbedding = embedArray.every(val => val === 0);
+      
+      // If we got a proper embedding, return it
+      if (!isEmptyEmbedding) {
+        return embedArray;
+      }
+      
+      // If we have zero embeddings, try to use the server API instead
+      console.log('Using server-side embeddings for:', text.substring(0, 30) + '...');
+      
+      try {
+        // Call the server API for embeddings
+        const response = await fetch('/api/nlp/embed', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.embedding && Array.isArray(data.embedding)) {
+            return data.embedding;
+          }
+        }
+      } catch (serverError) {
+        console.error('Error getting server-side embeddings:', serverError);
+      }
+      
+      // If all else fails, use a simple hash-based fallback
+      return this.generateSimpleEmbedding(text, 384); // Match dimension with the model
     } catch (error) {
       console.error('Error generating embeddings:', error);
-      // Fallback to empty array in case of error
-      return [];
+      
+      // Use a deterministic hash-based fallback
+      return this.generateSimpleEmbedding(text, 384);
     }
+  }
+  
+  /**
+   * Generate a simple embedding using a deterministic hash function
+   * This is a fallback when model loading or server API fails
+   */
+  private generateSimpleEmbedding(text: string, dimension: number): number[] {
+    // Create a deterministic but simple embedding based on the text
+    const embedding = new Array(dimension).fill(0);
+    
+    // Hash function for strings
+    const hash = (str: string): number => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0; // Convert to 32bit integer
+      }
+      return hash;
+    };
+    
+    // Process the text to generate embedding
+    const words = text.toLowerCase().split(/\W+/).filter(w => w.length > 0);
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const h = Math.abs(hash(word)) % dimension;
+      embedding[h] += 1;
+    }
+    
+    // Normalize the vector
+    const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    if (norm > 0) {
+      for (let i = 0; i < dimension; i++) {
+        embedding[i] = embedding[i] / norm;
+      }
+    }
+    
+    return embedding;
   }
 
   /**

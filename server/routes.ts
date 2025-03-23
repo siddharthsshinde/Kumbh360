@@ -523,6 +523,28 @@ export async function registerRoutes(app: Express) {
     }
   });
   
+  // Server-side embeddings endpoint for fallback when client-side fails
+  app.post("/api/nlp/embed", async (req, res) => {
+    try {
+      const { text } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+      }
+      
+      // Get embeddings from the vector search manager
+      const embedding = await vectorSearchManager.getEmbedding(text);
+      
+      return res.json({ embedding });
+    } catch (error) {
+      console.error("Error generating embeddings:", error);
+      return res.status(500).json({ 
+        error: "Failed to generate embeddings",
+        details: error.message 
+      });
+    }
+  });
+  
   // Status endpoint to check if Gemini API is available
   app.get("/api/nlp/status", async (_req, res) => {
     try {
