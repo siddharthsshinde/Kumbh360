@@ -187,6 +187,39 @@ export async function registerRoutes(app: Express) {
     res.json(restrooms);
   });
   
+  // Smart recommendations endpoint
+  app.post("/api/recommendations", async (req, res) => {
+    try {
+      const { sessionId, location, intent, chatHistory } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: "Session ID is required" });
+      }
+      
+      // Get personalized recommendations based on user context and other factors
+      const recommendations = await recommendationEngine.generateRecommendations(
+        sessionId,
+        chatHistory || [],
+        location,
+        intent
+      );
+      
+      // Format recommendations for easy consumption
+      const formattedRecommendations = {
+        recommendations,
+        formattedText: recommendationEngine.formatRecommendationsForChat(recommendations)
+      };
+      
+      res.json(formattedRecommendations);
+    } catch (error: any) {
+      console.error("Error generating recommendations:", error);
+      res.status(500).json({ 
+        error: "Failed to generate recommendations", 
+        details: error.message || "Unknown error" 
+      });
+    }
+  });
+  
   // User emergency contacts routes
   app.get("/api/user-emergency-contacts/:userId", async (req, res) => {
     try {
@@ -496,6 +529,41 @@ export async function registerRoutes(app: Express) {
 
         await storage.saveChatMessage(sessionId, userMessage);
         await storage.saveChatMessage(sessionId, assistantMessage);
+      }
+
+      // Generate smart recommendations based on the query and intent
+      let smartRecommendations = '';
+      
+      try {
+        // Check if we have enough context to generate recommendations
+        if (sessionId) {
+          // Determine intent from the query
+          const intent = determineQueryIntent(query);
+          
+          // Get chat history for context
+          const chatHistory = await storage.getChatHistory(sessionId);
+          
+          // Generate personalized recommendations
+          const recommendations = await recommendationEngine.generateRecommendations(
+            sessionId,
+            chatHistory,
+            undefined, // location not known from chatbot
+            intent
+          );
+          
+          // Format recommendations as text
+          if (recommendations.length > 0) {
+            smartRecommendations = recommendationEngine.formatRecommendationsForChat(recommendations);
+          }
+        }
+      } catch (recError) {
+        log(`Error generating recommendations: ${recError}`, 'api');
+        // Continue without recommendations if there's an error
+      }
+      
+      // Append recommendations to the answer if available
+      if (smartRecommendations) {
+        answer = `${answer}\n\n${smartRecommendations}`;
       }
 
       // Store the query and response

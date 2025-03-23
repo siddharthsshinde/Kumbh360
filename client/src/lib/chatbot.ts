@@ -642,6 +642,14 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
       lastQuestion: userMessage
     });
     
+    // Check if we need smart recommendations based on the intent and conversation state
+    let needsSmartRecommendations = 
+      intent === 'transportation' || 
+      intent === 'safety' || 
+      intent === 'location' || 
+      intent === 'accommodation' ||
+      state.turnCount > 2; // Provide recommendations after a few turns of conversation
+    
     // Special handling for transportation questions
     if (intent === 'transportation') {
       console.log("Detected transportation intent, looking for direct matches in FAQ data");
@@ -774,12 +782,15 @@ export async function getChatResponse(messages: ChatMessage[]): Promise<string> 
     // Use the Gemini API through our RAG backend
     const response = await getGeminiResponse(messagesWithMetadata);
     
+    // Get the answer string from the response
+    const answerText = typeof response === 'string' ? response : response.answer;
+    
     // Update conversation state with the response
     embeddingsManager.updateConversationState(SESSION_ID, {
-      lastAnswer: response
+      lastAnswer: answerText
     });
     
-    return response;
+    return answerText;
   } catch (error: any) {
     console.error("Chat error:", error);
     

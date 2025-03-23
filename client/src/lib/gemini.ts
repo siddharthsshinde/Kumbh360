@@ -22,7 +22,7 @@ export async function getGeminiResponse(
   isLearned?: boolean;
   confidence?: number;
   queryId?: number;
-}> {
+} | string> {
   try {
     // Format messages for backend
     const formattedMessages = messages.map(msg => ({
@@ -45,6 +45,11 @@ export async function getGeminiResponse(
       }
     };
 
+    // Extract intent and location from message metadata if available
+    const lastMessage = messages[messages.length - 1];
+    const intent = lastMessage.metadata?.intent || 'general';
+    const location = lastMessage.metadata?.location;
+    
     // Call backend API with translation parameters if specified
     const response = await apiRequest<{
       answer: string; 
@@ -63,19 +68,55 @@ export async function getGeminiResponse(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        query: messages[messages.length - 1].content,
+        query: lastMessage.content,
         sessionId: SESSION_ID,
         targetLanguage: options?.targetLanguage,
         sourceLanguage: options?.sourceLanguage,
-        imageData: options?.imageData
+        imageData: options?.imageData,
+        intent: intent,
+        location: location
       })
     });
 
     if (!response || !response.answer) {
       throw new Error('Invalid response from NLP query API');
     }
+    
+    // Check if smart recommendations are already included in the response
+    if (!response.answer.includes("Smart Recommendations")) {
+      try {
+        // Get personalized recommendations based on user context and other factors
+        const recommendationsResponse = await apiRequest<{ 
+          formattedText: string 
+        }>(
+          '/api/recommendations',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              sessionId: SESSION_ID,
+              intent: intent,
+              location: location,
+              chatHistory: messages
+            }),
+          }
+        );
+        
+        // Only append recommendations if they're available and not empty
+        if (recommendationsResponse.formattedText && 
+            recommendationsResponse.formattedText.trim().length > 0) {
+          // Add recommendations to the answer
+          response.answer = `${response.answer}\n\n${recommendationsResponse.formattedText}`;
+        }
+      } catch (recError) {
+        console.error('Error getting recommendations:', recError);
+        // Continue with just the answer if recommendations fail
+      }
+    }
 
-    // Return the response content
+    // Return the enhanced response content
     return response.answer;
   } catch (error: any) {
     console.error("Chat API error:", error);
