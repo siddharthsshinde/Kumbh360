@@ -103,3 +103,30 @@
   border-bottom: 1px solid #e5e7eb;
   clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 }
+
+/* Feedback button styles */
+.feedback-btn {
+  @apply transition-colors duration-200 flex items-center justify-center rounded-full p-1;
+  width: 20px;
+  height: 20px;
+}
+
+.feedback-positive {
+  @apply text-gray-400 hover:text-green-500 hover:bg-green-50;
+}
+
+.feedback-negative {
+  @apply text-gray-400 hover:text-red-500 hover:bg-red-50;
+}
+
+.feedback-positive.active {
+  @apply text-green-500 bg-green-50;
+}
+
+.feedback-negative.active {
+  @apply text-red-500 bg-red-50;
+}
+
+.feedback-separator {
+  @apply bg-gray-200 w-px h-3 mx-1;
+}

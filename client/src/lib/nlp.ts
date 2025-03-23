@@ -479,7 +479,7 @@ export class TFIDF {
   /**
    * Generate follow-up questions based on query and results
    */
-  public generateFollowUpQuestions(query: string, topResults: {text: string}[]): string[] {
+  public generateFollowUpQuestions(query: string, topResults: {text: string, score?: number}[]): string[] {
     // Extract entities from query and results
     const queryEntities = extractEntities(query);
     const resultsEntities = topResults.map(r => extractEntities(r.text));

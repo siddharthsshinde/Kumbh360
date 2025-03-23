@@ -227,6 +227,84 @@ export function ChatInterface() {
     }
   };
 
+  // Handle user feedback (👍 or 👎)
+  const handleFeedback = async (messageIndex: number, feedback: number) => {
+    try {
+      // If already gave this feedback, do nothing
+      const existingFeedback = feedbacks.find(f => f.messageIndex === messageIndex);
+      if (existingFeedback && existingFeedback.feedback === feedback) {
+        return;
+      }
+      
+      setIsSendingFeedback(true);
+      
+      // Find the user message and assistant response pair
+      if (messageIndex <= 0 || messageIndex >= messages.length) {
+        throw new Error("Invalid message index");
+      }
+      
+      // Get the question and answer
+      const question = messages[messageIndex - 1].content;  // User's question
+      const answer = messages[messageIndex].content;      // Assistant's answer
+      
+      // Store feedback locally
+      const newFeedback: ResponseFeedback = {
+        messageIndex,
+        feedback
+      };
+      
+      // Replace existing feedback for this message or add new one
+      setFeedbacks(prev => {
+        const filtered = prev.filter(f => f.messageIndex !== messageIndex);
+        return [...filtered, newFeedback];
+      });
+      
+      // Send feedback to server
+      const response = await apiRequest('/api/feedback', {
+        method: 'POST',
+        body: JSON.stringify({
+          query: question,
+          response: answer,
+          feedback: feedback,  // 1 for 👍, -1 for 👎
+          sources: ["NLP Engine", "Semantic Search"]
+        })
+      });
+      
+      // If the feedback was negative, we might want to flag it for review
+      if (feedback < 0) {
+        toast({
+          title: "Feedback received",
+          description: "Thank you for your feedback. This response has been flagged for improvement.",
+          duration: 3000
+        });
+      } else {
+        toast({
+          title: "Feedback received",
+          description: "Thank you for your feedback. This helps improve our responses.",
+          duration: 3000
+        });
+      }
+      
+      // Store query ID if returned by server for future reference
+      if (response && response.queryId) {
+        setFeedbacks(prev => {
+          return prev.map(f => 
+            f.messageIndex === messageIndex ? {...f, queryId: response.queryId} : f
+          );
+        });
+      }
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send feedback. Please try again."
+      });
+    } finally {
+      setIsSendingFeedback(false);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (suggestions.length > 0) {
       if (e.key === "ArrowDown") {
@@ -306,20 +384,53 @@ export function ChatInterface() {
               >
                 {msg.content}
                 {msg.role === "assistant" && i > 0 && (
-                  <div className="mt-2 text-xs text-gray-500 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <path d="M12 16v-4"></path>
-                      <path d="M12 8h.01"></path>
-                    </svg>
-                    {searchResults.length > 0 && searchResults[0].score > 0.25 ? (
-                      <span>
-                        NLP match found (confidence: {Math.round(searchResults[0].score * 100)}%)
-                        {searchResults.length > 1 && <span className="ml-1 text-amber-600">· {searchResults.length} matches</span>}
-                      </span>
-                    ) : (
-                      <span>AI-generated response using semantic search</span>
-                    )}
+                  <div className="mt-2 text-xs text-gray-500">
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                      </svg>
+                      {searchResults.length > 0 && searchResults[0].score > 0.25 ? (
+                        <span>
+                          NLP match found (confidence: {Math.round(searchResults[0].score * 100)}%)
+                          {searchResults.length > 1 && <span className="ml-1 text-amber-600">· {searchResults.length} matches</span>}
+                        </span>
+                      ) : (
+                        <span>AI-generated response using semantic search</span>
+                      )}
+                    </div>
+                    
+                    {/* Feedback buttons */}
+                    <div className="flex items-center mt-1 justify-between">
+                      <span className="text-gray-400">Was this response helpful?</span>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleFeedback(i, 1)}
+                          className={`p-1 rounded-full hover:bg-green-50 ${
+                            feedbacks.find(f => f.messageIndex === i && f.feedback === 1) 
+                              ? 'text-green-500 bg-green-50' 
+                              : 'text-gray-400'
+                          }`}
+                          disabled={isSendingFeedback}
+                          title="This was helpful"
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </button>
+                        <button 
+                          onClick={() => handleFeedback(i, -1)}
+                          className={`p-1 rounded-full hover:bg-red-50 ${
+                            feedbacks.find(f => f.messageIndex === i && f.feedback === -1) 
+                              ? 'text-red-500 bg-red-50' 
+                              : 'text-gray-400'
+                          }`}
+                          disabled={isSendingFeedback}
+                          title="This was not helpful"
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

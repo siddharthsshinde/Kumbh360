@@ -480,6 +480,48 @@ export async function registerRoutes(app: Express) {
       res.status(500).json({ error: "Failed to submit feedback" });
     }
   });
+  
+  // New endpoint for simplified thumbs up/down feedback
+  app.post("/api/feedback", async (req, res) => {
+    try {
+      const { query, response, feedback, sources = [] } = req.body;
+      
+      if (!query || !response || feedback === undefined) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Validate the feedback value (1 for thumbs up, -1 for thumbs down)
+      if (feedback !== 1 && feedback !== -1) {
+        return res.status(400).json({ error: 'Feedback must be 1 (thumbs up) or -1 (thumbs down)' });
+      }
+      
+      // Store the user query and feedback in the database
+      const queryId = await storage.storeUserQuery({
+        query,
+        response,
+        sources,
+        feedback,
+        confidence: 0.5, // Default confidence value
+        learnedFromGemini: false
+      });
+      
+      // If feedback is negative, flag it for review
+      if (feedback < 0) {
+        // This query could be used by admins to improve the knowledge base
+        console.log(`Negative feedback received for query: "${query}"`);
+        console.log(`Response that received negative feedback: "${response}"`);
+      }
+      
+      res.status(200).json({ 
+        success: true, 
+        message: 'Feedback stored successfully',
+        queryId
+      });
+    } catch (error) {
+      console.error('Error handling feedback:', error);
+      res.status(500).json({ error: 'Failed to store feedback' });
+    }
+  });
 
   // Helper function to determine query intent
   function determineQueryIntent(query: string): string {
