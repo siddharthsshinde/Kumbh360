@@ -1,0 +1,129 @@
+/*
+====================================================================================
+📌 Kumbh Mela Chatbot - Smart Recommendations Engine (Self-Learning) 🚀
+====================================================================================
+This instruction file provides a step-by-step guide and necessary code to implement:
+✅ Smart question-answering using a hybrid approach (Database + Gemini API)
+✅ NLP-powered recommendation engine for similar questions
+✅ Personalized learning from user chat history
+✅ Reinforcement learning (Updating knowledge base with new data)
+====================================================================================
+*/
+
+/*
+📌 Step 1: Setup Database Schema (PostgreSQL + Drizzle ORM)
+------------------------------------------------------------
+*/
+export const knowledgeBase = pgTable("knowledge_base", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull().unique(),
+  answer: text("answer").notNull(),
+  source: text("source").default("manual"),
+});
+
+export const userChatHistory = pgTable("user_chat_history", {
+  id: serial("id").primaryKey(),
+  userId: text("userId").notNull(),
+  question: text("question").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+/*
+📌 Step 2: Implement Knowledge Base Retrieval & Learning Logic
+------------------------------------------------------------
+*/
+import { db } from "./db";
+import { fetchFromGemini } from "./gemini-api";
+import { findSimilarQuestions } from "./recommendations";
+
+export const getAnswerWithRecommendations = async (userId: string, userQuery: string) => {
+  // Step 1: Check in the knowledge base
+  const existingAnswer = await db.query("SELECT answer FROM knowledge_base WHERE question = $1", [userQuery]);
+
+  if (existingAnswer.rowCount > 0) {
+    const recommendations = await findSimilarQuestions(userQuery);
+    return { answer: existingAnswer.rows[0].answer, recommendations };
+  }
+
+  // Step 2: Fetch from Gemini API if not found
+  const geminiAnswer = await fetchFromGemini(userQuery);
+
+  if (geminiAnswer) {
+    await db.insert("knowledge_base").values({
+      question: userQuery,
+      answer: geminiAnswer,
+      source: "Gemini",
+    });
+    const recommendations = await findSimilarQuestions(userQuery);
+    return { answer: geminiAnswer, recommendations };
+  }
+
+  return { answer: "I'm still learning! Can you ask differently?", recommendations: [] };
+};
+
+/*
+📌 Step 3: Implement NLP-based Smart Recommendations Engine
+------------------------------------------------------------
+*/
+import natural from "natural";
+const tokenizer = new natural.WordTokenizer();
+
+export const findSimilarQuestions = async (userQuery: string) => {
+  const questions = await db.query("SELECT question FROM knowledge_base");
+  let bestMatches = [];
+  let userTokens = tokenizer.tokenize(userQuery.toLowerCase());
+
+  for (let row of questions.rows) {
+    let questionTokens = tokenizer.tokenize(row.question.toLowerCase());
+    let similarity = natural.JaccardIndex(userTokens, questionTokens);
+    if (similarity > 0.3) bestMatches.push({ question: row.question, score: similarity });
+  }
+  bestMatches.sort((a, b) => b.score - a.score);
+  return bestMatches.slice(0, 3).map((match) => match.question);
+};
+
+/*
+📌 Step 4: Store and Utilize User Chat History for Personalized Learning
+------------------------------------------------------------
+*/
+export const saveUserQuery = async (userId: string, userQuery: string) => {
+  await db.insert("user_chat_history").values({ userId, question: userQuery });
+};
+
+export const getUserRecommendations = async (userId: string) => {
+  const userHistory = await db.query(
+    "SELECT question FROM user_chat_history WHERE userId = $1 ORDER BY timestamp DESC LIMIT 5",
+    [userId]
+  );
+  let recommendations = [];
+  for (let row of userHistory.rows) {
+    let relatedQuestions = await findSimilarQuestions(row.question);
+    recommendations.push(...relatedQuestions);
+  }
+  return [...new Set(recommendations)].slice(0, 5);
+};
+
+/*
+📌 Step 5: Modify Response Handling to Integrate Recommendations
+------------------------------------------------------------
+*/
+export const getSmartChatbotResponse = async (userId: string, userQuery: string) => {
+  await saveUserQuery(userId, userQuery);
+  const { answer, recommendations } = await getAnswerWithRecommendations(userId, userQuery);
+  const personalizedSuggestions = await getUserRecommendations(userId);
+  return {
+    answer,
+    recommendations: [...new Set([...recommendations, ...personalizedSuggestions])],
+  };
+};
+
+/*
+====================================================================================
+🎯 Final Features of the Smart Chatbot 🚀
+====================================================================================
+✅ Fetches direct answers from the database if available
+✅ Uses Gemini API for unknown questions & learns them automatically
+✅ Suggests similar questions using NLP & TF-IDF-based similarity
+✅ Learns from user chat history to offer personalized recommendations
+====================================================================================
+*/

@@ -13,6 +13,7 @@ import { translationService, SUPPORTED_LANGUAGES } from './translation-service';
 import { log } from './vite';
 import { CrowdPredictor } from './crowd-predictor';
 import { AlertManager } from './alert-manager';
+import { recommendationEngine, RecommendationType } from './recommendation-engine';
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
