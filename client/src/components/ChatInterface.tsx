@@ -56,17 +56,7 @@ interface ResponseFeedback {
   feedback: number | null; // 1 for 👍, -1 for 👎, null for no feedback
 }
 
-// Define supported languages
-const SUPPORTED_LANGUAGES = {
-  en: "English",
-  hi: "Hindi",
-  mr: "Marathi", 
-  gu: "Gujarati",
-  bn: "Bengali",
-  pa: "Punjabi",
-  te: "Telugu",
-  ta: "Tamil"
-};
+// Supported languages are now defined in the LanguageSelector component
 
 export function ChatInterface() {
   const { t, i18n } = useTranslation();
@@ -84,10 +74,12 @@ export function ChatInterface() {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   
   // Translation-related states
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
   const [detectedLanguage, setDetectedLanguage] = useState<string | null>(null);
   const [isLanguageDetectionEnabled, setIsLanguageDetectionEnabled] = useState<boolean>(true);
   const [isTranslating, setIsTranslating] = useState<boolean>(false);
+  
+  // Use i18n's current language instead of a local state
+  const selectedLanguage = i18n.language;
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -98,6 +90,20 @@ export function ChatInterface() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  
+  // Listen for language changes from the global language selector
+  useEffect(() => {
+    const handleLanguageChange = (event: Event) => {
+      // The language is already updated in i18n by the language selector
+      // Just trigger a re-render by accessing i18n.language which updates selectedLanguage
+      console.log(`Language changed to: ${i18n.language}`);
+    };
+    
+    window.addEventListener('language-changed', handleLanguageChange);
+    return () => {
+      window.removeEventListener('language-changed', handleLanguageChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Enhanced suggestion generation using NLP techniques
@@ -573,27 +579,7 @@ export function ChatInterface() {
             <span className="bg-white/10 px-2 py-0.5 rounded-full">Contextual Suggestions</span>
           </div>
           
-          {/* Language selector */}
-          <div className="mt-3 flex items-center justify-end">
-            <div className="flex items-center gap-2 bg-white/10 p-1 rounded-md">
-              <Globe className="h-4 w-4 text-white/80" />
-              <Select
-                value={selectedLanguage}
-                onValueChange={(value) => setSelectedLanguage(value)}
-              >
-                <SelectTrigger className="w-32 h-7 text-xs bg-transparent border-none text-white focus:ring-0 focus:ring-offset-0">
-                  <SelectValue placeholder="Select Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(SUPPORTED_LANGUAGES).map(([code, name]) => (
-                    <SelectItem key={code} value={code}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          {/* Language selection moved to the global header */}
         </div>
         
         <ScrollArea className="flex-1 p-4" style={{ height: 'calc(100vh - 200px)' }}>
