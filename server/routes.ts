@@ -11,6 +11,8 @@ import { cacheManager, CacheType } from './cache-manager';
 import { ragGeminiService } from './rag-gemini';
 import { translationService, SUPPORTED_LANGUAGES } from './translation-service';
 import { log } from './vite';
+import { CrowdPredictor } from './crowd-predictor';
+import { AlertManager } from './alert-manager';
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
