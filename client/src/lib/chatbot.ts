@@ -1,6 +1,6 @@
 import type { ChatMessage, KumbhFAQItem, ChatResponse } from "@shared/types";
 // Import the JSON data with type assertion
-import kumbhDataRaw from "../../../attached_assets/kumbh_mela main .json";
+import kumbhDataRaw from "../../../attached_assets/kumbh_mela_main.json";
 
 // Define type for the imported JSON data
 interface KumbhData {
