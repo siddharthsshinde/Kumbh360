@@ -42,7 +42,8 @@ class RAGGeminiService {
     if (this.isInitialized) return;
 
     try {
-      this.genAI = new GoogleGenerativeAI(apiKey);
+      // Initialize with API version explicitly set to v1
+      this.genAI = new GoogleGenerativeAI(apiKey, { apiVersion: "v1" });
       this.isInitialized = true;
       log('Gemini RAG Service initialized successfully', 'rag-gemini');
     } catch (error) {

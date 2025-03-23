@@ -59,7 +59,7 @@ class VectorSearchManager {
         
         // Initialize Gemini API if key is provided
         if (apiKey) {
-          this.genAI = new GoogleGenerativeAI(apiKey);
+          this.genAI = new GoogleGenerativeAI(apiKey, { apiVersion: "v1" });
           log('Gemini API initialized', 'vector-search');
         } else {
           log('Gemini API key not provided, using alternative embedding method', 'vector-search');
