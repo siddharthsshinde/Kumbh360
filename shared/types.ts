@@ -1,6 +1,15 @@
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  timestamp?: string;
+  metadata?: {
+    location?: string;
+    context?: string;
+    intent?: string;
+    hasImage?: boolean;
+    source?: string;
+    [key: string]: any; // Allow additional metadata properties
+  };
 }
 
 export interface WeatherData {

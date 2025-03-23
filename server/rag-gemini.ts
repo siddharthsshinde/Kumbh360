@@ -22,7 +22,7 @@ const MIN_SIMILARITY_THRESHOLD = 0.65;
 class RAGGeminiService {
   private static instance: RAGGeminiService;
   private genAI: GoogleGenerativeAI | null = null;
-  private isInitialized: boolean = false;
+  isInitialized: boolean = false; // Changed from private to public for access in routes.ts
 
   private constructor() {
     // Private constructor for singleton

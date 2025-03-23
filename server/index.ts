@@ -2,6 +2,10 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import dotenv from "dotenv";
+import { storage } from "./storage";
+import { vectorSearchManager } from "./vector-search";
+import { cacheManager, CacheType } from "./cache-manager";
+import { ragGeminiService } from "./rag-gemini";
 
 // Load environment variables
 dotenv.config();
@@ -41,6 +45,34 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize the cache manager
+  cacheManager.initialize({ 
+    enabled: true,
+    url: process.env.REDIS_URL, 
+    ttl: {
+      [CacheType.QUERY_RESULTS]: 3600, // 1 hour
+      [CacheType.GEMINI_RESPONSES]: 7200, // 2 hours
+      [CacheType.EMBEDDINGS]: 86400, // 24 hours
+    }
+  });
+  
+  // Initialize vector search with knowledge base data
+  const knowledgeBase = await storage.getKnowledgeBase();
+  await vectorSearchManager.initialize(knowledgeBase, process.env.GEMINI_API_KEY);
+  
+  // Initialize RAG Gemini service if API key is available
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      ragGeminiService.initialize(process.env.GEMINI_API_KEY);
+      log('RAG Gemini service initialized successfully', 'server');
+    } catch (error) {
+      log(`Failed to initialize RAG Gemini service: ${error}`, 'server');
+    }
+  } else {
+    log('No Gemini API key found, RAG service will be initialized on first use', 'server');
+  }
+  
+  // Register all routes
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

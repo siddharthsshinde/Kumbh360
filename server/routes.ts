@@ -314,77 +314,90 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // Enhanced NLP query route with better error handling
+  // Enhanced NLP query route with RAG and caching
   app.post("/api/nlp/query", async (req, res) => {
     try {
-      const { query, sessionId } = req.body;
+      const { query, sessionId, imageData } = req.body;
 
       if (!query || typeof query !== "string") {
         return res.status(400).json({ error: "Query is required" });
       }
 
-      console.log("Processing query:", query);
+      log("Processing query:", 'api');
 
-      // First check if we have a similar query in our knowledge base
-      const existingKnowledge = await storage.searchKnowledgeBase(query);
+      // Check if we can use cache
+      const cacheKey = `query-${query}-${sessionId || ''}`;
+      const cachedResponse = await cacheManager.get(CacheType.GEMINI_RESPONSES, cacheKey);
+      
+      if (cachedResponse) {
+        log("Using cached response", 'api');
+        return res.json({
+          ...cachedResponse,
+          fromCache: true
+        });
+      }
+
+      // Try vector search in the knowledge base first
       let answer: string;
-      let isFromKnowledgeBase = false;
+      let source: string;
+      let knowledgeBaseId: number | null = null;
 
-      if (existingKnowledge) {
-        console.log("Found in knowledge base:", existingKnowledge);
-        answer = existingKnowledge.content;
-        isFromKnowledgeBase = true;
+      // Check if we have image data for multimodal queries
+      if (imageData && typeof imageData === 'string') {
+        // Initialize Gemini RAG service if needed
+        if (!ragGeminiService.isInitialized) {
+          const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+          if (!GEMINI_API_KEY) {
+            return res.status(500).json({ error: "Gemini API key is required for image processing" });
+          }
+          ragGeminiService.initialize(GEMINI_API_KEY);
+        }
+        
+        // Process image-based query
+        const imageBase64 = imageData.replace(/^data:image\/\w+;base64,/, '');
+        answer = await ragGeminiService.processImageInput(imageBase64, query);
+        source = 'gemini_vision';
       } else {
-        console.log("Querying Gemini API");
-        // If not found in knowledge base, use Gemini API
-        const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBon0OTRkC6324gW3BYpc1ziCCPbjuv0fQ";
-        const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-        try {
+        // First check if the vector search finds a match
+        const matchingKnowledge = await vectorSearchManager.search(query, 1, 0.85);
+        
+        if (matchingKnowledge.length > 0) {
+          log("Found highly relevant match in knowledge base", 'api');
+          answer = matchingKnowledge[0].content;
+          source = 'vector_knowledge_base';
+          knowledgeBaseId = matchingKnowledge[0].id;
+        } else {
+          // No direct match, use RAG-enhanced Gemini
+          log("Using RAG-enhanced Gemini generation", 'api');
+          
+          // Initialize Gemini RAG service if needed
+          if (!ragGeminiService.isInitialized) {
+            const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+            if (!GEMINI_API_KEY) {
+              return res.status(500).json({ error: "Gemini API key is required for RAG" });
+            }
+            ragGeminiService.initialize(GEMINI_API_KEY);
+          }
+          
           // Get chat history for context
           const chatHistory = sessionId ? await storage.getChatHistory(sessionId) : [];
-          const recentMessages = chatHistory.slice(-5);
-
-          console.log("Creating Gemini prompt with context");
-          const formattedPrompt = {
-            contents: [{
-              parts: [{
-                text: `You are a helpful assistant for the Nashik Kumbh Mela 2025. Your role is to assist visitors with information about locations, crowd management, facilities, and religious aspects of the event.
-Previous conversation context:
-${recentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
-Current question: ${query}
-
-Provide specific, accurate information while being respectful of religious and cultural aspects. Include:
-1. Relevant details about locations, timings, or facilities
-2. Safety recommendations if applicable
-3. Real-time crowd management advice when needed
-4. Emergency contact information for relevant queries`
-              }]
-            }]
-          };
-
-          console.log("Sending request to Gemini API");
-          const result = await model.generateContent(formattedPrompt.contents[0].parts[0].text);
-          console.log("Received raw response from Gemini:", result);
-
-          const response = await result.response;
-          console.log("Processed response object:", response);
-
-          answer = response.text();
-          console.log("Final text response:", answer);
-
+          
+          // Generate RAG-enhanced response
+          answer = await ragGeminiService.generateRAGResponse(query, chatHistory, {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95
+          });
+          
+          source = 'rag_gemini';
+          
           // Store the new knowledge for future use
-          await storage.storeKnowledgeBase({
+          const newKnowledgeBase = await storage.storeKnowledgeBase({
             topic: query,
             content: answer,
-            source: 'Gemini API',
-            confidence: 85
+            source: 'Gemini RAG',
+            confidence: 90
           });
-        } catch (geminiError: any) {
-          console.error("Gemini API error:", geminiError);
-          console.error("Error stack trace:", geminiError.stack);
-          throw new Error(`Gemini API error: ${geminiError.message || 'Unknown error'}`);
         }
       }
 
@@ -395,7 +408,8 @@ Provide specific, accurate information while being respectful of religious and c
           content: query,
           timestamp: new Date().toISOString(),
           metadata: {
-            intent: determineQueryIntent(query)
+            intent: determineQueryIntent(query),
+            hasImage: !!imageData
           }
         };
 
@@ -405,7 +419,8 @@ Provide specific, accurate information while being respectful of religious and c
           timestamp: new Date().toISOString(),
           metadata: {
             context: 'kumbh_mela_info',
-            intent: 'response'
+            intent: 'response',
+            source
           }
         };
 
@@ -417,23 +432,30 @@ Provide specific, accurate information while being respectful of religious and c
       const queryId = await storage.storeUserQuery({
         query,
         response: answer,
-        sources: [isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api'],
+        sources: [source],
         feedback: null
       });
 
-      res.json({
+      const responseData = {
         queryId,
         answer,
-        source: isFromKnowledgeBase ? 'knowledge_base' : 'gemini_api',
+        source,
+        knowledgeBaseId,
         context: {
           sessionId,
-          messageCount: sessionId ? (await storage.getChatHistory(sessionId)).length : 0
+          messageCount: sessionId ? (await storage.getChatHistory(sessionId)).length : 0,
+          intent: determineQueryIntent(query)
         }
-      });
+      };
+      
+      // Cache the response
+      await cacheManager.set(CacheType.GEMINI_RESPONSES, cacheKey, responseData);
+
+      res.json(responseData);
 
     } catch (error: any) {
-      console.error("NLP Query error:", error);
-      console.error("Error stack trace:", error.stack);
+      log(`NLP Query error: ${error}`, 'api');
+      log(`Error stack trace: ${error.stack}`, 'api');
       res.status(500).json({
         error: "Failed to process NLP query",
         details: error.message || 'Unknown error'
