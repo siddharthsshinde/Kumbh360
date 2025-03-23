@@ -130,11 +130,14 @@ const questionVariations: Record<string, string[]> = {
 
 // Create a quick lookup map for variations
 let variationMap = new Map<string, string>();
-Object.entries(questionVariations).forEach(([canonicalQuestion, variations]) => {
-  variations.forEach(variation => {
-    variationMap.set(variation.toLowerCase().trim(), canonicalQuestion);
-  });
-});
+for (const canonicalQuestion in questionVariations) {
+  if (Object.prototype.hasOwnProperty.call(questionVariations, canonicalQuestion)) {
+    const variations = questionVariations[canonicalQuestion];
+    for (const variation of variations) {
+      variationMap.set(variation.toLowerCase().trim(), canonicalQuestion);
+    }
+  }
+}
 
 // Debug log the data length
 console.log(`Loaded ${faqData.length} FAQ items from kumbh_mela_main.json`);
@@ -358,15 +361,30 @@ async function findRelevantFAQWithEmbeddings(query: string): Promise<KumbhFAQIte
     }
     
     // For partial matches, check if the query is a substring of any variation
-    for (const [variation, canonicalQuestion] of variationMap.entries()) {
+    // Loop through the map without using entries() iterator for compatibility
+    variationMap.forEach((canonicalQuestion, variation) => {
       if (lowerQuery.includes(variation) || variation.includes(lowerQuery)) {
         console.log(`Found partial variation match: "${lowerQuery}" matches pattern "${variation}" for "${canonicalQuestion}"`);
         
         // Find the canonical question in the FAQ data
         const faqMatch = faqData.find(item => item.question === canonicalQuestion);
         if (faqMatch) {
-          return faqMatch;
+          return faqMatch; // Note: This return only exits the forEach callback, not the function
         }
+      }
+    });
+    
+    // Check if a match was found and returned inside the forEach above
+    const partialMatchResult = Array.from(variationMap.keys()).find(variation => 
+      (lowerQuery.includes(variation) || variation.includes(lowerQuery)) &&
+      faqData.some(item => item.question === variationMap.get(variation))
+    );
+    
+    if (partialMatchResult) {
+      const canonicalQuestion = variationMap.get(partialMatchResult);
+      const faqMatch = faqData.find(item => item.question === canonicalQuestion);
+      if (faqMatch) {
+        return faqMatch;
       }
     }
     
