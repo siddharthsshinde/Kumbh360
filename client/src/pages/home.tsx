@@ -210,8 +210,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      {/* Header Section - Fixed at the top */}
-      <header className="sticky top-0 z-50 bg-white shadow-md px-4 py-2">
+      {/* Header Section - Not sticky anymore */}
+      <header className="bg-white shadow-md px-4 py-2">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold text-[#FF7F00] hidden md:block">Kumbh Mela 2025</h1>
