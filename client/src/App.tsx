@@ -28,7 +28,19 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
+      {/* Global header with language selector - fixed at top */}
+      <header className="bg-primary/90 text-white py-2 px-4 fixed top-0 left-0 right-0 z-50 shadow-md flex justify-between items-center">
+        <div className="font-bold text-lg">
+          Kumbh Mela 2025
+        </div>
+        {mounted && <LanguageSelector />}
+      </header>
+      
+      {/* Add padding to the top to account for the fixed header */}
+      <div className="pt-12">
+        <Router />
+      </div>
+      
       <Toaster />
     </QueryClientProvider>
   );
