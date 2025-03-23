@@ -217,7 +217,7 @@ Provide specific, accurate information while being respectful of religious and c
 
     try {
       // Create a model that can handle images with API version set to v1
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro-vision" }, { apiVersion: "v1" });
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" }, { apiVersion: "v1" });
       
       // Prepare the image data
       const imagePart: Part = {

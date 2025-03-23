@@ -75,7 +75,7 @@ class TranslationService {
       }
 
       // Use Gemini to detect language with API version set to v1
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" }, { apiVersion: "v1" });
       
       const prompt = `Detect the language of the following text. 
 Respond with only the language code (e.g., 'en' for English, 'hi' for Hindi, 'mr' for Marathi, etc.):
@@ -137,7 +137,7 @@ If you're unsure, respond with 'en'.`;
       }
 
       // Use Gemini for translation with API version set to v1
-      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
+      const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" }, { apiVersion: "v1" });
       
       const targetLanguageName = SUPPORTED_LANGUAGES[targetLanguage as keyof typeof SUPPORTED_LANGUAGES] || 'English';
       const sourceLanguageName = SUPPORTED_LANGUAGES[sourceLanguage as keyof typeof SUPPORTED_LANGUAGES] || 'unknown language';

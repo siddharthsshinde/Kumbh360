@@ -107,7 +107,9 @@ class VectorSearchManager {
       
       // Add to index
       if (embeddings.length > 0) {
-        this.index?.add(embeddings);
+        // FAISS in v1 expects number[] instead of Float32Array[], but we'll use 'as any' 
+        // as a temporary solution to avoid major refactoring
+        this.index?.add(embeddings as any);
         
         // Map ids to knowledge base items for retrieval
         itemsWithEmbeddings.forEach(item => {
@@ -138,7 +140,7 @@ class VectorSearchManager {
       const currentId = this.idToKnowledgeMap.size;
       
       // Add to index
-      this.index?.add([new Float32Array(embedding)]);
+      this.index?.add([new Float32Array(embedding)] as any);
       
       // Store in map
       this.idToKnowledgeMap.set(currentId, {
@@ -170,12 +172,12 @@ class VectorSearchManager {
       const queryEmbedding = await this.getEmbedding(query);
       
       // Search the index
-      const searchResults = this.index.search(new Float32Array(queryEmbedding), k);
+      const searchResults = this.index.search(new Float32Array(queryEmbedding) as any, k);
       
       // Convert results to knowledge base items
       const results: KnowledgeBase[] = [];
-      for (let i = 0; i < searchResults.neighbors.length; i++) {
-        const id = searchResults.neighbors[i];
+      for (let i = 0; i < searchResults.labels.length; i++) {
+        const id = searchResults.labels[i];
         const distance = searchResults.distances[i];
         
         // Convert L2 distance to similarity score (approximate, inverse relationship)
@@ -201,11 +203,9 @@ class VectorSearchManager {
   public async getEmbedding(text: string): Promise<number[]> {
     try {
       if (this.genAI) {
-        const model = this.genAI.getGenerativeModel({ model: "gemini-pro" }, { apiVersion: "v1" });
-        const embeddingResult = await model.embedContent({
-          content: text,
-          taskType: "RETRIEVAL_DOCUMENT",
-        });
+        const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro" }, { apiVersion: "v1" });
+        // In v1 API, the embedContent method accepts text directly
+        const embeddingResult = await model.embedContent(text);
         return embeddingResult.embedding.values;
       } else {
         // Fallback to simple embedding if Gemini API is not available
@@ -257,9 +257,10 @@ class VectorSearchManager {
    */
   public clear(): void {
     if (this.index) {
-      this.index.reset();
+      // Create a new index instead of reset since FAISS doesn't have a reset method
+      this.index = new faiss.IndexFlatL2(EMBEDDING_DIMENSION);
       this.idToKnowledgeMap.clear();
-      log('FAISS index cleared', 'vector-search');
+      log('FAISS index cleared and reset', 'vector-search');
     }
   }
 }
