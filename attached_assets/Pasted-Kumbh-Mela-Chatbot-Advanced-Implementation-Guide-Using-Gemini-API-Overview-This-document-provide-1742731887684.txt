@@ -1,0 +1,98 @@
+Kumbh Mela Chatbot - Advanced Implementation Guide (Using Gemini API)
+Overview
+This document provides methods to enhance the chatbot’s efficiency by integrating the Gemini API with vector search, retrieval-augmented generation (RAG), caching, and multi-modal support.
+
+1️⃣ Vector Search for Fast Query Matching
+Description
+Instead of basic keyword matching, we use vector search with FAISS or PGVector to improve Q&A retrieval from the 50K dataset.
+
+Implementation
+1.1 Convert Questions to Embeddings
+ts
+Copy
+Edit
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const genAI = new GoogleGenerativeAI("GEMINI_API_KEY");
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+const response = await model.embedContent({
+  content: "What is Kumbh Mela?",
+  taskType: "RETRIEVAL_DOCUMENT",
+});
+const embedding = response.embedding.values;
+1.2 Store & Search Using FAISS
+ts
+Copy
+Edit
+import faiss from "faiss-node";
+const index = new faiss.IndexFlatL2(1536);
+index.add([embedding]);
+📌 Tools: Gemini API, FAISS, PGVector
+
+2️⃣ Retrieval-Augmented Generation (RAG) with Gemini API
+Description
+RAG enhances chatbot responses by retrieving the best-matched answers from the vector database before sending them to Gemini API for better response synthesis.
+
+Implementation
+2.1 Retrieve Data & Use Gemini API for Response Generation
+ts
+Copy
+Edit
+const retrievedData = vectorSearch(query);
+const geminiResponse = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: retrievedData }] }],
+});
+console.log(geminiResponse.candidates[0].content.parts[0].text);
+📌 Tools: Gemini API, FAISS, LangChain
+
+3️⃣ Optimizing with Caching (Redis)
+Description
+To reduce API costs and improve response speed, we cache frequent queries using Redis.
+
+Implementation
+3.1 Store Gemini API Responses in Redis
+ts
+Copy
+Edit
+import Redis from "ioredis";
+const redis = new Redis();
+
+async function getCachedResponse(query: string) {
+  const cachedResponse = await redis.get(query);
+  if (cachedResponse) return JSON.parse(cachedResponse);
+
+  const geminiResponse = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: query }] }],
+  });
+  const responseText = geminiResponse.candidates[0].content.parts[0].text;
+
+  await redis.set(query, JSON.stringify(responseText), "EX", 3600); // Cache for 1 hour
+  return responseText;
+}
+📌 Tools: Redis, Gemini API
+
+4️⃣ Multi-Modal Support (Voice & Image Queries) with Gemini API
+Description
+Gemini API supports text, image, and voice-based inputs for better user interaction.
+
+Implementation
+4.1 Handling Image Inputs
+ts
+Copy
+Edit
+const imageResponse = await model.generateContent({
+  contents: [{ role: "user", parts: [{ inlineData: { mimeType: "image/jpeg", data: base64Image } }] }],
+});
+console.log(imageResponse.candidates[0].content.parts[0].text);
+4.2 Handling Speech-to-Text Queries
+Use Google Whisper API or DeepSeek Speech for converting voice queries to text, then process via Gemini API.
+
+ts
+Copy
+Edit
+const textQuery = await transcribeAudio(audioFile);
+const geminiResponse = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: textQuery }] }],
+});
+console.log(geminiResponse.candidates[0].content.parts[0].text);
+📌 Tools: Gemini API, Whisper AI, Tesseract.js

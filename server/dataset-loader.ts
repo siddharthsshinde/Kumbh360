@@ -7,7 +7,7 @@ import { storage } from './storage';
 export async function loadRealHumanDataset() {
   try {
     // Path to the dataset file
-    const datasetPath = path.join(__dirname, '../attached_assets/kumbh_mela main .json');
+    const datasetPath = path.join(__dirname, '../attached_assets/kumbh_mela_main.json');
     
     // Read and parse the JSON file
     const rawData = fs.readFileSync(datasetPath, 'utf8');
@@ -22,7 +22,8 @@ export async function loadRealHumanDataset() {
         await storage.storeKnowledgeBase({
           topic: qa.question,
           content: qa.answer,
-          source: 'kumbh_mela_real_human_dataset',
+          // source: 'kumbh_mela_real_human_dataset',
+          source: 'kumbh_mela_main',
           confidence: 95 // High confidence score for curated human dataset
         });
         loadedCount++;
