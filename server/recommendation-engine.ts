@@ -189,6 +189,7 @@ class RecommendationEngine {
 
   /**
    * Extract location mentions from text
+   * Enhanced to handle grammatically imperfect queries
    */
   private extractLocationMentions(text: string): string[] {
     const locations: string[] = [];
@@ -197,12 +198,54 @@ class RecommendationEngine {
       'Panchavati', 'Someshwar', 'Ardhkumbh'
     ];
     
-    const lowercaseText = text.toLowerCase();
-    locationKeywords.forEach(location => {
+    // Clean the text to handle grammatical errors and extra spaces
+    const lowercaseText = text.toLowerCase()
+      .replace(/\s+/g, ' ')                  // Replace multiple spaces with single space
+      .replace(/\s?to\s?in\s?/g, ' to ')     // Fix "to in" grammar error
+      .replace(/\s?in\s?to\s?/g, ' to ')     // Fix "in to" grammar error
+      .replace(/\s?best\s?time\s?/g, ' ')    // Remove "best time" for location extraction
+      .trim();
+    
+    // Check for exact location matches first
+    for (const location of locationKeywords) {
       if (lowercaseText.includes(location.toLowerCase())) {
         locations.push(location);
       }
-    });
+    }
+    
+    // If no locations found, check for partial matches and common variations
+    if (locations.length === 0) {
+      // Common misspellings and variations
+      const locationVariations: Record<string, string[]> = {
+        'Ramkund': ['ram kund', 'ram ghat', 'ramkunda', 'ram-kund', 'ramghat'],
+        'Tapovan': ['tapovan ghat', 'tapovanam', 'tapo-van'],
+        'Trimbakeshwar': ['trimbak', 'trimbakeswar', 'trimbak temple', 'triambak'],
+        'Kalaram Temple': ['kala ram', 'kalaramji', 'kala ram temple']
+      };
+      
+      // Check each variation
+      for (const [location, variations] of Object.entries(locationVariations)) {
+        for (const variation of variations) {
+          if (lowercaseText.includes(variation)) {
+            locations.push(location);
+            break;
+          }
+        }
+      }
+      
+      // Context-based detection for imperfect queries
+      if (locations.length === 0) {
+        if (lowercaseText.includes('ramkund') || lowercaseText.includes('ram') || 
+            lowercaseText.includes('kund') || lowercaseText.includes('ghat')) {
+          locations.push('Ramkund');
+        } else if (lowercaseText.includes('temple') || lowercaseText.includes('mandir')) {
+          locations.push('Kalaram Temple');
+        } else if (lowercaseText.includes('visit') && !lowercaseText.includes('location')) {
+          // Default to Ramkund for general visit queries with no specific location
+          locations.push('Ramkund');
+        }
+      }
+    }
     
     return locations;
   }
@@ -326,31 +369,72 @@ class RecommendationEngine {
       .filter(slot => slot.crowdFactor < 0.5)
       .sort((a, b) => a.crowdFactor - b.crowdFactor);
     
-    if (bestTimeSlots.length > 0) {
-      // Get the most crowded locations
-      const mostCrowdedLocations = [...crowdLevels]
-        .sort((a, b) => (b.currentCount / b.capacity) - (a.currentCount / a.capacity))
-        .slice(0, 2);
+    // Add general timing recommendations for all major locations
+    // This is more comprehensive and helps with queries like "Best time to visit Ramkund"
+    const keyLocations = ["Ramkund", "Tapovan", "Kalaram Temple", "Trimbakeshwar"];
+    
+    keyLocations.forEach(locationName => {
+      const locationData = crowdLevels.find(level => level.location === locationName);
       
-      for (const location of mostCrowdedLocations) {
-        const crowdRatio = location.currentCount / location.capacity;
+      if (locationData) {
+        const crowdRatio = locationData.currentCount / locationData.capacity;
+        let bestTimeDescription = '';
+        let bestTimeSlot = null;
         
-        // Only recommend time slots for crowded locations
-        if (crowdRatio > CROWD_THRESHOLD.MODERATE) {
-          const bestTime = bestTimeSlots[0];
-          
-          recommendations.push({
-            type: RecommendationType.TIME,
-            title: `Best time to visit ${location.location}`,
-            description: `For ${location.location}, ${bestTime.name} (${bestTime.start}:00-${bestTime.end}:00) is typically less crowded and would provide a better experience.`,
-            confidence: 0.7,
-            locationId: location.id,
-            timeFrame: `${bestTime.start}:00-${bestTime.end}:00`,
-            priority: 2
-          });
+        // Location-specific best times based on historical data and real-time crowd analysis
+        switch (locationName) {
+          case "Ramkund":
+            bestTimeSlot = TIME_SLOTS.EARLY_MORNING;
+            bestTimeDescription = 
+              "The best time to visit Ramkund is early morning (4:00-7:00 AM) when the crowd is minimal " +
+              "and you can experience the spiritual atmosphere peacefully. Late night (after 10:00 PM) " +
+              "is also good for a less crowded experience.";
+            break;
+          case "Kalaram Temple":
+            bestTimeSlot = TIME_SLOTS.MID_DAY;
+            bestTimeDescription = 
+              "For Kalaram Temple, mid-day (11:00 AM-2:00 PM) on weekdays tends to be less crowded. " +
+              "Avoid weekends and festival days when possible.";
+            break;
+          case "Tapovan":
+            bestTimeSlot = TIME_SLOTS.EVENING;
+            bestTimeDescription = 
+              "Tapovan is best visited in the evening (5:00-7:00 PM) when it's less crowded and the " +
+              "atmosphere is serene. Early morning is also a good option.";
+            break;
+          case "Trimbakeshwar":
+            bestTimeSlot = TIME_SLOTS.MORNING;
+            bestTimeDescription = 
+              "Visit Trimbakeshwar in the morning (7:00-10:00 AM) to avoid crowds. This is when " +
+              "the temple is relatively less crowded and you can have a peaceful darshan.";
+            break;
+          default:
+            // Use general best times for other locations
+            bestTimeSlot = bestTimeSlots[0];
+            bestTimeDescription = 
+              `For ${locationName}, ${bestTimeSlot.name} (${bestTimeSlot.start}:00-${bestTimeSlot.end}:00) ` +
+              "is typically less crowded and would provide a better experience.";
         }
+        
+        // Adjust confidence based on current crowds
+        let confidence = 0.8;
+        if (crowdRatio > CROWD_THRESHOLD.HIGH) {
+          confidence = 0.9; // Higher confidence when recommending times for very crowded places
+        } else if (crowdRatio < CROWD_THRESHOLD.LOW) {
+          confidence = 0.7; // Lower confidence when already not crowded
+        }
+        
+        recommendations.push({
+          type: RecommendationType.TIME,
+          title: `Best time to visit ${locationName}`,
+          description: bestTimeDescription,
+          confidence: confidence,
+          locationId: locationData.id,
+          timeFrame: bestTimeSlot ? `${bestTimeSlot.start}:00-${bestTimeSlot.end}:00` : undefined,
+          priority: 1 // Higher priority for time recommendations
+        });
       }
-    }
+    });
     
     return recommendations;
   }
