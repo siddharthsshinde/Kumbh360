@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
 import { storage } from "./storage";
@@ -6,6 +6,10 @@ import type { GeminiRequest, ChatMessage, DensityGrid, UserEmergencyContact } fr
 import type { WeatherData } from "../shared/types";
 import { insertUserEmergencyContactSchema } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { vectorSearchManager } from './vector-search';
+import { cacheManager, CacheType } from './cache-manager';
+import { ragGeminiService } from './rag-gemini';
+import { log } from './vite';
 
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);

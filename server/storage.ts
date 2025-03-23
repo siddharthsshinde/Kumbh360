@@ -114,7 +114,7 @@ export interface IStorage {
   updateDensityGrid(locationId: number, density: number[][]): Promise<void>;
 }
 
-interface KnowledgeBase {
+export interface KnowledgeBase {
   id: number;
   topic: string;
   content: string;
@@ -124,6 +124,7 @@ interface KnowledgeBase {
   verified: boolean;
   embedding?: number[];
   keywords?: string[];
+  indexId?: number; // For vector indexing
 }
 
 interface UserQuery {

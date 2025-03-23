@@ -6,9 +6,17 @@
  */
 
 import faiss from 'faiss-node';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, Part } from "@google/generative-ai";
 import { KnowledgeBase } from './storage';
 import { log } from './vite';
+
+// Define SearchResult type for FAISS
+// Define SearchResult interface for FAISS results
+interface SearchResult {
+  distances: number[];
+  labels: number[];
+  neighbors?: number[]; // Added for compatibility with existing code
+}
 
 // The dimension of embeddings from Gemini API
 const EMBEDDING_DIMENSION = 768;
