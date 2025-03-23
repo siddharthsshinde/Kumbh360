@@ -12,6 +12,11 @@ interface MapZone {
   coordinates: number[][];
   status: string;
   crowdDensity: number;
+  // Add extended properties for enhanced visualization
+  densityLevel?: number;
+  count?: number;
+  capacity?: number;
+  ratio?: number;
 }
 
 export function KumbhMelaMap() {
@@ -55,7 +60,7 @@ export function KumbhMelaMap() {
     }
   ];
 
-  // Update zones data with real-time crowd information
+  // Enhanced update zones data with real-time crowd information and better color representation
   useEffect(() => {
     if (crowdLevels.length === 0) return;
     
@@ -66,15 +71,37 @@ export function KumbhMelaMap() {
       if (crowdData) {
         const crowdRatio = crowdData.currentCount / crowdData.capacity;
         let status = 'Low';
+        let densityLevel = 0;
         
-        if (crowdRatio > 0.8) status = 'Critical';
-        else if (crowdRatio > 0.6) status = 'High';
-        else if (crowdRatio > 0.4) status = 'Moderate';
+        // More granular status classification for better UX
+        if (crowdRatio > 0.9) {
+          status = 'Critical';
+          densityLevel = 5; // Critical level
+        } else if (crowdRatio > 0.8) {
+          status = 'Very High';
+          densityLevel = 4; // Very high level
+        } else if (crowdRatio > 0.6) {
+          status = 'High';
+          densityLevel = 3; // High level
+        } else if (crowdRatio > 0.4) {
+          status = 'Moderate';
+          densityLevel = 2; // Moderate level
+        } else if (crowdRatio > 0.2) {
+          status = 'Low';
+          densityLevel = 1; // Low level
+        } else {
+          status = 'Very Low';
+          densityLevel = 0; // Very low level
+        }
         
         return {
           ...zone,
           status,
-          crowdDensity: Math.min(1, crowdRatio)
+          crowdDensity: Math.min(1, crowdRatio),
+          densityLevel, // Add the density level for more granular color mapping
+          count: crowdData.currentCount,
+          capacity: crowdData.capacity,
+          ratio: crowdRatio
         };
       }
       
@@ -96,7 +123,11 @@ export function KumbhMelaMap() {
               type: 'Feature',
               properties: {
                 name: zone.name,
-                density: zone.crowdDensity
+                density: zone.crowdDensity,
+                densityLevel: zone.densityLevel || 0,
+                status: zone.status,
+                count: zone.count || 0,
+                capacity: zone.capacity || 0
               },
               geometry: {
                 type: 'Polygon',
@@ -109,6 +140,15 @@ export function KumbhMelaMap() {
         }
       });
     }
+    
+    console.log('Updated crowd levels visualization with new data', {
+      timestamp: new Date().toISOString(),
+      zones: updatedZones.map(z => ({ 
+        name: z.name, 
+        status: z.status, 
+        density: Math.round(z.crowdDensity * 100) + '%'
+      }))
+    });
   }, [crowdLevels]);
 
   // Initialize map
@@ -144,7 +184,7 @@ export function KumbhMelaMap() {
           }
         });
 
-        // Add zone layer
+        // Add enhanced zone layer with better color gradient
         map.current.addLayer({
           id: `zone-${index}`,
           type: 'fill',
@@ -154,11 +194,20 @@ export function KumbhMelaMap() {
               'interpolate',
               ['linear'],
               ['get', 'density'],
-              0, '#00ff00',
-              0.5, '#ffff00',
-              1, '#ff0000'
+              0, '#4ade80',      // Green (very low)
+              0.2, '#22c55e',    // Darker green (low)
+              0.4, '#f59e0b',    // Yellow (moderate)
+              0.6, '#f97316',    // Orange (high)
+              0.8, '#ef4444',    // Red (very high)
+              0.9, '#b91c1c',    // Dark red (critical)
+              1.0, '#7f1d1d'     // Very dark red (extreme)
             ],
-            'fill-opacity': 0.7
+            'fill-opacity': 0.7,
+            // Add pulsing effect for critical areas
+            'fill-opacity-transition': {
+              duration: 1000,
+              delay: 0
+            }
           }
         });
         
@@ -222,21 +271,43 @@ export function KumbhMelaMap() {
         </Select>
       </div>
       <div ref={mapContainer} className="h-[500px] rounded-lg" />
-      <div className="mt-4 flex gap-2 flex-wrap">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 opacity-70 rounded mr-2" />
-          <span>Low Crowd</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-yellow-500 opacity-70 rounded mr-2" />
-          <span>Moderate</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 opacity-70 rounded mr-2" />
-          <span>High Crowd</span>
-        </div>
-        <div className="ml-auto text-xs text-gray-500">
-          Updates every 10 seconds
+      <div className="mt-4">
+        {/* Enhanced gradient color legend */}
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Crowd Density Levels</span>
+            <span className="text-xs text-gray-500">Updates every 10 seconds</span>
+          </div>
+          
+          {/* Linear gradient display */}
+          <div 
+            className="h-4 w-full rounded-md mb-1"
+            style={{
+              background: 'linear-gradient(to right, #4ade80, #22c55e, #f59e0b, #f97316, #ef4444, #b91c1c, #7f1d1d)'
+            }}
+          />
+          
+          {/* Scale markers */}
+          <div className="flex justify-between text-xs text-gray-600 px-1">
+            <span>0%</span>
+            <span>20%</span>
+            <span>40%</span>
+            <span>60%</span>
+            <span>80%</span>
+            <span>90%</span>
+            <span>100%</span>
+          </div>
+          
+          {/* Status labels */}
+          <div className="flex justify-between flex-wrap gap-1 mt-1">
+            <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Very Low</span>
+            <span className="text-xs px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">Low</span>
+            <span className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded">Moderate</span>
+            <span className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded">High</span>
+            <span className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800 rounded">Very High</span>
+            <span className="text-xs px-1.5 py-0.5 bg-red-200 text-red-900 rounded">Critical</span>
+            <span className="text-xs px-1.5 py-0.5 bg-red-300 text-red-950 rounded">Extreme</span>
+          </div>
         </div>
       </div>
     </Card>

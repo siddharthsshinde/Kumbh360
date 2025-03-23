@@ -1680,7 +1680,7 @@ export function FacilityMap(): JSX.Element {
     setSelectedType(type);
   };
 
-  // Handle search functionality
+  // Enhanced search functionality with better error handling and performance
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setIsSearching(true);
@@ -1691,80 +1691,109 @@ export function FacilityMap(): JSX.Element {
       return;
     }
 
-    const lowercaseQuery = query.toLowerCase();
-    const results: {name: string, type: string, location: {lat: number, lng: number}}[] = [];
+    // Add a small delay to avoid excessive processing while typing
+    setTimeout(() => {
+      try {
+        const lowercaseQuery = query.toLowerCase().trim();
+        const results: {name: string, type: string, location: {lat: number, lng: number}}[] = [];
 
-    // Search through facilities
-    if (facilities) {
-      facilities.forEach(facility => {
-        if (
-          facility.name?.toLowerCase().includes(lowercaseQuery) ||
-          facility.address?.toLowerCase().includes(lowercaseQuery) ||
-          facility.type?.toLowerCase().includes(lowercaseQuery) ||
-          getTypeName(facility.type).toLowerCase().includes(lowercaseQuery)
-        ) {
-          if (facility.location && typeof facility.location === 'object' && 'lat' in facility.location && 'lng' in facility.location) {
-            results.push({
-              name: facility.name,
-              type: facility.type,
-              location: {
-                lat: Number(facility.location.lat),
-                lng: Number(facility.location.lng)
+        // Search through facilities
+        if (facilities) {
+          facilities.forEach(facility => {
+            if (
+              (facility.name?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (facility.address?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (facility.type?.toLowerCase() || '').includes(lowercaseQuery) ||
+              getTypeName(facility.type || '').toLowerCase().includes(lowercaseQuery)
+            ) {
+              if (facility.location && typeof facility.location === 'object') {
+                // Type assertion to provide better type safety
+                const location = facility.location as { lat?: number | string; lng?: number | string };
+                
+                // Convert latitude and longitude to numbers if they exist
+                const lat = location.lat !== undefined ? Number(location.lat) : null;
+                const lng = location.lng !== undefined ? Number(location.lng) : null;
+                
+                if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+                  results.push({
+                    name: facility.name || 'Unknown Facility',
+                    type: facility.type || 'unknown',
+                    location: { lat, lng }
+                  });
+                }
               }
-            });
-          }
+            }
+          });
         }
-      });
-    }
 
-    // Search through shuttles
-    if (shuttles) {
-      shuttles.forEach(shuttle => {
-        if (
-          shuttle.routeName?.toLowerCase().includes(lowercaseQuery) ||
-          shuttle.currentLocation?.toLowerCase().includes(lowercaseQuery) ||
-          shuttle.nextStop?.toLowerCase().includes(lowercaseQuery)
-        ) {
-          if (shuttle.coordinates && typeof shuttle.coordinates === 'object' && 'lat' in shuttle.coordinates && 'lng' in shuttle.coordinates) {
-            results.push({
-              name: `${shuttle.routeName} (${shuttle.currentLocation})`,
-              type: 'shuttle_stop',
-              location: {
-                lat: Number(shuttle.coordinates.lat),
-                lng: Number(shuttle.coordinates.lng)
+        // Search through shuttles
+        if (shuttles) {
+          shuttles.forEach(shuttle => {
+            if (
+              (shuttle.routeName?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (shuttle.currentLocation?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (shuttle.nextStop?.toLowerCase() || '').includes(lowercaseQuery)
+            ) {
+              if (shuttle.coordinates && typeof shuttle.coordinates === 'object') {
+                // Type assertion for coordinates
+                const coordinates = shuttle.coordinates as { lat?: number | string; lng?: number | string };
+                
+                // Convert latitude and longitude to numbers if they exist
+                const lat = coordinates.lat !== undefined ? Number(coordinates.lat) : null;
+                const lng = coordinates.lng !== undefined ? Number(coordinates.lng) : null;
+                
+                if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+                  results.push({
+                    name: `${shuttle.routeName || 'Shuttle'} (${shuttle.currentLocation || 'Unknown'})`,
+                    type: 'shuttle_stop',
+                    location: { lat, lng }
+                  });
+                }
               }
-            });
-          }
+            }
+          });
         }
-      });
-    }
 
-    // Search through restrooms
-    if (restrooms) {
-      restrooms.forEach(restroom => {
-        if (
-          restroom.location?.toLowerCase().includes(lowercaseQuery) ||
-          restroom.nearestStop?.toLowerCase().includes(lowercaseQuery) ||
-          restroom.status?.toLowerCase().includes(lowercaseQuery) ||
-          'restroom'.includes(lowercaseQuery) ||
-          'toilet'.includes(lowercaseQuery)
-        ) {
-          if (restroom.coordinates && typeof restroom.coordinates === 'object' && 'lat' in restroom.coordinates && 'lng' in restroom.coordinates) {
-            results.push({
-              name: `${restroom.location} Restroom${restroom.accessibility ? ' (Accessible)' : ''}`,
-              type: 'restroom',
-              location: {
-                lat: Number(restroom.coordinates.lat),
-                lng: Number(restroom.coordinates.lng)
+        // Search through restrooms
+        if (restrooms) {
+          restrooms.forEach(restroom => {
+            if (
+              (restroom.location?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (restroom.nearestStop?.toLowerCase() || '').includes(lowercaseQuery) ||
+              (restroom.status?.toLowerCase() || '').includes(lowercaseQuery) ||
+              'restroom'.includes(lowercaseQuery) ||
+              'toilet'.includes(lowercaseQuery)
+            ) {
+              if (restroom.coordinates && typeof restroom.coordinates === 'object') {
+                // Type assertion for coordinates
+                const coordinates = restroom.coordinates as { lat?: number | string; lng?: number | string };
+                
+                // Convert latitude and longitude to numbers if they exist
+                const lat = coordinates.lat !== undefined ? Number(coordinates.lat) : null;
+                const lng = coordinates.lng !== undefined ? Number(coordinates.lng) : null;
+                
+                if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+                  results.push({
+                    name: `${restroom.location || 'Unknown'} Restroom${restroom.accessibility ? ' (Accessible)' : ''}`,
+                    type: 'restroom',
+                    location: { lat, lng }
+                  });
+                }
               }
-            });
-          }
+            }
+          });
         }
-      });
-    }
 
-    setSearchResults(results);
-    setIsSearching(false);
+        console.log(`Search for "${query}" found ${results.length} results`);
+        setSearchResults(results);
+      } catch (error) {
+        console.error("Error in search functionality:", error);
+        // Provide empty results to prevent UI from breaking
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300); // 300ms delay for improved performance while typing
   };
 
   // Helper function to get type name for display
