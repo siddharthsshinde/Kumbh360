@@ -481,6 +481,86 @@ export async function registerRoutes(app: Express) {
     }
   });
   
+  // Status endpoint to check if Gemini API is available
+  app.get("/api/nlp/status", async (_req, res) => {
+    try {
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      const available = !!GEMINI_API_KEY && ragGeminiService.isInitialized;
+      res.json({ available });
+    } catch (error) {
+      console.error("API status check error:", error);
+      res.json({ available: false });
+    }
+  });
+  
+  // Knowledge base expansion endpoint using Gemini
+  app.post("/api/knowledge/expand", async (req, res) => {
+    try {
+      const { query, autoLearn = false } = req.body;
+      
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ error: "Valid query is required" });
+      }
+      
+      log("Processing knowledge expansion for: " + query, 'api');
+      
+      // Check if Gemini API is available
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      if (!GEMINI_API_KEY) {
+        return res.status(503).json({ 
+          error: "Gemini API key is not configured", 
+          success: false 
+        });
+      }
+      
+      // Initialize Gemini if not already initialized
+      if (!ragGeminiService.isInitialized) {
+        ragGeminiService.initialize(GEMINI_API_KEY);
+      }
+      
+      // Generate an enhanced answer for the query using RAG
+      const enhancedAnswer = await ragGeminiService.generateRAGResponse(query, [], {
+        temperature: 0.3,   // Use a relatively low temperature for factual content
+        topK: 50,           // Consider more candidates from the model
+        topP: 0.95,         // Include a wider range of token probabilities
+        maxOutputTokens: 1024 // Allow for longer, more detailed answers
+      });
+      
+      if (!enhancedAnswer) {
+        return res.status(500).json({
+          error: "Failed to generate enhanced answer",
+          success: false
+        });
+      }
+      
+      log("Generated enhanced answer for knowledge base", 'api');
+      
+      // Store the answer in the knowledge base for future use
+      await storage.storeKnowledgeBase({
+        topic: query,
+        content: enhancedAnswer,
+        source: autoLearn ? 'Gemini RAG (Auto-learned)' : 'Gemini RAG (Manual)',
+        confidence: 0.85 // High confidence since this is a specially generated answer
+      });
+      
+      // Return the enhanced answer
+      res.json({
+        success: true,
+        answer: enhancedAnswer,
+        source: 'gemini_rag',
+        autoLearned: autoLearn
+      });
+      
+    } catch (error: any) {
+      console.error("Knowledge expansion error:", error);
+      res.status(500).json({
+        error: "Failed to expand knowledge base",
+        details: error.message || "Unknown error",
+        success: false
+      });
+    }
+  });
+  
   // New endpoint for simplified thumbs up/down feedback
   app.post("/api/feedback", async (req, res) => {
     try {

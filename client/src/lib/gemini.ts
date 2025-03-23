@@ -33,22 +33,79 @@ export async function getGeminiResponse(messages: ChatMessage[]): Promise<string
     };
 
     // Call backend API
-    const response = await apiRequest<{content: string; sources?: string[]}>('/api/chat', {
+    const response = await apiRequest<{answer: string; source?: string; queryId?: number}>('/api/nlp/query', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        query: messages[messages.length - 1].content,
+        sessionId: SESSION_ID
+      })
     });
 
-    if (!response || !response.content) {
-      throw new Error('Invalid response from chat API');
+    if (!response || !response.answer) {
+      throw new Error('Invalid response from NLP query API');
     }
 
     // Return the response content
-    return response.content;
+    return response.answer;
   } catch (error: any) {
     console.error("Chat API error:", error);
     return "I apologize, but I'm having trouble processing your request right now. Please try again later.";
+  }
+}
+
+/**
+ * Expand knowledge base using Gemini when a query doesn't have a good match
+ * This is an automated process that uses feedback to improve the chatbot over time
+ */
+export async function expandKnowledgeBase(question: string, feedback: number): Promise<boolean> {
+  try {
+    // Only auto-expand for questions that received negative feedback
+    if (feedback >= 0) {
+      return false;
+    }
+    
+    console.log("Expanding knowledge base for poorly answered question:", question);
+    
+    // Call the backend API to generate a better answer using Gemini
+    const response = await apiRequest<{success: boolean; answer: string}>('/api/knowledge/expand', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: question,
+        autoLearn: true  // Flag to indicate this is an automated expansion
+      })
+    });
+    
+    if (!response || !response.success) {
+      console.warn("Failed to expand knowledge base");
+      return false;
+    }
+    
+    console.log("Successfully expanded knowledge base with better answer");
+    return true;
+  } catch (error) {
+    console.error("Knowledge base expansion error:", error);
+    return false;
+  }
+}
+
+/**
+ * Check if Gemini API is available and configured
+ */
+export async function isGeminiAvailable(): Promise<boolean> {
+  try {
+    const response = await apiRequest<{available: boolean}>('/api/nlp/status', {
+      method: 'GET'
+    });
+    
+    return response?.available === true;
+  } catch (error) {
+    console.error("Gemini availability check error:", error);
+    return false;
   }
 }

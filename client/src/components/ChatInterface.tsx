@@ -10,6 +10,7 @@ import type { ChatMessage } from "@shared/types";
 import { getChatResponse, getSuggestions } from "@/lib/chatbot";
 import { TFIDF, extractEntities, computeJaccardSimilarity } from "@/lib/nlp";
 import { apiRequest } from "@/lib/queryClient";
+import { expandKnowledgeBase, isGeminiAvailable } from "@/lib/gemini";
 
 // Knowledge base data with Kumbh Mela related information
 const kumbhMelaKnowledgeBase = [
@@ -271,12 +272,39 @@ export function ChatInterface() {
       });
       
       // If the feedback was negative, we might want to flag it for review
+      // and also try to expand the knowledge base with a better answer
       if (feedback < 0) {
         toast({
           title: "Feedback received",
           description: "Thank you for your feedback. This response has been flagged for improvement.",
           duration: 3000
         });
+        
+        // Try to expand the knowledge base using Gemini for a better answer
+        // This is an asynchronous operation and we don't wait for it to complete
+        try {
+          // First check if Gemini is available
+          isGeminiAvailable().then(async (available) => {
+            if (available) {
+              // Try to expand the knowledge base with this question
+              const success = await expandKnowledgeBase(question, feedback);
+              if (success) {
+                console.log("Knowledge base expanded successfully");
+                toast({
+                  title: "Knowledge updated",
+                  description: "We've improved our understanding to better answer similar questions in the future.",
+                  duration: 3000
+                });
+              }
+            } else {
+              console.log("Gemini API not available for knowledge base expansion");
+            }
+          }).catch(error => {
+            console.error("Error checking Gemini availability:", error);
+          });
+        } catch (expansionError) {
+          console.error("Failed to expand knowledge base:", expansionError);
+        }
       } else {
         toast({
           title: "Feedback received",
@@ -407,10 +435,10 @@ export function ChatInterface() {
                       <div className="flex gap-2">
                         <button 
                           onClick={() => handleFeedback(i, 1)}
-                          className={`p-1 rounded-full hover:bg-green-50 ${
+                          className={`feedback-btn ${
                             feedbacks.find(f => f.messageIndex === i && f.feedback === 1) 
-                              ? 'text-green-500 bg-green-50' 
-                              : 'text-gray-400'
+                              ? 'feedback-positive active' 
+                              : 'feedback-positive'
                           }`}
                           disabled={isSendingFeedback}
                           title="This was helpful"
@@ -419,10 +447,10 @@ export function ChatInterface() {
                         </button>
                         <button 
                           onClick={() => handleFeedback(i, -1)}
-                          className={`p-1 rounded-full hover:bg-red-50 ${
+                          className={`feedback-btn ${
                             feedbacks.find(f => f.messageIndex === i && f.feedback === -1) 
-                              ? 'text-red-500 bg-red-50' 
-                              : 'text-gray-400'
+                              ? 'feedback-negative active' 
+                              : 'feedback-negative'
                           }`}
                           disabled={isSendingFeedback}
                           title="This was not helpful"
