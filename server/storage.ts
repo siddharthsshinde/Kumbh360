@@ -623,7 +623,7 @@ export class MemStorage implements IStorage {
     this.currentUpdateIndex = (this.currentUpdateIndex + 1) % this.crowdUpdates.length;
 
     // Add type for location keys
-    type LocationKey = "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat";
+    type LocationKey = "Ramkund" | "Kalaram Temple" | "Tapovan" | "Godavari Ghat" | "Trimbakeshwar" | "Panchavati";
     type CrowdStatus = "safe" | "moderate" | "crowded" | "overcrowded";
 
     // Different base utilization for each location with proper typing
@@ -631,7 +631,9 @@ export class MemStorage implements IStorage {
       "Ramkund": 0.7,
       "Kalaram Temple": 0.4,
       "Tapovan": 0.85,
-      "Godavari Ghat": 0.3
+      "Godavari Ghat": 0.3,
+      "Trimbakeshwar": 0.65,
+      "Panchavati": 0.55
     };
 
     // Location-specific patterns and recommendations
@@ -679,6 +681,26 @@ export class MemStorage implements IStorage {
           crowded: "Main ghat congested. Use side ghats.",
           overcrowded: "Extremely crowded. Entry regulated."
         }
+      },
+      "Trimbakeshwar": {
+        peakHours: [6, 7, 8, 9, 16, 17, 18],
+        capacity: 10000,
+        recommendations: {
+          safe: "Perfect time for darshan of the Jyotirlinga. Minimal waiting time.",
+          moderate: "Average waiting time of 30 minutes for darshan.",
+          crowded: "Heavy crowd expected. Waiting time approximately 1-2 hours.",
+          overcrowded: "Extremely crowded. Consider visiting early morning or late evening."
+        }
+      },
+      "Panchavati": {
+        peakHours: [7, 8, 9, 16, 17, 18, 19],
+        capacity: 9000,
+        recommendations: {
+          safe: "Ideal time to explore the sacred area at a leisurely pace.",
+          moderate: "Comfortable crowd levels. Good time for spiritual activities.",
+          crowded: "High footfall in temple areas. Plan for additional time.",
+          overcrowded: "Very heavy crowd. Best to postpone visit if possible."
+        }
       }
     };
 
@@ -687,7 +709,9 @@ export class MemStorage implements IStorage {
       "Ramkund": 0,
       "Kalaram Temple": 0,
       "Tapovan": 0,
-      "Godavari Ghat": 0
+      "Godavari Ghat": 0,
+      "Trimbakeshwar": 0,
+      "Panchavati": 0
     };
 
     // Calculate base crowd levels with proper typing
