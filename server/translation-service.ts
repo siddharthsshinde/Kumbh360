@@ -106,7 +106,27 @@ If you're unsure, respond with 'en'.`;
             throw new Error('Empty response from Gemini API');
           }
           
-          const languageCode = result.response.text().trim().toLowerCase();
+          let languageCode: string;
+          
+          try {
+            // Safely extract text with error handling for potential parsing issues
+            const responseText = result.response.text();
+            
+            if (!responseText || typeof responseText !== 'string') {
+              throw new Error('Invalid response text format from Gemini API');
+            }
+            
+            languageCode = responseText.trim().toLowerCase();
+            
+            // Additional validation to ensure the code is not too long (likely an error response)
+            if (languageCode.length > 5) {
+              log(`Unexpected language code format: "${languageCode.substring(0, 20)}..."`, 'translation');
+              languageCode = 'en'; // Default to English for unexpected formats
+            }
+          } catch (parseError) {
+            log(`Error parsing Gemini response: ${parseError}`, 'translation');
+            throw new Error(`Failed to parse Gemini response: ${parseError}`);
+          }
           
           // Enhanced validation to ensure we get a valid language code
           const validCode = Object.keys(SUPPORTED_LANGUAGES).includes(languageCode) 
@@ -210,11 +230,37 @@ ${text}
             throw new Error('Empty response from Gemini API');
           }
           
-          const translation = result.response.text();
+          let translation: string;
           
-          // Basic validation of translation
-          if (!translation || translation.trim().length === 0) {
-            throw new Error('Empty translation returned');
+          try {
+            // Safely extract text with error handling for potential parsing issues
+            const responseText = result.response.text();
+            
+            if (!responseText || typeof responseText !== 'string') {
+              throw new Error('Invalid response text format from Gemini API');
+            }
+            
+            translation = responseText;
+            
+            // Check for potential error responses or instructions that weren't filtered out
+            if (translation.toLowerCase().includes('cannot translate') || 
+                translation.toLowerCase().includes('unable to translate') ||
+                translation.toLowerCase().includes('i apologize')) {
+              throw new Error(`Gemini returned an error message: "${translation.substring(0, 40)}..."`);
+            }
+            
+            // Basic validation that the translation is reasonable
+            if (translation.trim().length === 0) {
+              throw new Error('Empty translation returned');
+            }
+            
+            // Suspiciously short translation for a long text likely indicates an error
+            if (translation.length < 3 && text.length > 20) {
+              throw new Error(`Translation seems too short (${translation.length} chars) compared to original (${text.length} chars)`);
+            }
+          } catch (parseError) {
+            log(`Error parsing Gemini translation response: ${parseError}`, 'translation');
+            throw new Error(`Failed to parse Gemini translation response: ${parseError}`);
           }
           
           // Cache the translation
