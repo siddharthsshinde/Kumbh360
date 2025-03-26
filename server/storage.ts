@@ -306,7 +306,17 @@ export class MemStorage implements IStorage {
 
     // Pattern 4: Night dispersal
     { from: "Ramkund", to: "Godavari Ghat", flowRate: 0.15, timeRange: [20, 23] },
-    { from: "Kalaram Temple", to: "Godavari Ghat", flowRate: 0.1, timeRange: [19, 23] }
+    { from: "Kalaram Temple", to: "Godavari Ghat", flowRate: 0.1, timeRange: [19, 23] },
+    
+    // Pattern 5: Trimbakeshwar movement patterns
+    { from: "Trimbakeshwar", to: "Tapovan", flowRate: 0.2, timeRange: [10, 14] },
+    { from: "Tapovan", to: "Trimbakeshwar", flowRate: 0.15, timeRange: [6, 9] },
+    
+    // Pattern 6: Panchavati migration patterns
+    { from: "Panchavati", to: "Ramkund", flowRate: 0.25, timeRange: [7, 11] },
+    { from: "Ramkund", to: "Panchavati", flowRate: 0.2, timeRange: [12, 15] },
+    { from: "Kalaram Temple", to: "Panchavati", flowRate: 0.15, timeRange: [16, 19] },
+    { from: "Panchavati", to: "Godavari Ghat", flowRate: 0.1, timeRange: [18, 22] }
   ];
 
   private newsItems: {
@@ -369,6 +379,19 @@ export class MemStorage implements IStorage {
         specialEvents: ["Special morning abhishek at 4:30 AM", "Night aarti at 10:00 PM"]
       },
       currentStatus: "Open for darshan",
+      lastUpdated: new Date().toISOString()
+    },
+    {
+      id: 5,
+      name: "Panchavati",
+      description: "Sacred area where Lord Rama, Sita and Lakshmana lived during their exile in the forest.",
+      history: "Named after the five banyan trees (Pancha Vati), this is one of the most significant pilgrimage sites in Nashik with numerous temples.",
+      timings: {
+        opening: "5:00 AM",
+        closing: "9:00 PM",
+        specialEvents: ["Special puja at sunrise", "Evening aarti at 7:30 PM"]
+      },
+      currentStatus: "Open for devotees",
       lastUpdated: new Date().toISOString()
     }
   ];
@@ -538,7 +561,8 @@ export class MemStorage implements IStorage {
     "Ramkund": { lat: 20.0059, lng: 73.7913, radius: 0.5 },
     "Tapovan": { lat: 20.0116, lng: 73.7938, radius: 0.3 },
     "Kalaram Temple": { lat: 20.0064, lng: 73.7904, radius: 0.4 },
-    "Trimbakeshwar": { lat: 19.9322, lng: 73.5309, radius: 0.6 }
+    "Trimbakeshwar": { lat: 19.9322, lng: 73.5309, radius: 0.6 },
+    "Panchavati": { lat: 20.0073, lng: 73.7884, radius: 0.45 }
   };
 
   private gridConfig: GridConfig = {
@@ -603,6 +627,26 @@ export class MemStorage implements IStorage {
         status: "moderate",
         lastUpdated: new Date().toISOString(),
         recommendations: "Moderate crowds expected. Best time to visit would be in the next 2 hours."
+      },
+      {
+        id: 5,
+        location: "Trimbakeshwar",
+        level: 4,
+        capacity: 10000,
+        currentCount: 6500,
+        status: "crowded",
+        lastUpdated: new Date().toISOString(),
+        recommendations: "Heavy pilgrimage crowd for the Jyotirlinga darshan. Plan to arrive before 6 AM for minimal wait times."
+      },
+      {
+        id: 6,
+        location: "Panchavati",
+        level: 3,
+        capacity: 9000,
+        currentCount: 4500,
+        status: "moderate",
+        lastUpdated: new Date().toISOString(),
+        recommendations: "Moderate crowd present. Good time to explore the sacred sites around Panchavati area."
       }
     ];
   }
