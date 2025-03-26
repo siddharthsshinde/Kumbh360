@@ -867,10 +867,10 @@ export function FacilityMap(): JSX.Element {
               const cellColor = cell.metadata.color || color;
               
               const polygon = L.polygon(cellCoords, {
-                color: 'rgba(255,255,255,0.3)',
+                color: cellColor, // Use same color as fill to avoid red lines
                 fillColor: cellColor,
                 fillOpacity: 0.1 + (intensity * 0.3),
-                weight: 1
+                weight: 0.5 // Reduced weight for subtler borders
               });
               
               if (mapRef.current) {
@@ -962,10 +962,10 @@ export function FacilityMap(): JSX.Element {
                 const pulseEffect = Math.sin(timeOffset + Math.random()) * 0.1;
                 
                 const polygon = L.polygon(cell as L.LatLngExpression[], {
-                  color: 'rgba(255,255,255,0.3)',
+                  color: color, // Use same color as fill to avoid red lines
                   fillColor: color,
                   fillOpacity: 0.2 + (density * 0.15) + pulseEffect,
-                  weight: 1
+                  weight: 0.5 // Reduced weight for subtler borders
                 });
                 
                 if (mapRef.current) {
