@@ -393,6 +393,9 @@ export function AccommodationFinder() {
             <TabsTrigger value="nearby">Nearby (≤ 1km)</TabsTrigger>
             <TabsTrigger value="popular">Popular (4★+)</TabsTrigger>
           </TabsList>
+          <TabsContent value="all"></TabsContent>
+          <TabsContent value="nearby"></TabsContent>
+          <TabsContent value="popular"></TabsContent>
         </Tabs>
         
         <div className="mb-4">
