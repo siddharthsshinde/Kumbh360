@@ -72,6 +72,12 @@ const getTimeFactor = (hour: number, location: string): number => {
       if (hour >= 5 && hour <= 10) return 1.5; // Morning bathing time
       if (hour >= 16 && hour <= 19) return 1.4; // Evening rush
       return 1.0;
+      
+    case "Trimbakeshwar":
+      if (isPujaTime) return 1.7; // Peak during puja times at Trimbakeshwar
+      if (hour >= 5 && hour <= 10) return 1.6; // Morning rush at Trimbakeshwar
+      if (hour >= 16 && hour <= 20) return 1.5; // Evening rush at Trimbakeshwar
+      return 1.0;
 
     default:
       return 1.0;
@@ -126,7 +132,8 @@ const locationCoordinates: LocationCoordinates = {
   "Tapovan": [20.0009, 73.7863],
   "Godavari Ghat": [20.0066, 73.7928],
   "Nashik Road Station": [19.9851, 73.7772],
-  "CBS Bus Stand": [19.9990, 73.7869]
+  "CBS Bus Stand": [19.9990, 73.7869],
+  "Trimbakeshwar": [19.9322, 73.5309]
 };
 
 const locationAreas: LocationAreas = {
@@ -135,7 +142,8 @@ const locationAreas: LocationAreas = {
   "Tapovan": 15000,
   "Godavari Ghat": 4000,
   "Nashik Road Station": 12000,
-  "CBS Bus Stand": 10000
+  "CBS Bus Stand": 10000,
+  "Trimbakeshwar": 12000
 };
 
 // Generate dynamic flow indicators based on time of day and location
@@ -186,6 +194,18 @@ const getFlowIndicators = (
         primaryDirection[0] *= -1.2;
       }
       break;
+    case "Trimbakeshwar":
+      // Flow patterns at Trimbakeshwar
+      if (hour < 12) {
+        // Morning: toward temple entrance
+        primaryDirection[0] *= 1.4;
+        primaryDirection[1] *= 1.3;
+      } else {
+        // Afternoon/evening: exit patterns
+        primaryDirection[0] *= -1.3;
+        primaryDirection[1] *= -1.2;
+      }
+      break;
   }
   
   // Generate several flow arrows
@@ -214,15 +234,15 @@ interface DensityLevel {
   label: string;
 }
 
-// Get color based on density level
+// Get color based on density level - using blue tint color scale as requested
 const getDensityColor = (density: number): DensityLevel => {
-  if (density < 0.5) return { color: '#4ade80', label: 'Low' }; // Green - low density
-  if (density < 1.0) return { color: '#22c55e', label: 'Moderate' }; // Darker green - moderate
-  if (density < 2.0) return { color: '#f59e0b', label: 'Medium' }; // Yellow - medium
-  if (density < 3.0) return { color: '#f97316', label: 'High' }; // Orange - high
-  if (density < 4.0) return { color: '#ef4444', label: 'Very High' }; // Red - very high
-  if (density < 5.0) return { color: '#b91c1c', label: 'Crowded' }; // Dark red - crowded
-  return { color: '#7f1d1d', label: 'Critical' }; // Very dark red - critical
+  if (density < 0.1) return { color: '#e0f2fe', label: 'Low' }; // Very light blue - very low density
+  if (density < 0.5) return { color: '#bae6fd', label: 'Low' }; // Light blue - low density  
+  if (density < 1.0) return { color: '#7dd3fc', label: 'Medium' }; // Sky blue - medium-low
+  if (density < 2.0) return { color: '#38bdf8', label: 'Medium' }; // Blue - medium
+  if (density < 3.0) return { color: '#0ea5e9', label: 'Dense' }; // Bright blue - dense
+  if (density < 4.0) return { color: '#0284c7', label: 'Critical' }; // Medium-dark blue - very dense
+  return { color: '#0c4a6e', label: 'Critical' }; // Dark blue - critical
 };
 
 // Calculate boundary dynamically for area polygons
@@ -314,6 +334,20 @@ const getBaseZones = (): AreaZone[] => {
       color: "#f44336", // Red
       status: "Limited Access",
       crowdFactor: 0.3
+    },
+    {
+      name: "Trimbakeshwar Temple Area",
+      center: [19.9322, 73.5309],
+      basePoints: [
+        [19.9330, 73.5300],
+        [19.9335, 73.5315],
+        [19.9325, 73.5325],
+        [19.9315, 73.5315],
+        [19.9317, 73.5300]
+      ],
+      color: "#3b82f6", // Blue
+      status: "Sacred Zone",
+      crowdFactor: 0.6
     }
   ];
 };
@@ -339,7 +373,8 @@ const getUpdatedZones = (hour: number, timeOffset: number, crowdLevels?: CrowdLe
         "Main Ceremonial Area": "Ramkund",
         "Accommodation Zone": "Tapovan",
         "Transport & Parking Zone": "Nashik Road Station",
-        "Restricted Area": "Kalaram Temple"
+        "Restricted Area": "Kalaram Temple",
+        "Trimbakeshwar Temple Area": "Trimbakeshwar"
       };
       
       const mappedLocation = zoneToLocationMap[zone.name];
@@ -489,6 +524,12 @@ const getZoneAccessInfo = (zoneName: string, hour: number): string => {
     return "Access by permit only. Approach security personnel at checkpoints.";
   }
   
+  if (zoneName === "Trimbakeshwar Temple Area") {
+    if (hour >= 5 && hour <= 9) return "Morning abhishekam and special puja in progress. Special tickets required for priority darshan.";
+    if (hour >= 17 && hour <= 20) return "Evening aarti in progress. Follow designated darshan lines.";
+    return "Standard darshan procedures in effect. Follow temple authority instructions.";
+  }
+  
   return "Follow posted instructions and security personnel guidance.";
 };
 
@@ -504,6 +545,8 @@ const getSafetyThresholds = (location: string) => {
       return { safe: 0.3, moderate: 0.5, crowded: 0.7 };
     case "Tapovan": // More open area
       return { safe: 0.45, moderate: 0.65, crowded: 0.85 };
+    case "Trimbakeshwar": // Sacred temple with more controlled access
+      return { safe: 0.4, moderate: 0.6, crowded: 0.8 };
     default:
       return baseThresholds;
   }
