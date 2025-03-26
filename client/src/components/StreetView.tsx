@@ -17,7 +17,7 @@ const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Ramkund",
     description: "Sacred bathing ghat on the Godavari River, where pilgrims perform holy rituals. Known for its spiritual significance during Kumbh Mela.",
-    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506627287!6m8!1m7!1sCAoSLEFGMVFpcE5YWTkwaENBcnVCNTdlTFB3UW5jckZIT3N0Y0R4WjRndnhIaGk4!2m2!1d19.9939833953146!2d73.7889873981476!3f320!4f0!5f0.7820865974627469",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1743013941549!6m8!1m7!1sCAoSFkNJSE0wb2dLRUlDQWdJRGMxNjdWRmc.!2m2!1d20.00801065915066!2d73.7923077051028!3f222.9007123300821!4f0!5f0.7820865974627469",
     location: {
       lat: 19.994031, 
       lng: 73.788984
@@ -44,7 +44,7 @@ const NASHIK_LOCATIONS: Location[] = [
   {
     name: "Trimbakeshwar Temple",
     description: "One of the 12 Jyotirlingas of Lord Shiva, located near the source of the Godavari River. A significant pilgrimage site during Kumbh Mela.",
-    embedUrl: "https://www.google.com/maps/embed?pb=!4v1742506982743!6m8!1m7!1sCAoSLEFGMVFpcE9WTVZpUkhZNi1PelBKUHlhQVpBMmRsYlQwdVRuX19IR0Z4WHND!2m2!1d19.9320634!2d73.5305333!3f190!4f0!5f0.7820865974627469",
+    embedUrl: "https://www.google.com/maps/embed?pb=!4v1743013799730!6m8!1m7!1sCAoSF0NJSE0wb2dLRUlDQWdJQ3Nockhhd0FF!2m2!1d19.93226034298676!2d73.53088431904804!3f347.99960142392763!4f-11.914398405267548!5f0.7820865974627469",
     location: {
       lat: 19.932127, 
       lng: 73.530555
