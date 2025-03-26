@@ -1330,6 +1330,57 @@ export function FacilityMap(): JSX.Element {
               directionFactor *= j < 0 ? 1.25 + (j / -numCells/2) * 0.5 : 0.75; // Gradient from water
             }
             break;
+            
+          case "Trimbakeshwar":
+            // Trimbakeshwar Temple - sacred site with structured ritual patterns
+            // Morning: concentrated at main temple entrance with circular inner pattern
+            if (hour >= 4 && hour <= 11) {
+              // Main temple complex has circular crowd pattern
+              const distFromCenter = Math.sqrt(i*i + j*j);
+              if (distFromCenter < numCells/8) {
+                // Inner sanctum - very high density
+                directionFactor *= 2.0;
+              } else if (distFromCenter < numCells/5) {
+                // Circular queue around sanctum
+                directionFactor *= 1.7;
+                // Create ritual movement pattern clockwise
+                const angle = Math.atan2(i, j);
+                directionFactor *= 1.0 + Math.abs(Math.sin(angle * 2)) * 0.4;
+              } else if (j > 0 && Math.abs(i) < numCells/6) {
+                // Eastern approach (main entrance queue)
+                directionFactor *= 1.5 - (j / numCells/2) * 0.5; // Tapers toward temple
+              } else {
+                directionFactor *= 0.6; // Lower density in outer areas
+              }
+            } else if (hour >= 16 && hour <= 20) {
+              // Evening aarti pattern - concentration in main hall with viewing areas
+              const distFromCenter = Math.sqrt(i*i + j*j);
+              if (distFromCenter < numCells/10) {
+                // Aarti ceremony area
+                directionFactor *= 1.9;
+              } else if (distFromCenter < numCells/5) {
+                // Viewing area in concentric circles
+                directionFactor *= 1.4;
+                // More density on eastern side (main entrance)
+                if (j > 0) {
+                  directionFactor *= 1.2;
+                }
+              } else if (j < 0 && Math.abs(i) < numCells/5) {
+                // Exit pathways to west
+                directionFactor *= 1.3;
+              } else {
+                directionFactor *= 0.7; // Outer areas
+              }
+            } else {
+              // Regular hours - moderate distribution with focus on central area
+              const distFromCenter = Math.sqrt(i*i + j*j);
+              directionFactor *= distFromCenter < numCells/6 ? 1.3 : 0.8;
+              // More activity on temple approach (east)
+              if (j > 0 && Math.abs(i) < numCells/5) {
+                directionFactor *= 1.2;
+              }
+            }
+            break;
         }
         
         // Apply randomness to create more natural-looking patterns
