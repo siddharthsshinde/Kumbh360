@@ -14,6 +14,7 @@ import { LostAndFound } from "@/components/LostAndFound";
 import { SmartTransportationHub } from "@/components/SmartTransportationHub";
 import { FoodWaterSafety } from "@/components/FoodWaterSafety";
 import { CommunityFeatures } from "@/components/CommunityFeatures";
+import { EmergencyAlertDemo } from "@/components/EmergencyAlertDemo";
 import { MapPin, AlertCircle, Camera, UserSearch, AlertTriangle, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -320,6 +321,11 @@ export default function Home() {
         {/* Safety Alert - Always Visible */}
         <div className="mb-6 rounded-lg shadow-md overflow-hidden border-l-4 border-[#FF7F00]">
           <RealTimeSafetySuggestion />
+        </div>
+        
+        {/* Emergency Crowd Alerts */}
+        <div className="mb-6 rounded-lg overflow-hidden shadow-lg">
+          <EmergencyAlertDemo />
         </div>
 
         {/* Main Content Sections */}

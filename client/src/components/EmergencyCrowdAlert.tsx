@@ -292,8 +292,7 @@ export function EmergencyCrowdAlert({
               <Progress 
                 value={occupancyPercent} 
                 max={100}
-                className="h-2 bg-gray-200"
-                indicatorClassName={color}
+                className={`h-2 bg-gray-200 [&>div]:${color}`}
               />
             </div>
             
