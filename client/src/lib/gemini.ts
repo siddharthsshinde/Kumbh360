@@ -185,28 +185,67 @@ export async function detectLanguage(text: string): Promise<{
   detectedLanguage: string;
   languageName: string;
 }> {
+  // Validate input
+  if (!text || typeof text !== 'string' || text.trim().length < 2) {
+    console.log('Text too short for language detection, defaulting to English');
+    return {
+      detectedLanguage: 'en',
+      languageName: 'English'
+    };
+  }
+
   try {
-    const response = await apiRequest<{
-      detectedLanguage: string;
-      languageName: string;
-    }>('/api/translate/detect-language', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ text })
-    });
-    
-    if (!response || !response.detectedLanguage) {
-      throw new Error("Failed to detect language");
+    // Add retry logic
+    let attempts = 0;
+    const maxAttempts = 2;
+    let lastError: any = null;
+
+    while (attempts < maxAttempts) {
+      try {
+        const response = await apiRequest<{
+          detectedLanguage: string;
+          languageName: string;
+        }>('/api/translate/detect-language', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ text })
+        });
+        
+        // Validate response
+        if (!response) {
+          throw new Error("Empty response from language detection API");
+        }
+        
+        if (!response.detectedLanguage) {
+          throw new Error("Missing language code in response");
+        }
+        
+        return {
+          detectedLanguage: response.detectedLanguage,
+          languageName: response.languageName || 'Unknown'
+        };
+      } catch (error) {
+        lastError = error;
+        console.error(`Language detection attempt ${attempts + 1} failed:`, error);
+        attempts++;
+        
+        // Wait before retrying
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
     }
     
+    console.error(`Failed to detect language after ${maxAttempts} attempts:`, lastError);
+    // Default to English after all attempts fail
     return {
-      detectedLanguage: response.detectedLanguage,
-      languageName: response.languageName
+      detectedLanguage: 'en',
+      languageName: 'English'
     };
   } catch (error) {
-    console.error("Error detecting language:", error);
+    console.error("Error in language detection:", error);
     // Default to English on error
     return {
       detectedLanguage: 'en',
@@ -223,29 +262,77 @@ export async function translateText(
   targetLanguage: string,
   sourceLanguage?: string
 ): Promise<string> {
+  // Validate input parameters
+  if (!text || typeof text !== 'string' || text.trim().length < 2) {
+    console.log('Text too short for translation, returning original');
+    return text;
+  }
+  
+  if (!targetLanguage || typeof targetLanguage !== 'string') {
+    console.error('Invalid target language, defaulting to English');
+    targetLanguage = 'en';
+  }
+  
+  // Check if we need translation at all
+  if (sourceLanguage && sourceLanguage === targetLanguage) {
+    return text; // No need to translate
+  }
+
   try {
-    const response = await apiRequest<{
-      translatedText: string;
-      sourceLanguage: string;
-    }>('/api/translate/text', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        text,
-        targetLanguage,
-        sourceLanguage
-      })
-    });
+    // Add retry logic
+    let attempts = 0;
+    const maxAttempts = 2;
+    let lastError: any = null;
     
-    if (!response?.translatedText) {
-      throw new Error("Failed to translate text");
+    while (attempts < maxAttempts) {
+      try {
+        const response = await apiRequest<{
+          translatedText: string;
+          sourceLanguage: string;
+        }>('/api/translate/text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            text,
+            targetLanguage,
+            sourceLanguage
+          })
+        });
+        
+        // Validate response
+        if (!response) {
+          throw new Error("Empty response from translation API");
+        }
+        
+        if (!response.translatedText) {
+          throw new Error("Missing translated text in response");
+        }
+        
+        // If the translation result is suspiciously short, validate it
+        if (response.translatedText.length < 3 && text.length > 10) {
+          throw new Error("Translation result too short compared to original text");
+        }
+        
+        return response.translatedText;
+      } catch (error) {
+        lastError = error;
+        console.error(`Translation attempt ${attempts + 1} failed:`, error);
+        attempts++;
+        
+        // Wait before retrying
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
     }
     
-    return response.translatedText;
+    console.error(`Failed to translate text after ${maxAttempts} attempts:`, lastError);
+    // Return original text after all attempts fail
+    return text;
   } catch (error) {
-    console.error("Error translating text:", error);
+    console.error("Error in translation process:", error);
     // Return original text on error
     return text;
   }

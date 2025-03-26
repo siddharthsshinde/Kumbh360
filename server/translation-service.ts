@@ -64,6 +64,12 @@ class TranslationService {
       throw new Error('Translation Service not initialized');
     }
 
+    // Handle empty or very short text
+    if (!text || text.trim().length < 2) {
+      log('Text too short for language detection, defaulting to English', 'translation');
+      return 'en';
+    }
+
     try {
       // Check cache first
       const cacheKey = `detect-${text.substring(0, 100)}`;
@@ -86,18 +92,46 @@ ${text}
 
 If you're unsure, respond with 'en'.`;
       
-      const result = await model.generateContent(prompt);
-      const languageCode = result.response.text().trim().toLowerCase();
+      // Add timeout and retry logic
+      let attempts = 0;
+      const maxAttempts = 2;
+      let lastError: any = null;
       
-      // Simple validation to ensure we get a language code
-      const validCode = Object.keys(SUPPORTED_LANGUAGES).includes(languageCode) 
-        ? languageCode 
-        : 'en';
+      while (attempts < maxAttempts) {
+        try {
+          const result = await model.generateContent(prompt);
+          
+          // Check if we got a valid response
+          if (!result || !result.response) {
+            throw new Error('Empty response from Gemini API');
+          }
+          
+          const languageCode = result.response.text().trim().toLowerCase();
+          
+          // Enhanced validation to ensure we get a valid language code
+          const validCode = Object.keys(SUPPORTED_LANGUAGES).includes(languageCode) 
+            ? languageCode 
+            : 'en';
+          
+          // Cache the result
+          await cacheManager.set(CacheType.TRANSLATION, cacheKey, validCode);
+          
+          return validCode;
+        } catch (error) {
+          lastError = error;
+          log(`Language detection attempt ${attempts + 1} failed: ${error}`, 'translation');
+          attempts++;
+          
+          // Wait before retrying (exponential backoff)
+          if (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempts)));
+          }
+        }
+      }
       
-      // Cache the result
-      await cacheManager.set(CacheType.TRANSLATION, cacheKey, validCode);
-      
-      return validCode;
+      // If we get here, all attempts failed
+      log(`Error detecting language after ${maxAttempts} attempts: ${lastError}`, 'translation');
+      return 'en'; // Default to English on error
     } catch (error) {
       log(`Error detecting language: ${error}`, 'translation');
       return 'en'; // Default to English on error
@@ -114,6 +148,18 @@ If you're unsure, respond with 'en'.`;
   ): Promise<string> {
     if (!this.isInitialized || !this.genAI) {
       throw new Error('Translation Service not initialized');
+    }
+
+    // Handle empty or very short text
+    if (!text || text.trim().length < 2) {
+      log('Text too short for translation, returning original', 'translation');
+      return text;
+    }
+
+    // Validate target language
+    if (!targetLanguage || !Object.keys(SUPPORTED_LANGUAGES).includes(targetLanguage)) {
+      log(`Invalid target language: ${targetLanguage}, defaulting to English`, 'translation');
+      targetLanguage = 'en';
     }
 
     try {
@@ -150,13 +196,46 @@ Text to translate:
 ${text}
 """`;
       
-      const result = await model.generateContent(prompt);
-      const translation = result.response.text();
+      // Add timeout and retry logic
+      let attempts = 0;
+      const maxAttempts = 2;
+      let lastError: any = null;
       
-      // Cache the translation
-      await cacheManager.set(CacheType.TRANSLATION, cacheKey, translation);
+      while (attempts < maxAttempts) {
+        try {
+          const result = await model.generateContent(prompt);
+          
+          // Check if we got a valid response
+          if (!result || !result.response) {
+            throw new Error('Empty response from Gemini API');
+          }
+          
+          const translation = result.response.text();
+          
+          // Basic validation of translation
+          if (!translation || translation.trim().length === 0) {
+            throw new Error('Empty translation returned');
+          }
+          
+          // Cache the translation
+          await cacheManager.set(CacheType.TRANSLATION, cacheKey, translation);
+          
+          return translation;
+        } catch (error) {
+          lastError = error;
+          log(`Translation attempt ${attempts + 1} failed: ${error}`, 'translation');
+          attempts++;
+          
+          // Wait before retrying (exponential backoff)
+          if (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempts)));
+          }
+        }
+      }
       
-      return translation;
+      // If we get here, all attempts failed
+      log(`Error translating text after ${maxAttempts} attempts: ${lastError}`, 'translation');
+      return text; // Return original text on error
     } catch (error) {
       log(`Error translating text: ${error}`, 'translation');
       return text; // Return original text on error
@@ -170,7 +249,24 @@ ${text}
     message: { content: string; [key: string]: any },
     targetLanguage: string = 'en'
   ): Promise<{ content: string; detectedLanguage?: string; [key: string]: any }> {
+    // Validate message structure
+    if (!message || typeof message.content !== 'string') {
+      log('Invalid message format for translation', 'translation');
+      return message;
+    }
+    
+    // Validate target language
+    if (!targetLanguage || !Object.keys(SUPPORTED_LANGUAGES).includes(targetLanguage)) {
+      log(`Invalid target language: ${targetLanguage}, defaulting to English`, 'translation');
+      targetLanguage = 'en';
+    }
+    
     try {
+      // Skip translation for very short messages
+      if (message.content.trim().length < 2) {
+        return { ...message, detectedLanguage: 'en' };
+      }
+      
       // Detect the language of the message
       const detectedLanguage = await this.detectLanguage(message.content);
       
@@ -186,11 +282,19 @@ ${text}
         detectedLanguage
       );
       
+      // Verify translation result
+      if (!translatedContent || translatedContent.trim().length === 0) {
+        log('Empty translation result, returning original message', 'translation');
+        return { ...message, detectedLanguage };
+      }
+      
       // Return translated message with detected language info
       return {
         ...message,
         content: translatedContent,
-        detectedLanguage
+        detectedLanguage,
+        translatedFrom: detectedLanguage,
+        translatedTo: targetLanguage
       };
     } catch (error) {
       log(`Error translating message: ${error}`, 'translation');
