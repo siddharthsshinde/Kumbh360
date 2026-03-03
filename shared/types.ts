@@ -72,7 +72,7 @@ export interface GeminiRequest {
  */
 export type GeminiMessage = ChatMessage;
 
-interface CrowdLevel {
+export interface CrowdLevel {
   id: number;
   location: string;
   level: number;

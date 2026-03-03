@@ -117,7 +117,7 @@ export async function registerRoutes(app: Express) {
       console.log('Calculating density grid for HTTP request...');
 
       const groupedData = densityGrid.reduce((acc: any, cell: DensityGrid) => {
-        const location = cell.metadata?.nearestLocation;
+        const location = (cell.metadata as { nearestLocation?: string } | null)?.nearestLocation;
         if (location) {
           if (!acc[location]) {
             acc[location] = [];
@@ -185,6 +185,63 @@ export async function registerRoutes(app: Express) {
   app.get("/api/restrooms", async (_req, res) => {
     const restrooms = await storage.getRestrooms();
     res.json(restrooms);
+  });
+
+  // Accommodation booking API - real-time availability and booking
+  app.get("/api/accommodations/:id/availability", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { checkIn, checkOut } = req.query;
+      if (!id || !checkIn || !checkOut || typeof checkIn !== "string" || typeof checkOut !== "string") {
+        return res.status(400).json({ error: "accommodation id, checkIn and checkOut are required" });
+      }
+      const available = await storage.checkAccommodationAvailability(id, checkIn, checkOut);
+      res.json({ available, checkIn, checkOut });
+    } catch (error) {
+      console.error("Error checking availability:", error);
+      res.status(500).json({ error: "Failed to check availability" });
+    }
+  });
+
+  app.post("/api/accommodations/book", async (req, res) => {
+    try {
+      const {
+        accommodationId,
+        accommodationName,
+        checkIn,
+        checkOut,
+        rooms,
+        guests,
+        guestName,
+        guestEmail,
+        guestPhone,
+        totalPrice
+      } = req.body;
+      if (!accommodationId || !accommodationName || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone || totalPrice == null) {
+        return res.status(400).json({ error: "Missing required booking fields" });
+      }
+      const available = await storage.checkAccommodationAvailability(accommodationId, checkIn, checkOut);
+      if (!available) {
+        return res.status(409).json({ error: "Selected dates are no longer available" });
+      }
+      const { id } = await storage.createAccommodationBooking({
+        accommodationId,
+        accommodationName,
+        checkIn,
+        checkOut,
+        rooms: rooms || 1,
+        guests: guests || 1,
+        guestName,
+        guestEmail,
+        guestPhone,
+        totalPrice: Number(totalPrice),
+        status: "confirmed"
+      });
+      res.status(201).json({ success: true, bookingId: id });
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      res.status(500).json({ error: "Failed to create booking" });
+    }
   });
   
   // Smart recommendations endpoint
@@ -657,7 +714,7 @@ export async function registerRoutes(app: Express) {
       console.error("Error generating embeddings:", error);
       return res.status(500).json({ 
         error: "Failed to generate embeddings",
-        details: error.message 
+        details: (error as Error).message 
       });
     }
   });
@@ -813,7 +870,6 @@ export async function registerRoutes(app: Express) {
         temperature: 0.3,   // Use a relatively low temperature for factual content
         topK: 50,           // Consider more candidates from the model
         topP: 0.95,         // Include a wider range of token probabilities
-        maxOutputTokens: 1024 // Allow for longer, more detailed answers
       });
       
       if (!enhancedAnswer) {

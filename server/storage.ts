@@ -1,4 +1,4 @@
-import type { Facility, EmergencyContact, UserEmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig } from "@shared/schema";
+import type { Facility, EmergencyContact, UserEmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig, AccommodationBooking } from "@shared/schema";
 import { pipeline } from '@xenova/transformers';
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
 
@@ -108,7 +108,7 @@ export interface IStorage {
   searchKnowledgeBase(query: string): Promise<KnowledgeBase | null>;
   // User emergency contacts methods
   getUserEmergencyContacts(userId: string): Promise<UserEmergencyContact[]>;
-  saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id'>): Promise<number>;
+  saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id' | 'createdAt'>): Promise<number>;
   deleteUserEmergencyContact(contactId: number): Promise<void>;
   
   // SMS functionality
@@ -118,6 +118,10 @@ export interface IStorage {
   calculateDensityGrid(config: GridConfig): Promise<DensityGrid[]>;
   getDensityGridForLocation(locationId: number): Promise<DensityGrid[]>;
   updateDensityGrid(locationId: number, density: number[][]): Promise<void>;
+
+  // Accommodation booking methods
+  checkAccommodationAvailability(accommodationId: string, checkIn: string, checkOut: string): Promise<boolean>;
+  createAccommodationBooking(booking: Omit<AccommodationBooking, "id" | "createdAt"> & { status?: AccommodationBooking["status"] }): Promise<{ id: string }>;
 }
 
 export interface KnowledgeBase {
@@ -326,6 +330,7 @@ export class MemStorage implements IStorage {
     language: string;
     timestamp: string;
     category?: string;
+    imageUrl?: string;
   }[] = [];
 
   private kumbhLocations = [
@@ -544,14 +549,14 @@ export class MemStorage implements IStorage {
       templateType: 'location_info',
       template: '{{location}} is {{status}}. Current crowd level is {{crowdLevel}}. {{recommendations}}',
       variables: ['location', 'status', 'crowdLevel', 'recommendations'],
-      lastModified: new Date().toISOString()
+      lastModified: new Date()
     },
     {
       id: 2,
       templateType: 'emergency_response',
       template: 'For immediate assistance at {{location}}, contact {{contact}}. {{additionalInfo}}',
       variables: ['location', 'contact', 'additionalInfo'],
-      lastModified: new Date().toISOString()
+      lastModified: new Date()
     }
   ];
 
@@ -783,13 +788,13 @@ export class MemStorage implements IStorage {
       // Check if this migration pattern applies to current time
       if (currentHour >= startHour && currentHour <= endHour) {
         // Calculate number of people moving from source to destination
-        const movingCount = Math.floor(crowdNumbers[pattern.from] * pattern.flowRate);
+        const movingCount = Math.floor(crowdNumbers[pattern.from as LocationKey] * pattern.flowRate);
 
         // Remove people from source location
-        crowdNumbers[pattern.from] -= movingCount;
+        crowdNumbers[pattern.from as LocationKey] -= movingCount;
 
         // Add people to destination location
-        crowdNumbers[pattern.to] += movingCount;
+        crowdNumbers[pattern.to as LocationKey] += movingCount;
       }
     });
 
@@ -1284,6 +1289,35 @@ export class MemStorage implements IStorage {
     return this.densityGridData.filter(cell => cell.locationId === locationId);
   }
 
+  // Accommodation booking storage (in-memory for real-time bookings)
+  private accommodationBookings: (AccommodationBooking & { id: string; createdAt: string })[] = [];
+
+  async checkAccommodationAvailability(accommodationId: string, checkIn: string, checkOut: string): Promise<boolean> {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const conflicting = this.accommodationBookings.some(b => {
+      if (b.accommodationId !== accommodationId || b.status === "cancelled") return false;
+      const bStart = new Date(b.checkIn);
+      const bEnd = new Date(b.checkOut);
+      return (checkInDate >= bStart && checkInDate < bEnd) ||
+        (checkOutDate > bStart && checkOutDate <= bEnd) ||
+        (checkInDate <= bStart && checkOutDate >= bEnd);
+    });
+    return !conflicting;
+  }
+
+  async createAccommodationBooking(booking: Omit<AccommodationBooking, "id" | "createdAt"> & { status?: AccommodationBooking["status"] }): Promise<{ id: string }> {
+    const id = `acc_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const newBooking = {
+      ...booking,
+      id,
+      status: (booking.status || "confirmed") as AccommodationBooking["status"],
+      createdAt: new Date().toISOString()
+    };
+    this.accommodationBookings.push(newBooking);
+    return { id };
+  }
+
   async updateDensityGrid(locationId: number, density: number[][]): Promise<void> {
     const existingCells = this.densityGridData.filter(cell => cell.locationId === locationId);
 
@@ -1294,8 +1328,8 @@ export class MemStorage implements IStorage {
           cell.density = value;
           cell.timestamp = new Date();
           if (cell.metadata) {
-            cell.metadata.color = this.getDensityColor(value);
-            cell.metadata.timestamp = new Date().toISOString();
+            (cell.metadata as GridMetadata).color = this.getDensityColor(value);
+            (cell.metadata as GridMetadata).timestamp = new Date().toISOString();
           }
         }
       });
@@ -1316,7 +1350,7 @@ export class MemStorage implements IStorage {
     return this.userEmergencyContacts.filter(contact => contact.userId === userId);
   }
 
-  async saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id'>): Promise<number> {
+  async saveUserEmergencyContact(contact: Omit<UserEmergencyContact, 'id' | 'createdAt'>): Promise<number> {
     const id = this.userEmergencyContacts.length > 0 
       ? Math.max(...this.userEmergencyContacts.map(c => c.id)) + 1 
       : 1;
@@ -1408,7 +1442,7 @@ export class MemStorage implements IStorage {
       console.error("Error sending SOS messages:", error);
       return {
         success: false,
-        error: `Failed to send SOS messages: ${error.message || 'Unknown error'}`
+        error: `Failed to send SOS messages: ${(error as Error).message || 'Unknown error'}`
       };
     }
   }

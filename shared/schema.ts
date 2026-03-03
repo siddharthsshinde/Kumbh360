@@ -158,6 +158,8 @@ export const chatMessageSchema = z.object({
     context: z.string().optional(),
     location: z.string().optional(),
     intent: z.string().optional(),
+    hasImage: z.boolean().optional(),
+    source: z.string().optional(),
   }).optional(),
 });
 
@@ -191,3 +193,22 @@ export const gridConfigSchema = z.object({
 });
 
 export type GridConfig = z.infer<typeof gridConfigSchema>;
+
+// Accommodation booking types (in-memory / API)
+export const accommodationBookingSchema = z.object({
+  accommodationId: z.string(),
+  accommodationName: z.string(),
+  checkIn: z.string(),
+  checkOut: z.string(),
+  rooms: z.number().min(1).max(10),
+  guests: z.number().min(1).max(20),
+  guestName: z.string().min(2),
+  guestEmail: z.string().email(),
+  guestPhone: z.string().min(10),
+  totalPrice: z.number(),
+  status: z.enum(["confirmed", "cancelled", "pending"]),
+});
+export type AccommodationBooking = z.infer<typeof accommodationBookingSchema> & {
+  id?: string;
+  createdAt?: string;
+};

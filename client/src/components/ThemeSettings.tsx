@@ -22,7 +22,7 @@ export function ThemeSettings() {
   const handleToggleAppearance = () => {
     const newTheme = {
       ...theme,
-      appearance: theme.appearance === 'light' ? 'dark' : 'light'
+      appearance: (theme.appearance === 'light' ? 'dark' : 'light') as 'light' | 'dark'
     };
     setCurrentTheme(newTheme);
     setTheme(newTheme);

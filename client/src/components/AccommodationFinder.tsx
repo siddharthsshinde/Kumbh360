@@ -1,11 +1,19 @@
 
 import React, { useState, useEffect } from "react";
+import { format, addDays, startOfDay } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Phone, Star, MapPin, Info } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Loader2, Phone, Star, MapPin, Info, CalendarIcon, BookOpen } from "lucide-react";
+import { AccommodationBookingSheet } from "./AccommodationBookingSheet";
 import { useToast } from "@/hooks/use-toast";
 import { tripAdvisorApiClient, TripAdvisorHotel } from "@/lib/tripAdvisorApi";
 import { ask_secrets } from "@/lib/secrets";
@@ -212,6 +220,8 @@ const KUMBH_MELA_CENTER = {
   longitude: 73.791
 };
 
+const today = startOfDay(new Date());
+
 export function AccommodationFinder() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,6 +231,10 @@ export function AccommodationFinder() {
   const [hasApiKey, setHasApiKey] = useState(false);
   const [accommodations, setAccommodations] = useState<TripAdvisorHotel[]>([]);
   const [tab, setTab] = useState<'all' | 'nearby' | 'popular'>('all');
+  const [checkIn, setCheckIn] = useState<Date>(addDays(today, 1));
+  const [checkOut, setCheckOut] = useState<Date>(addDays(today, 2));
+  const [bookingAccommodation, setBookingAccommodation] = useState<TripAdvisorHotel | null>(null);
+  const [bookingSheetOpen, setBookingSheetOpen] = useState(false);
   
   // Sample data is already typed as TripAdvisorHotel[]
 
@@ -399,6 +413,31 @@ export function AccommodationFinder() {
         </Tabs>
         
         <div className="mb-4">
+          <div className="flex flex-wrap gap-2 mb-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="text-xs">
+                  <CalendarIcon className="h-3.5 w-3 mr-1.5" />
+                  {format(checkIn, "MMM d")} – {format(checkOut, "MMM d")}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={{ from: checkIn, to: checkOut }}
+                  onSelect={(range) => {
+                    if (range?.from) {
+                      setCheckIn(range.from);
+                      setCheckOut(range.to || addDays(range.from, 1));
+                    }
+                  }}
+                  disabled={(date) => date < today}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
+            <span className="text-xs text-muted-foreground self-center">Select dates to check availability</span>
+          </div>
           <Input
             type="text"
             placeholder="Search for accommodations..."
@@ -534,16 +573,25 @@ export function AccommodationFinder() {
                       <Badge variant="outline" className="text-xs">+{accommodation.amenities.length - 3} more</Badge>
                     )}
                   </div>
-                  <div className="mt-3 pt-2 border-t">
+                  <div className="mt-3 pt-2 border-t flex gap-2">
                     <Button 
                       size="sm" 
-                      className="w-full bg-[#FF7F00] hover:bg-[#E67300] text-white"
+                      className="flex-1 bg-[#FF7F00] hover:bg-[#E67300] text-white"
                       onClick={() => {
-                        window.open(`tel:${accommodation.contact}`);
+                        setBookingAccommodation(accommodation);
+                        setBookingSheetOpen(true);
                       }}
                     >
-                      <Phone className="h-3 w-3 mr-1" />
-                      {accommodation.contact}
+                      <BookOpen className="h-3 w-3 mr-1" />
+                      Book Now
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="shrink-0"
+                      onClick={() => window.open(`tel:${accommodation.contact}`)}
+                    >
+                      <Phone className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -551,6 +599,13 @@ export function AccommodationFinder() {
             ))}
           </div>
         )}
+        <AccommodationBookingSheet
+          accommodation={bookingAccommodation}
+          open={bookingSheetOpen}
+          onOpenChange={setBookingSheetOpen}
+          initialCheckIn={checkIn}
+          initialCheckOut={checkOut}
+        />
       </CardContent>
     </Card>
   );

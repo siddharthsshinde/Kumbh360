@@ -65,7 +65,7 @@ export function KumbhLocationsInfo() {
                   <h3 className="font-semibold text-lg">{location.name}</h3>
                   <Badge 
                     variant={location.currentStatus.includes("OVERCROWDED") ? "destructive" : 
-                            location.currentStatus.includes("CROWDED") ? "warning" : "success"}
+                            location.currentStatus.includes("CROWDED") ? "secondary" : "default"}
                   >
                     {location.currentStatus}
                   </Badge>

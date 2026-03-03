@@ -337,7 +337,8 @@ class RecommendationEngine {
       if (userLocation && facility) {
         const distance = this.calculateDistance(
           userLocation.lat, userLocation.lng,
-          facility.coordinates.lat, facility.coordinates.lng
+          (facility.location as { lat: number; lng: number }).lat,
+          (facility.location as { lat: number; lng: number }).lng
         );
         recommendation.distance = distance;
         recommendation.description += ` It's about ${distance.toFixed(1)} km from your current location.`;
