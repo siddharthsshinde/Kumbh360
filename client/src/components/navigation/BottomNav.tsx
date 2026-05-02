@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { appNavigation } from "@/config/navigation";
+import { useHaptics } from "@/hooks/useHaptics";
 import { cn } from "@/lib/utils";
 
 export function BottomNav() {
   const [location] = useLocation();
+  const { trigger } = useHaptics();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 backdrop-blur-xl">
@@ -18,6 +20,7 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
+              onClick={() => trigger(isActive ? "light" : "medium")}
               className={cn(
                 "relative flex min-h-[4.25rem] flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-medium transition-colors",
                 isActive ? "text-[#FF7F00]" : "text-slate-500",

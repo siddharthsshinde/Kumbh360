@@ -1,6 +1,9 @@
-import { AlertTriangle, MapPinned } from "lucide-react";
+import { AlertTriangle, MapPinned, Share2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { useHaptics } from "@/hooks/useHaptics";
+import { useNativeShare } from "@/hooks/useNativeShare";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 interface AppHeaderProps {
@@ -18,6 +21,29 @@ export function AppHeader({
   onShareLocation,
   title,
 }: AppHeaderProps) {
+  const { trigger } = useHaptics();
+  const { share } = useNativeShare();
+  const { toast } = useToast();
+
+  const handleSOS = () => {
+    trigger("error");
+    onOpenSOS();
+  };
+
+  const handleShare = async () => {
+    trigger("light");
+    const shared = await share({
+      title: "Kumbh360 — Pilgrim Companion",
+      text: "Live crowd info, AI assistant, and SOS for Kumbh Mela pilgrims.",
+      url: window.location.href,
+    });
+    if (shared) {
+      toast({ description: "Shared successfully" });
+    } else {
+      onShareLocation();
+    }
+  };
+
   return (
     <header className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/88 p-5 shadow-[0_24px_80px_rgba(255,127,0,0.12)] backdrop-blur-xl">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,127,0,0.22),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(227,160,24,0.18),transparent_34%)]" />
@@ -28,7 +54,7 @@ export function AppHeader({
             href="/"
             className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-white"
           >
-            Kumbh360 PWA
+            Kumbh360
           </Link>
 
           <div className="space-y-2">
@@ -49,7 +75,16 @@ export function AppHeader({
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
-            onClick={onShareLocation}
+            size="icon"
+            onClick={handleShare}
+            className="rounded-2xl border-slate-200 text-slate-600 hover:bg-slate-100"
+            aria-label="Share"
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => { trigger("light"); onShareLocation(); }}
             className="rounded-2xl border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
           >
             <MapPinned className="h-4 w-4" />
@@ -57,11 +92,11 @@ export function AppHeader({
           </Button>
           <Button
             variant="destructive"
-            onClick={onOpenSOS}
+            onClick={handleSOS}
             className="rounded-2xl bg-[#D14343] shadow-sm hover:bg-[#B73434]"
           >
             <AlertTriangle className="h-4 w-4" />
-            <span className={cn(compact && "hidden xs:inline")}>Open SOS</span>
+            <span className={cn(compact && "hidden xs:inline")}>SOS</span>
           </Button>
         </div>
       </div>

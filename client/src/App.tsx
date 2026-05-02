@@ -4,6 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SOSDialog } from "@/components/emergency/SOSDialog";
+import { SplashScreen } from "@/components/pwa/SplashScreen";
+import { NetworkStatus } from "@/components/pwa/NetworkStatus";
 import { useEmergencyActions } from "@/hooks/useEmergencyActions";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -35,6 +37,8 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SplashScreen />
+      <NetworkStatus />
       <AppLayout
         onOpenSOS={emergency.openSOS}
         onShareLocation={emergency.shareLocation}

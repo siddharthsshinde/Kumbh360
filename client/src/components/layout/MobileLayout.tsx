@@ -19,7 +19,10 @@ export function MobileLayout({
 }: MobileLayoutProps) {
   return (
     <div className="min-h-[100dvh] bg-[radial-gradient(circle_at_top,#FFF4E2,transparent_38%),linear-gradient(180deg,#FFF9F2_0%,#F7F9FC_100%)]">
-      <div className="mx-auto flex min-h-[100dvh] max-w-screen-sm flex-col px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+      <div
+        className="mx-auto flex min-h-[100dvh] max-w-screen-sm flex-col px-4 pb-[calc(6rem+env(safe-area-inset-bottom))]"
+        style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+      >
         <div className="sticky top-0 z-40 pb-4 pt-1">
           <AppHeader
             compact
@@ -30,7 +33,9 @@ export function MobileLayout({
           />
         </div>
 
-        <main className="flex-1 space-y-6 pb-2">{children}</main>
+        <main className="flex-1 space-y-4 pb-2 overscroll-y-contain">
+          {children}
+        </main>
       </div>
 
       <BottomNav />

@@ -1,133 +1,241 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Compass, MessageSquareMore, ShieldCheck } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Map, MessageSquare, AlertTriangle, Bus, Utensils, Users,
+  Hotel, Sun, CloudRain, Cloud, Droplets, Wind, ChevronRight,
+  Download, Bell, Navigation2, ShieldAlert,
+} from "lucide-react";
 import { Link } from "wouter";
-import { AccommodationFinder } from "@/components/AccommodationFinder";
 import { ChatInterface } from "@/components/ChatInterface";
-import { CommunityFeatures } from "@/components/CommunityFeatures";
 import { CrowdLevelIndicator } from "@/components/CrowdLevel";
 import { FoodWaterSafety } from "@/components/FoodWaterSafety";
 import { NewsWidget } from "@/components/NewsWidget";
 import { RealTimeSafetySuggestion } from "@/components/RealTimeSafetySuggestion";
 import { SmartTransportationHub } from "@/components/SmartTransportationHub";
 import { WeatherWidget } from "@/components/WeatherWidget";
-import { buttonVariants } from "@/components/ui/button";
+import { AccommodationFinder } from "@/components/AccommodationFinder";
+import { CommunityFeatures } from "@/components/CommunityFeatures";
+import { PullToRefreshIndicator } from "@/components/pwa/PullToRefreshIndicator";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useHaptics } from "@/hooks/useHaptics";
+import { useInstallPrompt } from "@/hooks/useInstallPrompt";
+import type { WeatherData } from "@shared/types";
+import type { CrowdLevel } from "@shared/schema";
 import { cn } from "@/lib/utils";
 
-export default function Home() {
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.055 } },
+};
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+};
+
+function getHour() {
+  const h = new Date().getHours();
+  if (h < 6) return "night";
+  if (h < 12) return "morning";
+  if (h < 17) return "afternoon";
+  if (h < 20) return "evening";
+  return "night";
+}
+const greetings: Record<string, string> = {
+  morning: "Good morning",
+  afternoon: "Good afternoon",
+  evening: "Good evening",
+  night: "Good night",
+};
+
+const QUICK_ACTIONS = [
+  { label: "Map", icon: Map, href: "/map", color: "bg-blue-500", light: "bg-blue-50 text-blue-700" },
+  { label: "Chat", icon: MessageSquare, href: "/#chat", color: "bg-[#FF7F00]", light: "bg-orange-50 text-orange-700" },
+  { label: "SOS", icon: ShieldAlert, href: "/sos", color: "bg-red-500", light: "bg-red-50 text-red-700" },
+  { label: "Transport", icon: Bus, href: "/#transport", color: "bg-emerald-500", light: "bg-emerald-50 text-emerald-700" },
+];
+
+function WeatherPill() {
+  const { data } = useQuery<WeatherData>({ queryKey: ["/api/weather"] });
+  const cond = data?.condition?.toLowerCase() ?? "";
+  const icon = cond.includes("rain") ? CloudRain : cond.includes("cloud") ? Cloud : Sun;
+  const Icon = icon;
   return (
-    <motion.div className="space-y-6">
-      <section className="overflow-hidden rounded-[2rem] border border-orange-100 bg-[linear-gradient(135deg,#FFF6EA,#FFFFFF_55%,#FFF0D8)] p-6">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#C45D00]">
-              Live companion
-            </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-              One responsive shell, the same trusted features
-            </h2>
-            <p className="text-sm leading-6 text-slate-600">
-              Use the assistant, watch live conditions, and jump into maps or
-              emergency support from a mobile-first layout that expands cleanly
-              on desktop.
-            </p>
+    <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-sm font-medium shadow-sm backdrop-blur-sm">
+      <Icon className="h-3.5 w-3.5 text-[#FF7F00]" />
+      <span className="text-slate-700">{data ? `${data.temperature}°C` : "—"}</span>
+      {data && <span className="hidden text-slate-400 xs:inline">· {data.humidity}% RH</span>}
+    </div>
+  );
+}
 
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/map"
-                className={cn(
-                  buttonVariants({ variant: "default" }),
-                  "rounded-2xl bg-[#FF7F00] text-white hover:bg-[#E36A00]",
-                )}
-              >
-                Explore map
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/sos"
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "rounded-2xl border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
-                )}
-              >
-                Safety center
-              </Link>
+function CrowdPill() {
+  const { data } = useQuery<CrowdLevel[]>({ queryKey: ["/api/crowd-levels"] });
+  const worst = data?.reduce((a, b) => (b.level > a.level ? b : a));
+  if (!worst) return null;
+  const color =
+    worst.level >= 8 ? "bg-red-50 text-red-700" :
+    worst.level >= 6 ? "bg-orange-50 text-orange-700" :
+    "bg-emerald-50 text-emerald-700";
+  const dot =
+    worst.level >= 8 ? "bg-red-500" :
+    worst.level >= 6 ? "bg-orange-500" : "bg-emerald-500";
+  return (
+    <div className={cn("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm", color)}>
+      <span className={cn("h-2 w-2 rounded-full", dot)} />
+      {worst.status ?? worst.location}
+    </div>
+  );
+}
+
+export default function Home() {
+  const qc = useQueryClient();
+  const { trigger } = useHaptics();
+  const { canInstall, promptToInstall } = useInstallPrompt();
+
+  const handleRefresh = async () => {
+    trigger("medium");
+    await qc.invalidateQueries();
+  };
+
+  const { pullDistance, isRefreshing } = usePullToRefresh({ onRefresh: handleRefresh });
+
+  const greeting = greetings[getHour()];
+
+  return (
+    <motion.div className="space-y-5" variants={container} initial="hidden" animate="show">
+
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
+
+      {/* ── App hero header ── */}
+      <motion.section
+        variants={item}
+        className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#FF7F00,#FFa040_60%,#FF6B00)] p-5 text-white shadow-[0_12px_40px_rgba(255,127,0,0.35)]"
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_80%_20%,white,transparent_55%)]" />
+        <div className="relative flex flex-col gap-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-orange-100">Kumbh360</p>
+              <h1 className="mt-1 text-2xl font-bold">{greeting}, Pilgrim</h1>
+              <p className="mt-0.5 text-sm text-orange-100">Stay safe · Stay informed</p>
+            </div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+              <Navigation2 className="h-5 w-5 text-white" />
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <div className="rounded-[1.5rem] bg-white/85 p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <MessageSquareMore className="h-4 w-4 text-[#FF7F00]" />
-                Guided assistance
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                Keep the chat assistant close for contextual answers and travel
-                planning.
-              </p>
-            </div>
-            <div className="rounded-[1.5rem] bg-white/85 p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <Compass className="h-4 w-4 text-[#FF7F00]" />
-                Route awareness
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                Move into dedicated map and transport routes without losing the
-                current feature set.
-              </p>
-            </div>
-            <div className="rounded-[1.5rem] bg-white/85 p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <ShieldCheck className="h-4 w-4 text-[#FF7F00]" />
-                Ready for safety
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                SOS actions now have a dedicated route while staying reachable
-                from the app header.
-              </p>
-            </div>
+          <div className="flex flex-wrap gap-2">
+            <WeatherPill />
+            <CrowdPill />
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      {/* ── Install banner ── */}
+      {canInstall && (
+        <motion.button
+          variants={item}
+          onClick={() => { trigger("light"); void promptToInstall(); }}
+          className="flex w-full items-center gap-3 overflow-hidden rounded-[1.5rem] border border-orange-100 bg-[linear-gradient(135deg,#FFF8EC,#FFFFFF)] p-4 shadow-sm text-left"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF7F00] shadow-sm">
+            <Download className="h-5 w-5 text-white" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-slate-900">Add to home screen</p>
+            <p className="text-xs text-slate-500">Full-screen · Offline shell · Fast launch</p>
+          </div>
+          <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+        </motion.button>
+      )}
+
+      {/* ── Quick actions ── */}
+      <motion.div variants={item}>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Quick actions</h2>
+        <div className="grid grid-cols-4 gap-3">
+          {QUICK_ACTIONS.map(({ label, icon: Icon, href, color }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => trigger("light")}
+              className="flex flex-col items-center gap-2"
+            >
+              <span className={cn("flex h-14 w-full items-center justify-center rounded-2xl shadow-sm", color)}>
+                <Icon className="h-6 w-6 text-white" />
+              </span>
+              <span className="text-xs font-medium text-slate-600">{label}</span>
+            </Link>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* ── Safety suggestion ── */}
+      <motion.div
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
         <RealTimeSafetySuggestion />
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.8fr)]">
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <ChatInterface />
-        </div>
-        <div className="space-y-6">
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <WeatherWidget />
-          </div>
-          <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <CrowdLevelIndicator />
-          </div>
-        </div>
-      </div>
+      {/* ── Chat assistant ── */}
+      <motion.div
+        id="chat"
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
+        <ChatInterface />
+      </motion.div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
+      {/* ── Weather + crowd side by side on wider screens ── */}
+      <motion.div variants={item} className="grid gap-4 sm:grid-cols-2">
         <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <NewsWidget />
+          <WeatherWidget />
         </div>
         <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <AccommodationFinder />
+          <CrowdLevelIndicator />
         </div>
-      </div>
+      </motion.div>
 
-      <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      {/* ── News ── */}
+      <motion.div
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
+        <NewsWidget />
+      </motion.div>
+
+      {/* ── Transport ── */}
+      <motion.div
+        id="transport"
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
+        <SmartTransportationHub />
+      </motion.div>
+
+      {/* ── Accommodation ── */}
+      <motion.div
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
+        <AccommodationFinder />
+      </motion.div>
+
+      {/* ── Food & Water ── */}
+      <motion.div
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
         <FoodWaterSafety />
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <CommunityFeatures />
-        </div>
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <SmartTransportationHub />
-        </div>
-      </div>
+      {/* ── Community ── */}
+      <motion.div
+        variants={item}
+        className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
+      >
+        <CommunityFeatures />
+      </motion.div>
     </motion.div>
   );
 }
