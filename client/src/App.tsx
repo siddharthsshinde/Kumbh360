@@ -12,6 +12,7 @@ import Home from "@/pages/home";
 import MapPage from "@/pages/map";
 import ProfilePage from "@/pages/profile";
 import SOSPage from "@/pages/sos";
+import ExplorePage from "@/pages/explore";
 import "./lib/i18n";
 
 interface RouterProps {
@@ -26,6 +27,7 @@ function Router({ emergency }: RouterProps) {
       <Route path="/sos">
         <SOSPage emergency={emergency} />
       </Route>
+      <Route path="/explore" component={ExplorePage} />
       <Route path="/profile" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>

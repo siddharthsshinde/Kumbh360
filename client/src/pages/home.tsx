@@ -4,6 +4,7 @@ import {
   Map, MessageSquare, AlertTriangle, Bus, Utensils, Users,
   Hotel, Sun, CloudRain, Cloud, Droplets, Wind, ChevronRight,
   Download, Bell, Navigation2, ShieldAlert,
+  QrCode, Sparkles, Calendar, Heart, Wallet, Ticket, ShoppingBag, LayoutDashboard, Compass,
 } from "lucide-react";
 import { Link } from "wouter";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -235,6 +236,37 @@ export default function Home() {
         className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
       >
         <CommunityFeatures />
+      </motion.div>
+
+      {/* ── Explore features ── */}
+      <motion.div variants={item} className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Explore all features</h2>
+          <Link href="/explore" onClick={() => trigger("light")}
+            className="flex items-center gap-1 text-xs font-semibold text-[#FF7F00]">
+            See all <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { icon: QrCode, label: "Pass", href: "/explore", color: "bg-orange-100 text-orange-600" },
+            { icon: Users, label: "Group", href: "/explore", color: "bg-blue-100 text-blue-600" },
+            { icon: Sparkles, label: "Spiritual", href: "/explore", color: "bg-purple-100 text-purple-600" },
+            { icon: Calendar, label: "Events", href: "/explore", color: "bg-pink-100 text-pink-600" },
+            { icon: Heart, label: "Health", href: "/explore", color: "bg-red-100 text-red-600" },
+            { icon: Wallet, label: "Wallet", href: "/explore", color: "bg-emerald-100 text-emerald-600" },
+            { icon: Ticket, label: "Queues", href: "/explore", color: "bg-amber-100 text-amber-600" },
+            { icon: ShoppingBag, label: "Market", href: "/explore", color: "bg-indigo-100 text-indigo-600" },
+          ].map(({ icon: Icon, label, href, color }) => (
+            <Link key={label} href={href} onClick={() => trigger("light")}
+              className="flex flex-col items-center gap-1.5">
+              <span className={cn("flex h-12 w-full items-center justify-center rounded-2xl", color)}>
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="text-[11px] font-medium text-slate-600">{label}</span>
+            </Link>
+          ))}
+        </div>
       </motion.div>
     </motion.div>
   );

@@ -1,0 +1,456 @@
+# 📘 Kumbh360 User App — Feature Documentation
+
+---
+
+## 🏠 Overview
+
+**Kumbh360** is a **super app for Kumbh Mela pilgrims** powered by AI (KumbhDoot), designed to provide:
+
+- Safe navigation 🧭
+- Group coordination 👥
+- Emergency support 🆘
+- Seamless bookings 🏨
+- Spiritual experience 🧘
+
+---
+
+# 🧩 Core Modules
+
+---
+
+## 🧠 AI Kumbh Assistant (KumbhDoot)
+
+**Type:** Core System
+
+**Features:**
+
+- Voice-first assistant (multi-language)
+- Chat-based interaction
+- Context-aware suggestions
+- Auto booking (stay, travel, food)
+- Real-time translation
+- Voice-triggered SOS
+- Group-aware intelligence
+- Personalized recommendations
+
+---
+
+## 🧾 User Onboarding & Digital Pass
+
+**Type:** Core
+
+**Features:**
+
+- Mobile OTP login
+- Digital Kumbh Pass (QR-based)
+- DigiLocker integration
+- Profile setup
+- Travel intent planning
+- Multi-language onboarding
+- Low-literacy friendly UX
+
+---
+
+## 👥 Group & Family Module
+
+**Type:** Core (Critical)
+
+**Features:**
+
+- Create / Join group
+- Invite via QR / phone
+- Role management (Admin, Member, Elder)
+- Live location tracking (opt-in)
+- Group map view
+- Navigate to member
+- AI-based group planning
+- Shared itinerary
+- Group chat (voice + text)
+- Auto translation
+- Missing member alerts
+- Group SOS
+- Smart meeting points
+- Elder-friendly mode
+- Privacy controls
+
+---
+
+## 🗺 Smart Navigation & Map
+
+**Type:** Core
+
+**Features:**
+
+- Live Kumbh map
+- Crowd density heatmap
+- Route optimization
+- Ghat navigation
+- Camp navigation
+- Offline maps
+- Voice navigation
+- Geo-fenced alerts
+
+---
+
+## 🆘 SOS & Emergency System
+
+**Type:** Core (Critical)
+
+**Features:**
+
+- Global SOS button (always visible)
+- Voice-trigger SOS
+- Emergency types (medical, police, lost, fire)
+- Auto location sharing
+- Group alert system
+- Real-time responder tracking
+- Offline SOS (IVR/SMS)
+- AI emergency detection
+- Lost & found reporting
+
+---
+
+## 🏨 Stay & Accommodation
+
+**Type:** Access Service
+
+**Features:**
+
+- Camps booking
+- Hotels / Dharamshalas
+- AI recommendations
+- Group booking
+- Real-time availability
+- QR check-in
+
+---
+
+## 🚆 Travel & Transport
+
+**Type:** Access Service
+
+**Features:**
+
+- Train booking
+- Bus booking
+- Local transport discovery
+- Shuttle tracking
+- AI itinerary planner
+- Last-mile navigation
+
+---
+
+## 🍛 Food & Vendor Discovery
+
+**Type:** Access Service
+
+**Features:**
+
+- Nearby food stalls
+- Cuisine filters
+- Hygiene ratings
+- Queue estimation
+- AI recommendations
+- Pre-order
+- Vendor discovery
+
+---
+
+## 💸 Payments & Wallet
+
+**Type:** Access Service
+
+**Features:**
+
+- UPI payments
+- Scan & Pay
+- Voice payments
+- Donations
+- Expense tracking
+- Payment history
+
+---
+
+## 🧘 Spiritual Experience
+
+**Type:** Experience Layer
+
+**Features:**
+
+- Snan timing alerts
+- Temple guides
+- Ritual guidance
+- Personalized routes
+- Pravachan discovery
+- Daily spiritual feed
+
+---
+
+## 👥 Social & Community
+
+**Type:** Experience Layer
+
+**Features:**
+
+- Find pilgrims by state/language
+- Meetups / satsang
+- Community networking
+- Shared experiences
+
+---
+
+## 🏥 Health Services
+
+**Type:** Safety
+
+**Features:**
+
+- Nearby hospitals
+- Doctor availability
+- Ambulance request
+- Health records (optional)
+- Medicine availability
+
+---
+
+## 🛍 Marketplace
+
+**Type:** Economy Layer
+
+**Features:**
+
+- Vendor discovery
+- Religious items
+- Offers & discounts
+- Vendor ratings
+- AI recommendations
+
+---
+
+## 📡 Offline & Low-Tech Support
+
+**Type:** Infrastructure
+
+**Features:**
+
+- IVR interaction
+- SMS alerts
+- Kiosk support
+- Offline mode
+- Voice-only usage
+
+---
+
+## 🎥 Virtual Experience
+
+**Type:** Experience Layer
+
+**Features:**
+
+- 360° tour
+- Live darshan
+- AR/VR experience
+- Tele-puja booking
+
+---
+
+## 🔔 Notifications
+
+**Type:** Core
+
+**Features:**
+
+- Snan alerts
+- Crowd warnings
+- Booking reminders
+- Emergency alerts
+- AI notifications
+
+---
+
+## 📊 Personal Dashboard
+
+**Type:** Core
+
+**Features:**
+
+- Daily plan
+- Booking summary
+- Expense tracking
+- Travel status
+- Spiritual journey tracking
+
+---
+
+## 🌐 Multilingual & Accessibility
+
+**Type:** Core
+
+**Features:**
+
+- 20+ languages
+- Voice-first UX
+- Elder-friendly UI
+- Accessibility support
+
+---
+
+## 🎯 AI Smart Planning
+
+**Type:** Intelligence Layer
+
+**Features:**
+
+- Auto itinerary
+- Budget planning
+- Crowd avoidance
+- Best time suggestions
+
+---
+
+## 🧾 Booking Management
+
+**Type:** Utility
+
+**Features:**
+
+- Unified booking system
+- Modify/cancel
+- Ticket storage
+- QR access
+
+---
+
+## 📍 Discovery Engine
+
+**Type:** Utility
+
+**Features:**
+
+- Nearby services
+- Trending places
+- AI recommendations
+- Hidden gems
+
+---
+
+## 🧹 Civic Utilities
+
+**Type:** Utility
+
+**Features:**
+
+- Toilets locator
+- Water stations
+- Waste points
+
+---
+
+## 📢 Announcements
+
+**Type:** System
+
+**Features:**
+
+- Government alerts
+- Emergency broadcasts
+- Event updates
+
+---
+
+## 🎤 Events & Programs
+
+**Type:** Experience
+
+**Features:**
+
+- Pravachan schedules
+- Cultural events
+- Akhada processions
+- Event reminders
+
+---
+
+## 🔐 Privacy & Consent
+
+**Type:** System
+
+**Features:**
+
+- Data sharing control
+- Location privacy
+- Emergency override
+- Consent management
+
+---
+
+## 📦 Digital Locker
+
+**Type:** System
+
+**Features:**
+
+- Store Kumbh Pass
+- Tickets
+- ID proofs
+
+---
+
+## 🧠 Predictive AI
+
+**Type:** Advanced
+
+**Features:**
+
+- Crowd prediction
+- Travel delay prediction
+- Demand forecasting
+
+---
+
+## 🎫 Queue Management
+
+**Type:** Utility
+
+**Features:**
+
+- Virtual queues
+- Wait time estimation
+- Slot booking
+
+---
+
+## 📷 Memories & Sharing
+
+**Type:** Social
+
+**Features:**
+
+- Photo zones
+- Journey timeline
+- Digital diary
+- Sharing
+
+---
+
+## 🧭 Multi-Device Support
+
+**Type:** Infrastructure
+
+**Features:**
+
+- Mobile app
+- Feature phone (IVR)
+- Kiosk interface
+
+---
+
+## 🔄 Real-Time Sync
+
+**Type:** System
+
+**Features:**
+
+- Cross-device sync
+- Offline + cloud sync
+- Auto recovery
