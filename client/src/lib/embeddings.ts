@@ -1,10 +1,5 @@
-// Enhanced embeddings using @xenova/transformers for better intent recognition
-import { pipeline } from '@xenova/transformers';
-
-// Define a custom interface for our embedding model that's compatible with what we need
-interface EmbeddingModel {
-  (text: string, options?: any): Promise<{ data: Float32Array | number[] }>;
-}
+// Embeddings: uses server-side Gemini API with a deterministic hash fallback.
+// @xenova/transformers removed — 500 MB WASM bundle that duplicated Gemini embeddings.
 
 // Conversation context state management
 export interface ConversationState {
@@ -17,17 +12,12 @@ export interface ConversationState {
   contextualMemory: Record<string, any>;
 }
 
-// Singleton class to manage embeddings and model loading
+// Singleton class to manage embeddings (server-side Gemini API + hash fallback)
 export class EmbeddingsManager {
   private static instance: EmbeddingsManager;
-  private embeddingModel: EmbeddingModel | null = null;
-  private isLoading: boolean = false;
-  private loadPromise: Promise<void> | null = null;
   private conversations: Map<string, ConversationState> = new Map();
 
-  private constructor() {
-    // Private constructor for singleton pattern
-  }
+  private constructor() {}
 
   public static getInstance(): EmbeddingsManager {
     if (!EmbeddingsManager.instance) {
@@ -37,107 +27,26 @@ export class EmbeddingsManager {
   }
 
   /**
-   * Get the embedding model, loading it if necessary
-   */
-  public async getEmbeddingModel(): Promise<EmbeddingModel> {
-    if (this.embeddingModel) {
-      return this.embeddingModel;
-    }
-    
-    if (this.isLoading) {
-      // If already loading, wait for it to complete
-      await this.loadPromise;
-      return this.embeddingModel!;
-    }
-    
-    // Start loading
-    this.isLoading = true;
-    this.loadPromise = this.loadModel();
-    await this.loadPromise;
-    return this.embeddingModel!;
-  }
-
-  /**
-   * Load the embedding model
-   */
-  private async loadModel(): Promise<void> {
-    try {
-      // Using a smaller model suitable for edge deployments
-      // Wrap the pipeline call in a timeout to prevent blocking the main thread
-      const model = await Promise.race([
-        pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'),
-        new Promise<any>((_, reject) => {
-          setTimeout(() => {
-            console.warn('Embedding model loading timed out, using server-side fallback');
-            reject(new Error('Model loading timeout'));
-          }, 10000); // 10 seconds timeout
-        })
-      ]);
-      
-      this.embeddingModel = model as EmbeddingModel;
-      console.log('Embedding model loaded successfully');
-    } catch (error) {
-      console.error('Error loading embedding model:', error);
-      // Instead of throwing, provide a fallback proxy pipeline
-      // This will return empty embeddings but allow the app to continue functioning
-      const fallbackFn = async (text: string) => {
-        return { data: new Array(384).fill(0) }; // Empty embeddings array
-      };
-      this.embeddingModel = fallbackFn;
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /**
-   * Get embeddings for a text input
+   * Get embeddings for a text input.
+   * Tries server-side Gemini embedding first; falls back to deterministic hash.
    */
   public async getEmbeddings(text: string): Promise<number[]> {
     try {
-      // Try to use the local model first
-      const model = await this.getEmbeddingModel();
-      const result = await model(text, { pooling: 'mean', normalize: true });
-      
-      // Check if we got empty results (which indicates a fallback was used)
-      const embedArray = Array.from(result.data).map(val => Number(val));
-      const isEmptyEmbedding = embedArray.every(val => val === 0);
-      
-      // If we got a proper embedding, return it
-      if (!isEmptyEmbedding) {
-        return embedArray;
-      }
-      
-      // If we have zero embeddings, try to use the server API instead
-      console.log('Using server-side embeddings for:', text.substring(0, 30) + '...');
-      
-      try {
-        // Call the server API for embeddings
-        const response = await fetch('/api/nlp/embed', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text }),
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.embedding && Array.isArray(data.embedding)) {
-            return data.embedding;
-          }
+      const response = await fetch('/api/nlp/embed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.embedding && Array.isArray(data.embedding)) {
+          return data.embedding;
         }
-      } catch (serverError) {
-        console.error('Error getting server-side embeddings:', serverError);
       }
-      
-      // If all else fails, use a simple hash-based fallback
-      return this.generateSimpleEmbedding(text, 384); // Match dimension with the model
-    } catch (error) {
-      console.error('Error generating embeddings:', error);
-      
-      // Use a deterministic hash-based fallback
-      return this.generateSimpleEmbedding(text, 384);
+    } catch {
+      // Server not available — fall through to hash
     }
+    return this.generateSimpleEmbedding(text, 384);
   }
   
   /**

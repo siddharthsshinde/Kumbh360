@@ -1,30 +1,6 @@
-import type { Facility, EmergencyContact, UserEmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig, AccommodationBooking } from "@shared/schema";
-import { pipeline } from '@xenova/transformers';
+import type { Facility, EmergencyContact, UserEmergencyContact, CrowdLevel, ChatHistory, ResponseTemplate, ChatMessage, DensityGrid, GridConfig, AccommodationBooking, LostFoundItem } from "@shared/schema";
+import * as h3 from 'h3-js';
 import kumbhData from "../attached_assets/kumbh_mela_dataset.json";
-
-// Initialize the embedding model
-let embedder: any = null;
-async function getEmbedder() {
-  if (!embedder) {
-    embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-  }
-  return embedder;
-}
-
-// Calculate cosine similarity between two vectors
-function cosineSimilarity(vecA: number[], vecB: number[]): number {
-  const dotProduct = vecA.reduce((acc, val, i) => acc + val * vecB[i], 0);
-  const normA = Math.sqrt(vecA.reduce((acc, val) => acc + val * val, 0));
-  const normB = Math.sqrt(vecB.reduce((acc, val) => acc + val * val, 0));
-  return dotProduct / (normA * normB);
-}
-
-// Get embedding for a text string
-async function getEmbedding(text: string): Promise<number[]> {
-  const model = await getEmbedder();
-  const output = await model(text, { pooling: 'mean', normalize: true });
-  return Array.from(output.data);
-}
 
 // Extract keywords from text
 function extractKeywords(text: string): string[] {
@@ -122,6 +98,15 @@ export interface IStorage {
   // Accommodation booking methods
   checkAccommodationAvailability(accommodationId: string, checkIn: string, checkOut: string): Promise<boolean>;
   createAccommodationBooking(booking: Omit<AccommodationBooking, "id" | "createdAt"> & { status?: AccommodationBooking["status"] }): Promise<{ id: string }>;
+
+  // Location ping methods (real GPS → H3 crowd aggregation)
+  recordLocationPing(userId: string, lat: number, lng: number): Promise<{ hexId: string; density: number }>;
+  getH3CrowdHexes(): Promise<{ hexId: string; count: number; density: number; centerLat: number; centerLng: number }[]>;
+
+  // Lost & Found
+  createLostFoundItem(item: Omit<LostFoundItem, 'id' | 'createdAt'>): Promise<LostFoundItem>;
+  getLostFoundItems(type?: 'lost' | 'found'): Promise<LostFoundItem[]>;
+  resolveLostFoundItem(id: number): Promise<void>;
 }
 
 export interface KnowledgeBase {
@@ -562,6 +547,11 @@ export class MemStorage implements IStorage {
 
   private userEmergencyContacts: UserEmergencyContact[] = [];
   private densityGridData: DensityGrid[] = [];
+  // H3 hex ping counts: hexId → number of pings (real GPS aggregation)
+  private hexPingCounts: Map<string, number> = new Map();
+  // Lost & Found items
+  private lostFoundData: LostFoundItem[] = [];
+  private lostFoundIdCounter = 1;
   private readonly keyLocations = {
     "Ramkund": { lat: 20.0059, lng: 73.7913, radius: 0.5 },
     "Tapovan": { lat: 20.0116, lng: 73.7938, radius: 0.3 },
@@ -1134,159 +1124,151 @@ export class MemStorage implements IStorage {
     source?: string;
     confidence?: number;
   }): Promise<void> {
-    try {
-      // Generate embedding for the new content
-      const text = data.topic + ' ' + data.content;
-      const embedding = await getEmbedding(text);
-      const keywords = extractKeywords(text);
-
-      this.knowledgeBaseItems.push({
-        id: this.knowledgeBaseItems.length + 1,
-        topic: data.topic,
-        content: data.content,
-        source: data.source || '',
-        lastUpdated: new Date().toISOString(),
-        confidence: data.confidence || 80,
-        verified: false,
-        embedding,
-        keywords
-      });
-    } catch (error) {
-      console.error('Error storing knowledge base item:', error);
-      // Store without embedding if generation fails
-      this.knowledgeBaseItems.push({
-        id: this.knowledgeBaseItems.length + 1,
-        topic: data.topic,
-        content: data.content,
-        source: data.source || '',
-        lastUpdated: new Date().toISOString(),
-        confidence: data.confidence || 80,
-        verified: false
-      });
-    }
+    const text = data.topic + ' ' + data.content;
+    const keywords = extractKeywords(text);
+    this.knowledgeBaseItems.push({
+      id: this.knowledgeBaseItems.length + 1,
+      topic: data.topic,
+      content: data.content,
+      source: data.source || '',
+      lastUpdated: new Date().toISOString(),
+      confidence: data.confidence || 80,
+      verified: false,
+      keywords
+    });
   }
 
   async searchKnowledgeBase(query: string): Promise<KnowledgeBase | null> {
-    try {
-      // Get embedding for the query
-      const queryEmbedding = await getEmbedding(query);
-      const queryKeywords = extractKeywords(query);
+    const queryKeywords = extractKeywords(query);
 
-      // First, try keyword-based filtering
-      const keywordMatches = this.knowledgeBaseItems.filter(item => {
-        const itemKeywords = item.keywords || extractKeywords(item.topic + ' ' + item.content);
-        return queryKeywords.some(keyword =>
-          itemKeywords.some(itemKeyword => itemKeyword.includes(keyword))
-        );
-      });
+    // Keyword overlap scoring
+    const scored = this.knowledgeBaseItems.map(item => {
+      const itemKeywords = item.keywords || extractKeywords(item.topic + ' ' + item.content);
+      const overlap = queryKeywords.filter(kw =>
+        itemKeywords.some(ik => ik.includes(kw) || kw.includes(ik))
+      ).length;
+      return { item, score: overlap };
+    }).filter(s => s.score > 0);
 
-      if (keywordMatches.length === 0) {
-        return null;
-      }
-
-      // For keyword matches, compute semantic similarity
-      const similarities = await Promise.all(
-        keywordMatches.map(async item => {
-          const itemEmbedding = item.embedding || await getEmbedding(item.topic + ' ' + item.content);
-          return {
-            item,
-            similarity: cosineSimilarity(queryEmbedding, itemEmbedding)
-          };
-        })
-      );
-
-      // Sort by similarity and return the best match if it exceeds threshold
-      const bestMatch = similarities.sort((a, b) => b.similarity - a.similarity)[0];
-      return bestMatch.similarity > 0.7 ? bestMatch.item : null;
-
-    } catch (error) {
-      console.error('Error in semantic search:', error);
-      // Fallback to basic text matching if semantic search fails
+    if (scored.length === 0) {
+      // Fallback: substring match
       return this.knowledgeBaseItems.find(item =>
         item.topic.toLowerCase().includes(query.toLowerCase()) ||
         item.content.toLowerCase().includes(query.toLowerCase())
       ) || null;
     }
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored[0].item;
   }
-  async calculateDensityGrid(config: GridConfig = this.gridConfig): Promise<DensityGrid[]> {
+  /**
+   * H3-based density grid.
+   * Uses H3 resolution-9 hexagons (~174 m²) seeded from real locationPings.
+   * Falls back to crowd-level-derived values when no pings exist for a cell.
+   */
+  async calculateDensityGrid(_config: GridConfig = this.gridConfig): Promise<DensityGrid[]> {
     const crowdLevels = await this.getAllCrowdLevels();
     const newDensityData: DensityGrid[] = [];
+    const H3_RES = 9;
 
-    // Calculate cells based on boundaries and resolution
-    const latDiff = config.boundaries.north - config.boundaries.south;
-    const lngDiff = config.boundaries.east - config.boundaries.west;
-    const cellSizeLat = latDiff / config.gridSize;
-    const cellSizeLng = lngDiff / config.gridSize;
+    let cellIdCounter = 0;
 
-    // Generate density grid
-    for (let x = 0; x < config.gridSize; x++) {
-      for (let y = 0; y < config.gridSize; y++) {
-        // Calculate cell center coordinates
-        const lat = config.boundaries.south + (y + 0.5) * cellSizeLat;
-        const lng = config.boundaries.west + (x + 0.5) * cellSizeLng;
+    for (const [locationName, locationData] of Object.entries(this.keyLocations)) {
+      const crowdInfo = crowdLevels.find(l => l.location === locationName);
+      if (!crowdInfo) continue;
 
-        // Find nearest crowd levels and calculate density
-        let totalDensity = 0;
-        let totalWeight = 0;
-        let nearestLocation = '';
-        let minDistance = Infinity;
+      const baseUtilization = crowdInfo.currentCount / crowdInfo.capacity; // 0–1
 
-        // Check influence from key locations
-        for (const [locationName, locationData] of Object.entries(this.keyLocations)) {
-          const dlat = lat - locationData.lat;
-          const dlng = lng - locationData.lng;
-          const distance = Math.sqrt(dlat * dlat + dlng * dlng);
+      // Get H3 disk (radius 2 rings ≈ 5 hexes across) centred on the location
+      const centerHex = h3.latLngToCell(locationData.lat, locationData.lng, H3_RES);
+      const hexRings = h3.gridDisk(centerHex, 2); // ~19 hexes
 
-          // Find nearest location
-          if (distance < minDistance) {
-            minDistance = distance;
-            nearestLocation = locationName;
-          }
+      hexRings.forEach((hexId, idx) => {
+        // Distance from center in ring steps (0 = centre, 1 = ring-1, 2 = ring-2)
+        const ringStep = hexId === centerHex ? 0 : (h3.gridDisk(centerHex, 1).includes(hexId) ? 1 : 2);
+        const distDecay = 1 - ringStep * 0.25; // center=1.0, ring1=0.75, ring2=0.5
 
-          // Calculate influence based on distance and location's radius
-          const influence = Math.max(0, 1 - distance / locationData.radius);
-          if (influence > 0) {
-            const crowdInfo = crowdLevels.find(level => level.location === locationName);
-            if (crowdInfo) {
-              const weight = influence * influence; // Square for stronger local effect
-              totalWeight += weight;
-              totalDensity += (crowdInfo.currentCount / crowdInfo.capacity) * 100 * weight;
-            }
-          }
-        }
+        // Real ping count for this hex (if any users sent location pings)
+        const pingCount = this.hexPingCounts.get(hexId) ?? 0;
+        const pingDensity = pingCount > 0 ? Math.min(pingCount / 10, 1) : 0;
 
-        // Calculate final density value with enhanced weighting
-        const density = totalWeight > 0 ? Math.min(100, Math.round(totalDensity / totalWeight)) : 0;
+        // Blend: 70% crowd-level-derived + 30% real pings (if pings exist)
+        const blendedUtilization = pingCount > 0
+          ? baseUtilization * 0.7 + pingDensity * 0.3
+          : baseUtilization * distDecay;
 
-        // Enhanced metadata for visualization
+        // ±3% jitter (bounded, not pure random)
+        const jitter = (Math.sin(hexId.charCodeAt(hexId.length - 1) + idx) * 0.03);
+        const density = Math.min(100, Math.max(0, Math.round((blendedUtilization + jitter) * 100)));
+
+        const [hexLat, hexLng] = h3.cellToLatLng(hexId);
         const metadata: GridMetadata = {
-          lat,
-          lng,
+          lat: hexLat,
+          lng: hexLng,
           color: this.getDensityColor(density),
-          nearestLocation,
-          distanceToNearest: minDistance,
-          intensity: density / 100, // For opacity/intensity visualization
+          nearestLocation: locationName,
+          distanceToNearest: ringStep * 174,
+          intensity: density / 100,
           timestamp: new Date().toISOString()
         };
 
         newDensityData.push({
-          id: this.densityGridData.length + 1,
-          locationId: Object.keys(this.keyLocations).indexOf(nearestLocation),
-          gridX: x,
-          gridY: y,
+          id: ++cellIdCounter,
+          locationId: Object.keys(this.keyLocations).indexOf(locationName),
+          gridX: idx,
+          gridY: 0,
           density,
           timestamp: new Date(),
           metadata
         });
-      }
+      });
     }
 
     this.densityGridData = newDensityData;
     return newDensityData;
   }
 
+  async recordLocationPing(userId: string, lat: number, lng: number): Promise<{ hexId: string; density: number }> {
+    const H3_RES = 9;
+    const hexId = h3.latLngToCell(lat, lng, H3_RES);
+    const prev = this.hexPingCounts.get(hexId) ?? 0;
+    this.hexPingCounts.set(hexId, prev + 1);
+    // Density = people per m² × 1000 for display, capped at 100
+    const density = Math.min(100, Math.round((prev + 1) / 174 * 1000));
+    return { hexId, density };
+  }
+
+  async getH3CrowdHexes(): Promise<{ hexId: string; count: number; density: number; centerLat: number; centerLng: number }[]> {
+    const result: { hexId: string; count: number; density: number; centerLat: number; centerLng: number }[] = [];
+    for (const [hexId, count] of this.hexPingCounts.entries()) {
+      const [centerLat, centerLng] = h3.cellToLatLng(hexId);
+      result.push({ hexId, count, density: Math.min(100, Math.round(count / 174 * 1000)), centerLat, centerLng });
+    }
+    return result;
+  }
+
   async getDensityGridForLocation(locationId: number): Promise<DensityGrid[]> {
     return this.densityGridData.filter(cell => cell.locationId === locationId);
+  }
+
+  async createLostFoundItem(item: Omit<LostFoundItem, 'id' | 'createdAt'>): Promise<LostFoundItem> {
+    const newItem: LostFoundItem = {
+      ...item,
+      id: this.lostFoundIdCounter++,
+      createdAt: new Date(),
+    };
+    this.lostFoundData.push(newItem);
+    return newItem;
+  }
+
+  async getLostFoundItems(type?: 'lost' | 'found'): Promise<LostFoundItem[]> {
+    if (type) return this.lostFoundData.filter(i => i.type === type);
+    return [...this.lostFoundData].reverse(); // newest first
+  }
+
+  async resolveLostFoundItem(id: number): Promise<void> {
+    const item = this.lostFoundData.find(i => i.id === id);
+    if (item) item.status = 'resolved';
   }
 
   // Accommodation booking storage (in-memory for real-time bookings)

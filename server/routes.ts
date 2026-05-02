@@ -1,10 +1,12 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from 'ws';
+import { randomBytes } from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { storage } from "./storage";
 import type { GeminiRequest, ChatMessage, DensityGrid, UserEmergencyContact } from "@shared/schema";
 import type { WeatherData } from "../shared/types";
-import { insertUserEmergencyContactSchema } from "@shared/schema";
+import { insertUserEmergencyContactSchema, insertLostFoundSchema } from "@shared/schema";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { vectorSearchManager } from './vector-search';
 import { cacheManager, CacheType } from './cache-manager';
@@ -15,9 +17,27 @@ import { CrowdPredictor } from './crowd-predictor';
 import { AlertManager } from './alert-manager';
 import { recommendationEngine, RecommendationType } from './recommendation-engine';
 
+// Single shared WS token — generated once per process start.
+// Clients fetch GET /api/ws-token then connect with ?token=<value>
+const WS_TOKEN = randomBytes(32).toString('hex');
+
+// Rate limiter: max 20 AI queries / minute per IP
+const nlpRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many AI requests, please wait a minute before retrying.' },
+});
+
 export async function registerRoutes(app: Express) {
   const httpServer = createServer(app);
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+
+  // Expose WS token to authenticated frontend clients
+  app.get('/api/ws-token', (_req, res) => {
+    res.json({ token: WS_TOKEN });
+  });
 
   // Broadcast density updates to all connected clients
   function broadcastDensityUpdate(data: any) {
@@ -90,8 +110,15 @@ export async function registerRoutes(app: Express) {
     }
   }, 5000); // Update every 5 seconds
 
-  // WebSocket connection handling
-  wss.on('connection', (ws) => {
+  // WebSocket connection handling — token auth required
+  wss.on('connection', (ws, req) => {
+    const url = new URL(req.url ?? '/', `http://${req.headers.host}`);
+    const token = url.searchParams.get('token');
+    if (token !== WS_TOKEN) {
+      ws.close(4001, 'Unauthorized: missing or invalid token');
+      return;
+    }
+
     console.log('New WebSocket connection established');
 
     // Send initial density data
@@ -424,7 +451,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Enhanced NLP query route with RAG and caching
-  app.post("/api/nlp/query", async (req, res) => {
+  app.post("/api/nlp/query", nlpRateLimiter, async (req, res) => {
     try {
       const { query, sessionId, imageData, targetLanguage } = req.body;
 
@@ -993,6 +1020,72 @@ export async function registerRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching density grid:", error);
       res.status(500).json({ error: "Failed to fetch density grid" });
+    }
+  });
+
+  // ─── Real GPS → H3 crowd aggregation ────────────────────────────────────────
+  app.post("/api/location-ping", async (req, res) => {
+    try {
+      const { lat, lng, userId } = req.body;
+      if (typeof lat !== 'number' || typeof lng !== 'number' || !userId) {
+        return res.status(400).json({ error: 'lat (number), lng (number) and userId are required' });
+      }
+      // Basic bounding-box guard: Nashik region only
+      if (lat < 19.7 || lat > 20.3 || lng < 73.3 || lng > 74.1) {
+        return res.status(400).json({ error: 'Coordinates outside Nashik/Trimbak region' });
+      }
+      const result = await storage.recordLocationPing(userId, lat, lng);
+      res.json({ ok: true, hexId: result.hexId, density: result.density });
+    } catch (error) {
+      console.error('Location ping error:', error);
+      res.status(500).json({ error: 'Failed to record location ping' });
+    }
+  });
+
+  app.get("/api/crowd/h3-hexes", async (_req, res) => {
+    try {
+      const hexes = await storage.getH3CrowdHexes();
+      res.json({ hexes, timestamp: new Date().toISOString() });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch H3 crowd hexes' });
+    }
+  });
+
+  // ─── Lost & Found ─────────────────────────────────────────────────────────
+  app.get("/api/lost-found", async (req, res) => {
+    try {
+      const type = req.query.type as 'lost' | 'found' | undefined;
+      const items = await storage.getLostFoundItems(type);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch lost & found items' });
+    }
+  });
+
+  app.post("/api/lost-found", async (req, res) => {
+    try {
+      const result = insertLostFoundSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: 'Invalid data', details: result.error.format() });
+      }
+      if (result.data.type !== 'lost' && result.data.type !== 'found') {
+        return res.status(400).json({ error: 'type must be "lost" or "found"' });
+      }
+      const item = await storage.createLostFoundItem(result.data as any);
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create lost & found item' });
+    }
+  });
+
+  app.patch("/api/lost-found/:id/resolve", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: 'Invalid ID' });
+      await storage.resolveLostFoundItem(id);
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to resolve item' });
     }
   });
 

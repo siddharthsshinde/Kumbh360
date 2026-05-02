@@ -705,49 +705,58 @@ export function FacilityMap(): JSX.Element {
     };
   }, [mapContainer]);
   
-  // Connect to WebSocket for real-time density updates
+  // Connect to WebSocket for real-time density updates (token-auth required)
   useEffect(() => {
-    // Create WebSocket connection
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    
-    if (!wsRef.current) {
-      console.log('Connecting to WebSocket for density updates...');
-      wsRef.current = new WebSocket(wsUrl);
-      
-      // Handle connection open
-      wsRef.current.onopen = () => {
-        console.log('WebSocket connection established');
-      };
-      
-      // Handle incoming messages
-      wsRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'initial_density' || data.type === 'density_update') {
-            console.log('Received density data:', data.type);
-            setDensityData(data.data);
-          }
-        } catch (error) {
-          console.error('Error processing WebSocket message:', error);
+    let cancelled = false;
+
+    const connect = async () => {
+      try {
+        const tokenRes = await fetch('/api/ws-token');
+        const { token } = await tokenRes.json();
+        if (cancelled) return;
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws?token=${encodeURIComponent(token)}`;
+
+        if (!wsRef.current) {
+          console.log('Connecting to WebSocket for density updates...');
+          wsRef.current = new WebSocket(wsUrl);
+
+          wsRef.current.onopen = () => {
+            console.log('WebSocket connection established');
+          };
+
+          wsRef.current.onmessage = (event) => {
+            try {
+              const data = JSON.parse(event.data);
+              if (data.type === 'initial_density' || data.type === 'density_update') {
+                console.log('Received density data:', data.type);
+                setDensityData(data.data);
+              }
+            } catch (error) {
+              console.error('Error processing WebSocket message:', error);
+            }
+          };
+
+          wsRef.current.onerror = (error) => {
+            console.error('WebSocket error:', error);
+          };
+
+          wsRef.current.onclose = () => {
+            console.log('WebSocket connection closed');
+            wsRef.current = null;
+          };
         }
-      };
-      
-      // Handle errors
-      wsRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-      
-      // Handle connection close
-      wsRef.current.onclose = () => {
-        console.log('WebSocket connection closed');
-        wsRef.current = null;
-      };
-    }
-    
+      } catch (err) {
+        console.error('Failed to fetch WS token:', err);
+      }
+    };
+
+    connect();
+
     // Clean up WebSocket on component unmount
     return () => {
+      cancelled = true;
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;

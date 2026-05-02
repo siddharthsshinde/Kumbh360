@@ -194,6 +194,34 @@ export const gridConfigSchema = z.object({
 
 export type GridConfig = z.infer<typeof gridConfigSchema>;
 
+// Location pings for real H3 crowd aggregation
+export const locationPings = pgTable("location_pings", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  lat: text("lat").notNull(),
+  lng: text("lng").notNull(),
+  hexId: text("hex_id").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const insertLocationPingSchema = createInsertSchema(locationPings).omit({ id: true, timestamp: true });
+export type LocationPing = typeof locationPings.$inferSelect;
+
+// Lost & Found items
+export const lostFoundItems = pgTable("lost_found_items", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(), // "lost" | "found"
+  itemDescription: text("item_description").notNull(),
+  contactName: text("contact_name").notNull(),
+  contactPhone: text("contact_phone").notNull(),
+  location: text("location").notNull(),
+  status: text("status").notNull().default("open"), // "open" | "resolved"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertLostFoundSchema = createInsertSchema(lostFoundItems).omit({ id: true, createdAt: true });
+export type LostFoundItem = typeof lostFoundItems.$inferSelect;
+
 // Accommodation booking types (in-memory / API)
 export const accommodationBookingSchema = z.object({
   accommodationId: z.string(),

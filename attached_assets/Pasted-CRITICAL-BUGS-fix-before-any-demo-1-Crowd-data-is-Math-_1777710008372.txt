@@ -1,0 +1,48 @@
+CRITICAL BUGS — fix before any demo
+#1 — Crowd data is Math.random()
+server/storage.ts → calculateDensityGrid() generates fake lat/lng with random density. WebSocket pushes fiction every 5s. NTKMA will spot this immediately.
+#2 — WebSocket has zero auth
+/ws — anyone anonymous connects and receives all emergency alerts. Can inject fake crowd surges.
+#3 — Sessions die on restart
+Using memorystore not connect-redis. One server restart = all users logged out, emergency contacts lost. One-line fix: swap to connect-redis (already have ioredis).
+#4 — FAISS rebuilds from scratch each restart
+Vector index lives in RAM. 30-60s cold start every deploy. Multi-server = 3 separate indexes. Fix: move to pgvector on Neon (already running Postgres, free extension).
+
+HIGH ISSUES
+
+crowd-predictor.ts "ML" = hardcoded peakHour × 1.5. Not ML.
+uber-api package = Uber killed open API in 2019. Dead code.
+@xenova/transformers = 500MB WASM bundle + duplicates Gemini embeddings. Remove it.
+No rate limit on POST /api/nlp/query → Gemini quota blown at scale.
+mapbox-gl installed → requires paid token → replace with MapLibre GL (free, same API).
+drizzle-kit push in prod → can destructively alter tables → switch to migrations.
+
+
+CROWD MAP — specific gap
+Current implementation: leaflet.heat + random points. Production needs:
+// Step 1 — collect real GPS (already have users)
+POST /api/location-ping  { lat, lng, userId }
+
+// Step 2 — H3 aggregation (add h3-js to existing Express)
+import * as h3 from 'h3-js'
+const hexId = h3.latLngToCell(lat, lng, 9)  // res 9 = 174m² hex
+hexCounts[hexId] = (hexCounts[hexId] || 0) + 1
+density = hexCounts[hexId] / 174  // people per m²
+
+// Step 3 — replace leaflet.heat with deck.gl
+npm install @deck.gl/react @deck.gl/geo-layers maplibre-gl
+// H3HexagonLayer with getColor by density → green/yellow/orange/red
+Three changes. All within existing Express + React stack. No new infra.
+
+10-ITEM FIX LIST (in order)
+
+Replace Math.random() crowd data → real GPS pings + H3 aggregation
+Swap leaflet.heat → deck.gl H3HexagonLayer on MapLibre (free)
+Fix sessions: memorystore → connect-redis
+Move FAISS → pgvector on Neon Postgres
+Add WebSocket auth token check (5 lines)
+Add express-rate-limit on /api/nlp/query
+Remove uber-api + @xenova/transformers (dead weight)
+Build lost-found backend (DB table + 2 endpoints)
+Write Dockerfile — escape Replit dependency
+Switch db:push → drizzle-kit migrate
