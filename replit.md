@@ -103,6 +103,26 @@ Server listens on `0.0.0.0:5000` (required for Replit).
 - Run command: `node ./dist/index.cjs`
 - Target: Autoscale
 
+## UI / Design System
+
+All five pages have been fully redesigned to match the Kumbh360 brand:
+
+| Page | Hero gradient | Key sections |
+|------|--------------|-------------|
+| Home | Orange `#FF7F00 → #FF6B00` | Greeting, status pills, next Snan banner, quick actions (4-col), live status bar, Snan schedule scroll, KumbhDoot AI button, news/transport/weather/crowd/accommodation/food/community widgets |
+| Map | Sky blue `sky-600 → blue-700` | Street View / Lost & Found pills, Leaflet map with heatmap, safety zones, density grid, area zone filter chips |
+| SOS | Red `red-500 → rose-700` | Share location / Send SOS alert CTAs, emergency numbers grid (100/108/101/1078), GPS+contacts+control badges, live safety suggestion banner, emergency transport hub |
+| Explore | Violet `violet-600 → purple-700` | 3×3 feature grid with badge overlays (Tap to flip / Today / Live / Emergency) |
+| Profile | Violet `violet-600 → purple-700` | PWA Ready / SOS Enabled / language pills, language tabs, theme settings |
+
+Components updated:
+- `BottomNav.tsx` — glass-blur backing, pulsing SOS indicator, motion layout
+- `SplashScreen.tsx` — 140° orange gradient, decorative rings, tagline; `?nosplash=1` param bypasses it
+- `WeatherWidget.tsx` — modern gradient card (sky→blue), temp + 3 stat row
+- `RealTimeSafetySuggestion.tsx` — always visible, 8 rotating tips with warning/info/safe levels, 12s auto-rotate, progress dots
+- `CrowdLevel.tsx` — header and tab accent color updated to orange brand (`#FF7F00`)
+- `MobileLayout.tsx`, `DesktopLayout.tsx`, `SidebarNav.tsx` — refined backgrounds and brand block
+
 ## Known Remaining Items
 
 - **FAISS → pgvector**: Vector search still uses in-memory FAISS (rebuilds on restart). Migrate to `pgvector` Neon extension for persistence across restarts.

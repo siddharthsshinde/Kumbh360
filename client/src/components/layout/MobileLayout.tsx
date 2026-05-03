@@ -9,11 +9,9 @@ interface MobileLayoutProps {
   title: string;
 }
 
-export function MobileLayout({
-  children,
-}: MobileLayoutProps) {
+export function MobileLayout({ children }: MobileLayoutProps) {
   return (
-    <div className="min-h-[100dvh] bg-[radial-gradient(circle_at_top,#FFF4E2,transparent_38%),linear-gradient(180deg,#FFF9F2_0%,#F7F9FC_100%)]">
+    <div className="min-h-[100dvh] bg-[radial-gradient(ellipse_at_top,rgba(255,127,0,0.07),transparent_32%),linear-gradient(180deg,#FFF9F2_0%,#F5F7FA_100%)]">
       <div
         className="mx-auto flex min-h-[100dvh] max-w-screen-sm flex-col px-4 pb-[calc(6rem+env(safe-area-inset-bottom))]"
         style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}

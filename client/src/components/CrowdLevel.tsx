@@ -244,33 +244,33 @@ export function CrowdLevelIndicator() {
 
   return (
     <Card className="w-full h-full overflow-hidden shadow-md border-none card-hover flex flex-col">
-      <div className="bg-gradient-to-r from-[#138808]/80 to-[#138808]/90 p-3 text-white">
+      <div className="bg-gradient-to-r from-[#FF7F00] to-[#E36A00] p-3 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            <h3 className="font-semibold">{t("Live Crowd Status")}</h3>
+            <h3 className="font-semibold">Live Crowd Status</h3>
           </div>
           <div className="flex items-center text-xs gap-1">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
-            <span>Live Updates</span>
+            <span>Live</span>
           </div>
         </div>
       </div>
       
       {/* Tab navigation for view modes */}
-      <div className="border-b">
+      <div className="border-b border-slate-100">
         <div className="flex w-full">
           <button 
-            className={`flex-1 py-2 text-sm font-medium ${selectedView === 'list' ? 'border-b-2 border-[#138808] text-[#138808]' : 'text-gray-500'}`}
+            className={`flex-1 py-2 text-sm font-medium transition-colors ${selectedView === 'list' ? 'border-b-2 border-[#FF7F00] text-[#FF7F00]' : 'text-slate-400 hover:text-slate-600'}`}
             onClick={() => setSelectedView("list")}
           >
             List View
           </button>
           <button 
-            className={`flex-1 py-2 text-sm font-medium ${selectedView === 'details' ? 'border-b-2 border-[#138808] text-[#138808]' : 'text-gray-500'}`}
+            className={`flex-1 py-2 text-sm font-medium transition-colors ${selectedView === 'details' ? 'border-b-2 border-[#FF7F00] text-[#FF7F00]' : 'text-slate-400 hover:text-slate-600'}`}
             onClick={() => setSelectedView("details")}
           >
             Detailed View
@@ -380,7 +380,7 @@ export function CrowdLevelIndicator() {
             <div className="bg-gray-50 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-[#138808]" />
+                  <MapPin className="h-4 w-4 text-[#FF7F00]" />
                   <h4 className="font-medium">{selectedData.location}</h4>
                 </div>
                 <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedData.status)} text-white`}>
@@ -476,7 +476,7 @@ export function CrowdLevelIndicator() {
             {/* Forecast section */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Calendar className="h-4 w-4 text-[#138808]" />
+                <Calendar className="h-4 w-4 text-[#FF7F00]" />
                 <h4 className="text-sm font-medium">Crowd Forecast</h4>
               </div>
               

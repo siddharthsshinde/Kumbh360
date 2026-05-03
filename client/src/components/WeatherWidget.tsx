@@ -1,98 +1,80 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Card } from "@/components/ui/card";
-import { Sun, Cloud, CloudRain, Wind, Droplets } from "lucide-react";
+import { Sun, Cloud, CloudRain, Wind, Droplets, Thermometer, Eye } from "lucide-react";
 import type { WeatherData } from "@shared/types";
+import { cn } from "@/lib/utils";
+
+function getWeatherConfig(condition?: string) {
+  const c = condition?.toLowerCase() ?? "";
+  if (c.includes("rain") || c.includes("drizzle")) {
+    return { icon: CloudRain, gradient: "from-blue-600 to-blue-700", accent: "bg-blue-500/20", iconColor: "text-blue-100" };
+  }
+  if (c.includes("cloud")) {
+    return { icon: Cloud, gradient: "from-slate-500 to-slate-600", accent: "bg-slate-400/20", iconColor: "text-slate-200" };
+  }
+  return { icon: Sun, gradient: "from-sky-500 to-blue-600", accent: "bg-yellow-400/20", iconColor: "text-yellow-300" };
+}
 
 export function WeatherWidget() {
   const { t } = useTranslation();
-  const { data: weather, isLoading, error } = useQuery<WeatherData>({
+  const { data: weather, isLoading } = useQuery<WeatherData>({
     queryKey: ["/api/weather"],
-    refetchInterval: 900000, // Refresh every 15 minutes
+    refetchInterval: 900000,
   });
 
-  // Select weather icon and background based on condition
-  const getWeatherStyles = (condition?: string) => {
-    if (!condition) return { icon: Sun, bgClass: "from-blue-500 to-blue-400", textClass: "text-yellow-500" };
-    
-    const conditionLower = condition.toLowerCase();
-    if (conditionLower.includes("rain") || conditionLower.includes("drizzle")) {
-      return { 
-        icon: CloudRain, 
-        bgClass: "from-blue-700 to-blue-500", 
-        textClass: "text-blue-200" 
-      };
-    } else if (conditionLower.includes("cloud")) {
-      return { 
-        icon: Cloud, 
-        bgClass: "from-slate-500 to-slate-400", 
-        textClass: "text-gray-200" 
-      };
-    } else {
-      return { 
-        icon: Sun, 
-        bgClass: "from-blue-500 to-blue-400", 
-        textClass: "text-yellow-300" 
-      };
-    }
-  };
-
-  const { icon: WeatherIcon, bgClass, textClass } = getWeatherStyles(weather?.condition);
-
-  // Loading state
   if (isLoading) {
     return (
-      <Card className="w-full h-36 overflow-hidden shadow-md rounded-lg border-none">
-        <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-200 animate-pulse flex items-center justify-center">
-          <span className="text-gray-400 text-sm">Loading weather data...</span>
-        </div>
-      </Card>
+      <div className="h-40 animate-pulse rounded-[2rem] bg-gradient-to-br from-slate-200 to-slate-100" />
     );
   }
 
-  // Error state
-  if (error || !weather) {
+  if (!weather) {
     return (
-      <Card className="w-full overflow-hidden shadow-md rounded-lg border-none">
-        <div className="bg-red-50 p-4">
-          <h3 className="text-lg font-semibold text-red-600">{t("Weather")}</h3>
-          <p className="text-sm text-red-500">{t("Failed to load weather data")}</p>
-        </div>
-      </Card>
+      <div className="p-5">
+        <p className="text-sm text-slate-500">Weather unavailable</p>
+      </div>
     );
   }
+
+  const { icon: WeatherIcon, gradient, iconColor } = getWeatherConfig(weather.condition);
 
   return (
-    <Card className="w-full overflow-hidden shadow-md rounded-lg border-none card-hover">
-      <div className={`bg-gradient-to-br ${bgClass} text-white p-4`}>
-        <div className="flex justify-between items-start">
+    <div className={cn("relative overflow-hidden rounded-[2rem] bg-gradient-to-br p-5 text-white", gradient)}>
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute right-4 top-4 h-24 w-24 opacity-15 [background-image:radial-gradient(circle,white,transparent_70%)]" />
+
+      <div className="relative">
+        {/* Header */}
+        <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-base font-semibold">{t("Weather in Nashik")}</h3>
-            <p className="text-xs opacity-90">{new Date().toLocaleDateString()}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-white/70">Nashik Weather</p>
+            <p className="mt-0.5 text-xs text-white/60">{new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</p>
           </div>
-          <WeatherIcon className={`h-10 w-10 ${textClass}`} />
+          <WeatherIcon className={cn("h-10 w-10 drop-shadow", iconColor)} />
         </div>
-        
-        <div className="mt-4">
-          <div className="flex items-end gap-1">
-            <span className="text-3xl font-bold">{weather.temperature}</span>
-            <span className="text-xl">°C</span>
-          </div>
-          <p className="text-sm capitalize mt-1">{weather.condition}</p>
+
+        {/* Temperature */}
+        <div className="mt-3 flex items-end gap-2">
+          <span className="text-5xl font-bold tracking-tight">{weather.temperature}</span>
+          <span className="mb-2 text-2xl font-light text-white/80">°C</span>
         </div>
-        
-        <div className="mt-4 grid grid-cols-2 gap-2 text-xs pt-2 border-t border-white/20">
-          <div className="flex items-center gap-2">
-            <Droplets className="h-3 w-3 text-blue-200" />
-            <span className="whitespace-nowrap">Humidity: {weather.humidity}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Wind className="h-3 w-3 text-blue-200" />
-            <span className="whitespace-nowrap">Wind: {weather.windSpeed} m/s</span>
-          </div>
+        <p className="mt-0.5 text-sm font-medium capitalize text-white/90">{weather.condition}</p>
+
+        {/* Stats */}
+        <div className="mt-4 grid grid-cols-3 gap-2 border-t border-white/20 pt-3">
+          {[
+            { icon: Droplets, label: "Humidity", value: `${weather.humidity}%` },
+            { icon: Wind, label: "Wind", value: `${weather.windSpeed} m/s` },
+            { icon: Thermometer, label: "Feels like", value: `${Math.round(weather.temperature - 2)}°` },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex flex-col items-center gap-0.5">
+              <Icon className="h-3.5 w-3.5 text-white/60" />
+              <p className="text-xs font-bold text-white">{value}</p>
+              <p className="text-[10px] text-white/60">{label}</p>
+            </div>
+          ))}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

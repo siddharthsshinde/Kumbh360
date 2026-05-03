@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   QrCode, Users, Sparkles, Calendar, Heart, Wallet, Ticket, ShoppingBag,
-  LayoutDashboard, ChevronRight, X, ArrowLeft
+  LayoutDashboard, ChevronRight, ArrowLeft, Compass,
 } from "lucide-react";
 import { DigitalKumbhPass } from "@/components/DigitalKumbhPass";
 import { GroupModule } from "@/components/GroupModule";
@@ -18,16 +18,25 @@ import { cn } from "@/lib/utils";
 
 type FeatureKey = "pass" | "group" | "spiritual" | "events" | "health" | "wallet" | "queue" | "market" | "dashboard";
 
-const FEATURES: { key: FeatureKey; icon: typeof QrCode; label: string; desc: string; color: string; gradient: string; badge?: string }[] = [
-  { key: "pass",      icon: QrCode,          label: "Kumbh Pass",        desc: "Digital QR pass & identity",           color: "text-orange-600",  gradient: "from-orange-50 to-amber-50",    badge: "Tap to flip" },
-  { key: "group",     icon: Users,           label: "My Group",          desc: "Family tracking & group SOS",          color: "text-blue-600",    gradient: "from-blue-50 to-indigo-50",     badge: "1 alert" },
-  { key: "spiritual", icon: Sparkles,        label: "Spiritual",         desc: "Snan dates, temples & mantras",        color: "text-purple-600",  gradient: "from-purple-50 to-violet-50" },
-  { key: "events",    icon: Calendar,        label: "Events",            desc: "Pravachan, aarti & processions",       color: "text-pink-600",    gradient: "from-pink-50 to-rose-50",       badge: "Today" },
-  { key: "health",    icon: Heart,           label: "Health",            desc: "Hospitals, doctors & ambulance",       color: "text-red-600",     gradient: "from-red-50 to-rose-50",        badge: "Emergency" },
-  { key: "wallet",    icon: Wallet,          label: "Wallet",            desc: "Payments, expenses & donations",       color: "text-emerald-600", gradient: "from-emerald-50 to-teal-50" },
-  { key: "queue",     icon: Ticket,          label: "Queues",            desc: "Virtual queues & wait times",          color: "text-amber-600",   gradient: "from-amber-50 to-yellow-50",    badge: "Live" },
-  { key: "market",    icon: ShoppingBag,     label: "Marketplace",       desc: "Vendors, puja items & food",           color: "text-indigo-600",  gradient: "from-indigo-50 to-blue-50" },
-  { key: "dashboard", icon: LayoutDashboard, label: "My Journey",        desc: "Daily plan, bookings & stats",         color: "text-teal-600",    gradient: "from-teal-50 to-cyan-50" },
+const FEATURES: {
+  key: FeatureKey;
+  icon: typeof QrCode;
+  label: string;
+  desc: string;
+  gradient: string;
+  iconBg: string;
+  iconColor: string;
+  badge?: string;
+}[] = [
+  { key: "pass",      icon: QrCode,          label: "Kumbh Pass",   desc: "Digital QR pass & identity",       gradient: "from-orange-50 to-amber-50",    iconBg: "bg-orange-100",   iconColor: "text-orange-600",  badge: "Tap to flip" },
+  { key: "group",     icon: Users,           label: "My Group",     desc: "Family tracking & group SOS",      gradient: "from-blue-50 to-indigo-50",     iconBg: "bg-blue-100",     iconColor: "text-blue-600",    badge: "1 alert" },
+  { key: "spiritual", icon: Sparkles,        label: "Spiritual",    desc: "Snan dates, temples & mantras",    gradient: "from-purple-50 to-violet-50",   iconBg: "bg-purple-100",   iconColor: "text-purple-600" },
+  { key: "events",    icon: Calendar,        label: "Events",       desc: "Pravachan, aarti & processions",   gradient: "from-pink-50 to-rose-50",       iconBg: "bg-pink-100",     iconColor: "text-pink-600",    badge: "Today" },
+  { key: "health",    icon: Heart,           label: "Health",       desc: "Hospitals, doctors & ambulance",   gradient: "from-red-50 to-rose-50",        iconBg: "bg-red-100",      iconColor: "text-red-600",     badge: "Emergency" },
+  { key: "wallet",    icon: Wallet,          label: "Wallet",       desc: "Payments, expenses & donations",   gradient: "from-emerald-50 to-teal-50",    iconBg: "bg-emerald-100",  iconColor: "text-emerald-600" },
+  { key: "queue",     icon: Ticket,          label: "Queues",       desc: "Virtual queues & wait times",      gradient: "from-amber-50 to-yellow-50",    iconBg: "bg-amber-100",    iconColor: "text-amber-600",   badge: "Live" },
+  { key: "market",    icon: ShoppingBag,     label: "Marketplace",  desc: "Vendors, puja items & food",       gradient: "from-indigo-50 to-blue-50",     iconBg: "bg-indigo-100",   iconColor: "text-indigo-600" },
+  { key: "dashboard", icon: LayoutDashboard, label: "My Journey",   desc: "Daily plan, bookings & stats",     gradient: "from-teal-50 to-cyan-50",       iconBg: "bg-teal-100",     iconColor: "text-teal-600" },
 ];
 
 const COMPONENTS: Record<FeatureKey, React.ComponentType> = {
@@ -54,7 +63,7 @@ export default function ExplorePage() {
 
   return (
     <div className="relative">
-      {/* Grid view */}
+      {/* ── Grid view ── */}
       <AnimatePresence>
         {!active && (
           <motion.div
@@ -64,32 +73,44 @@ export default function ExplorePage() {
             exit={{ opacity: 0 }}
             className="space-y-5"
           >
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Explore</h1>
-              <p className="mt-0.5 text-sm text-slate-500">All features for your Kumbh journey</p>
-            </div>
+            {/* Hero */}
+            <section className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(140deg,#7C3AED_0%,#9F67F7_45%,#6D28D9_100%)] p-5 text-white shadow-[0_16px_48px_rgba(124,58,237,0.28)]">
+              <div className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.18),transparent_50%)]" />
+              <div className="relative flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-violet-200">All features</p>
+                  <h1 className="mt-1 text-[1.6rem] font-bold leading-tight">Explore</h1>
+                  <p className="mt-0.5 text-sm text-violet-100/90">Your complete Kumbh toolkit</p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+                  <Compass className="h-5 w-5" />
+                </div>
+              </div>
+            </section>
 
+            {/* Grid */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {FEATURES.map((f, i) => {
                 const Icon = f.icon;
                 return (
                   <motion.button
                     key={f.key}
-                    initial={{ opacity: 0, scale: 0.92 }}
+                    initial={{ opacity: 0, scale: 0.94 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.04 }}
+                    transition={{ delay: i * 0.04, duration: 0.22 }}
                     onClick={() => open(f.key)}
                     className={cn(
-                      "relative flex flex-col gap-3 overflow-hidden rounded-[1.75rem] bg-gradient-to-br p-4 text-left shadow-sm border border-white/80 hover:shadow-md transition-shadow",
-                      f.gradient
+                      "relative flex flex-col gap-3 overflow-hidden rounded-[1.75rem] bg-gradient-to-br p-4 text-left shadow-sm border border-white/80 hover:shadow-md active:scale-[0.98] transition-all",
+                      f.gradient,
                     )}
+                    data-testid={`button-feature-${f.key}`}
                   >
                     {f.badge && (
                       <span className="absolute right-3 top-3 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold text-slate-700 shadow-sm backdrop-blur-sm">
                         {f.badge}
                       </span>
                     )}
-                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 shadow-sm", f.color)}>
+                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-2xl shadow-sm", f.iconBg, f.iconColor)}>
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
@@ -105,7 +126,7 @@ export default function ExplorePage() {
         )}
       </AnimatePresence>
 
-      {/* Feature detail panel */}
+      {/* ── Feature detail panel ── */}
       <AnimatePresence>
         {active && feature && ActiveComponent && (
           <motion.div
@@ -120,11 +141,12 @@ export default function ExplorePage() {
             <div className={cn("flex items-center gap-3 bg-gradient-to-r p-4", feature.gradient)}>
               <button
                 onClick={close}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm backdrop-blur-sm hover:bg-white"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm backdrop-blur-sm hover:bg-white transition-colors"
+                data-testid="button-feature-back"
               >
                 <ArrowLeft className="h-4 w-4 text-slate-700" />
               </button>
-              <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/70 shadow-sm", feature.color)}>
+              <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl shadow-sm", feature.iconBg, feature.iconColor)}>
                 <feature.icon className="h-5 w-5" />
               </div>
               <div>
