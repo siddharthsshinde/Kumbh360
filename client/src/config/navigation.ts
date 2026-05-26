@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Map, ShieldAlert, UserRound, Compass } from "lucide-react";
+import { Home, Map, Asterisk, LayoutGrid, UserRound } from "lucide-react";
 
 export interface AppNavItem {
   href: string;
@@ -19,7 +19,7 @@ export const appNavigation: AppNavItem[] = [
   },
   {
     href: "/map",
-    label: "Map",
+    label: "Maps",
     title: "Map and Wayfinding",
     description: "Explore facilities, crowd zones, nearby landmarks, and transit support.",
     icon: Map,
@@ -29,14 +29,14 @@ export const appNavigation: AppNavItem[] = [
     label: "SOS",
     title: "Emergency and Safety",
     description: "Share your location fast, raise alerts, and reach emergency transport.",
-    icon: ShieldAlert,
+    icon: Asterisk,
   },
   {
     href: "/explore",
-    label: "Explore",
+    label: "Services",
     title: "Explore Features",
     description: "Digital pass, group, spiritual guide, events, health, wallet and more.",
-    icon: Compass,
+    icon: LayoutGrid,
   },
   {
     href: "/profile",
