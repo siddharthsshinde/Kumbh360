@@ -15,6 +15,7 @@ import ProfilePage from "@/pages/profile";
 import SOSPage from "@/pages/sos";
 import ExplorePage from "@/pages/explore";
 import LanguageSetup from "@/pages/language-setup";
+import ProfileSetup from "@/pages/profile-setup";
 import "./lib/i18n";
 
 interface RouterProps {
@@ -44,6 +45,15 @@ function MainApp() {
     return (
       <>
         <LanguageSetup />
+        <Toaster />
+      </>
+    );
+  }
+
+  if (location === "/profile-setup") {
+    return (
+      <>
+        <ProfileSetup />
         <Toaster />
       </>
     );

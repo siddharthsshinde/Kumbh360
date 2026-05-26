@@ -1,0 +1,765 @@
+<!-- Profile Setup -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kumbh360 - Profile Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#001c38",
+                        "inverse-surface": "#3d2d27",
+                        "inverse-on-surface": "#ffede7",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#fee2d9",
+                        "on-primary-fixed-variant": "#802a00",
+                        "tertiary-fixed-dim": "#aac7ff",
+                        "inverse-primary": "#ffb59a",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-card": "#FFFFFF",
+                        "secondary-fixed-dim": "#a3c9ff",
+                        "outline": "#8e7066",
+                        "on-surface-variant": "#5a4138",
+                        "on-secondary-container": "#004a86",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#0073e1",
+                        "surface-dim": "#efd4cb",
+                        "surface-container": "#ffe9e2",
+                        "surface-container-low": "#fff1ec",
+                        "error-container": "#ffdad6",
+                        "primary": "#a43800",
+                        "safe-green": "#2E7D32",
+                        "surface-variant": "#f8ddd4",
+                        "primary-fixed-dim": "#ffb59a",
+                        "on-primary-container": "#fffbff",
+                        "on-tertiary-fixed": "#001b3e",
+                        "tertiary": "#005ab4",
+                        "surface-bright": "#fff8f6",
+                        "on-tertiary-container": "#fefcff",
+                        "secondary-container": "#89bcff",
+                        "on-tertiary-fixed-variant": "#00458d",
+                        "secondary-fixed": "#d3e4ff",
+                        "primary-container": "#cd4800",
+                        "ai-purple": "#6200EE",
+                        "text-primary": "#1A1C1E",
+                        "on-primary-fixed": "#380d00",
+                        "background": "#fff8f6",
+                        "primary-fixed": "#ffdbce",
+                        "on-background": "#261813",
+                        "text-secondary": "#44474E",
+                        "surface-tint": "#a83900",
+                        "on-secondary-fixed-variant": "#004882",
+                        "on-surface": "#261813",
+                        "surface-background": "#F8F9FA",
+                        "warning-orange": "#EF6C00",
+                        "outline-variant": "#e2bfb3",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#27609d",
+                        "tertiary-fixed": "#d6e3ff",
+                        "surface": "#fff8f6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#f8ddd4",
+                        "safety-red": "#D32F2F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "touch-target-min": "48px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "label-lg": ["Public Sans"],
+                        "headline-xl": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "sos-display": ["Public Sans"],
+                        "body-md": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "sos-display": ["14px", {"lineHeight": "16px", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- Top Navigation Anchor (As per Shared Components JSON) -->
+<header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-orange-600 dark:text-orange-500 font-['Public_Sans'] font-bold tracking-tight fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between px-4 h-16 w-full max-w-md mx-auto">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-xl font-black text-orange-600 dark:text-orange-500 uppercase tracking-wider">Kumbh360</h1>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 w-full max-w-md mx-auto px-margin-mobile pt-24 pb-32">
+<!-- Progress Indicator -->
+<div class="mb-section-gap">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-lg text-label-lg text-primary">Setup Progress</span>
+<span class="font-label-lg text-label-lg text-text-secondary">Step 2 of 3</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[66%] transition-all duration-500"></div>
+</div>
+</div>
+<section class="space-y-section-gap">
+<!-- Header Text -->
+<div>
+<h2 class="font-headline-lg text-headline-lg text-text-primary">Complete Your Profile</h2>
+<p class="font-body-md text-body-md text-text-secondary mt-1">Help us ensure your safety and provide the best pilgrimage experience.</p>
+</div>
+<!-- Bento Layout Form Cards -->
+<div class="grid grid-cols-1 gap-gutter">
+<!-- Personal Info Card -->
+<div class="bg-surface-card p-5 rounded-xl border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined" data-icon="person_filled" style="font-variation-settings: 'FILL' 1;">person</span>
+<h3 class="font-headline-md text-headline-md">Personal Information</h3>
+</div>
+<div class="space-y-4">
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="name">Full Name</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="name" placeholder="Enter your full name" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="age">Age</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="age" placeholder="Ex: 45" type="number"/>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Gender</label>
+<select class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all appearance-none">
+<option disabled="" selected="" value="">Select</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
+<div class="absolute right-3 bottom-3 pointer-events-none">
+<span class="material-symbols-outlined text-text-secondary">arrow_drop_down</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Emergency Contact Card -->
+<div class="bg-surface-card p-5 rounded-xl border-l-4 border-l-safety-red border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-safety-red mb-2">
+<span class="material-symbols-outlined" data-icon="contact_emergency" style="font-variation-settings: 'FILL' 1;">contact_emergency</span>
+<h3 class="font-headline-md text-headline-md">Emergency Contact</h3>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="emergency_phone">Guardian/Relative Phone Number</label>
+<div class="flex">
+<div class="h-touch-target-min flex items-center px-3 bg-surface-container-low border border-r-0 border-outline-variant rounded-l-lg font-body-md text-text-secondary">+91</div>
+<input class="flex-1 h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-r-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="emergency_phone" placeholder="9876543210" type="tel"/>
+</div>
+<p class="font-label-sm text-[10px] text-text-secondary mt-2 italic">This number will be contacted during SOS triggers.</p>
+</div>
+</div>
+<!-- Travel Intent Card -->
+<div class="bg-surface-card p-5 rounded-xl border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-tertiary mb-2">
+<span class="material-symbols-outlined" data-icon="travel_explore" style="font-variation-settings: 'FILL' 1;">travel_explore</span>
+<h3 class="font-headline-md text-headline-md">Travel Intent</h3>
+</div>
+<div class="space-y-4">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-2 block">Planned Duration (Days)</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">1-3</button>
+<button class="px-4 py-2 rounded-full border-2 border-primary font-label-lg text-label-lg bg-primary-fixed text-primary shadow-sm">4-7</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">8-14</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">15+</button>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="group_size">Group Size (Including You)</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="group_size" placeholder="Ex: 5" type="number"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Complete Action -->
+<div class="pt-4">
+<button class="w-full h-14 bg-primary text-on-primary rounded-xl font-headline-md flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span>Complete Setup</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-center font-label-sm text-text-secondary mt-4">You can update these details later in Settings.</p>
+</div>
+</section>
+</main>
+<!-- Global SOS Component -->
+<div class="fixed bottom-6 left-6 z-[60]">
+<button class="w-16 h-16 bg-safety-red rounded-full flex flex-col items-center justify-center text-white shadow-2xl shadow-red-600/40 border-4 border-white active:scale-90 transition-all group overflow-hidden">
+<span class="material-symbols-outlined text-[28px] animate-pulse" data-icon="emergency_share" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+<span class="font-sos-display text-[10px] leading-tight">SOS</span>
+</button>
+</div>
+<!-- Voice Assistant (Floating Action as per Design System) -->
+<div class="fixed bottom-6 right-6 z-[60]">
+<button class="w-14 h-14 bg-ai-purple rounded-full flex items-center justify-center text-white shadow-xl active:scale-90 transition-all border-4 border-white">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+</div>
+<!-- Bottom Context Guard -->
+<div class="fixed bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
+</body></html>
+
+<!-- Language Selection -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#001b3e",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#fff1ec",
+                    "primary": "#a43800",
+                    "secondary-container": "#89bcff",
+                    "outline-variant": "#e2bfb3",
+                    "warning-orange": "#EF6C00",
+                    "tertiary-fixed-dim": "#aac7ff",
+                    "background": "#fff8f6",
+                    "on-primary-fixed": "#380d00",
+                    "tertiary-fixed": "#d6e3ff",
+                    "on-secondary-container": "#004a86",
+                    "surface-dim": "#efd4cb",
+                    "safety-red": "#D32F2F",
+                    "inverse-primary": "#ffb59a",
+                    "surface-bright": "#fff8f6",
+                    "surface": "#fff8f6",
+                    "surface-container-high": "#fee2d9",
+                    "outline": "#8e7066",
+                    "on-secondary-fixed": "#001c38",
+                    "tertiary-container": "#0073e1",
+                    "secondary": "#27609d",
+                    "on-background": "#261813",
+                    "on-primary-fixed-variant": "#802a00",
+                    "text-secondary": "#44474E",
+                    "surface-background": "#F8F9FA",
+                    "secondary-fixed": "#d3e4ff",
+                    "surface-tint": "#a83900",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#ffede7",
+                    "safe-green": "#2E7D32",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "primary-container": "#cd4800",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#f8ddd4",
+                    "on-tertiary-container": "#fefcff",
+                    "on-secondary-fixed-variant": "#004882",
+                    "primary-fixed-dim": "#ffb59a",
+                    "primary-fixed": "#ffdbce",
+                    "on-tertiary-fixed-variant": "#00458d",
+                    "on-surface-variant": "#5a4138",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#f8ddd4",
+                    "surface-container": "#ffe9e2",
+                    "inverse-surface": "#3d2d27",
+                    "on-secondary": "#ffffff",
+                    "ai-purple": "#6200EE",
+                    "surface-card": "#FFFFFF",
+                    "text-primary": "#1A1C1E",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#261813",
+                    "tertiary": "#005ab4",
+                    "secondary-fixed-dim": "#a3c9ff",
+                    "on-primary-container": "#fffbff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "gutter": "12px",
+                    "touch-target-min": "48px",
+                    "section-gap": "24px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Public Sans"],
+                    "label-sm": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "body-lg": ["Public Sans"],
+                    "headline-lg": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "sos-display": ["Public Sans"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "sos-display": ["14px", {"lineHeight": "16px", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .active-selection {
+            border: 2px solid #a43800;
+            background-color: #ffdbce;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Top AppBar (JSON Component Execution) -->
+<header class="bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-40 flex justify-between items-center w-full px-4 h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-orange-600 dark:text-orange-500" data-icon="location_on">location_on</span>
+<h1 class="font-public-sans font-bold text-lg text-orange-600 dark:text-orange-500">Kumbh360</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-4 py-6 max-w-md mx-auto w-full">
+<!-- Progress Header -->
+<div class="mb-8">
+<div class="flex items-center gap-2 mb-4">
+<div class="h-1.5 w-1/3 bg-primary rounded-full"></div>
+<div class="h-1.5 w-1/3 bg-primary rounded-full"></div>
+<div class="h-1.5 w-1/3 bg-surface-container-high rounded-full"></div>
+</div>
+<h2 class="font-headline-xl text-headline-xl text-on-surface mb-2">Choose Language</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Select your preferred language for navigation and assistance.</p>
+</div>
+<!-- Language Selection Bento Grid -->
+<section class="bento-grid mb-24">
+<!-- Language Card: Hindi (Active) -->
+<button class="flex flex-col items-start p-4 rounded-xl active-selection transition-all text-left shadow-sm relative group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-primary bg-white rounded-full p-1 shadow-sm" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">हिन्दी</span>
+<span class="font-label-sm text-label-sm opacity-70">Hindi</span>
+<div class="absolute top-2 right-2 flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</div>
+</button>
+<!-- Language Card: English -->
+<button class="flex flex-col items-start p-4 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-primary transition-all text-left shadow-sm group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">English</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Global</span>
+</button>
+<!-- Language Card: Marathi -->
+<button class="flex flex-col items-start p-4 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-primary transition-all text-left shadow-sm group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">मराठी</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Marathi</span>
+</button>
+<!-- Language Card: Bengali -->
+<button class="flex flex-col items-start p-4 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-primary transition-all text-left shadow-sm group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">বাংলা</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bengali</span>
+</button>
+<!-- Language Card: Tamil -->
+<button class="flex flex-col items-start p-4 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-primary transition-all text-left shadow-sm group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">தமிழ்</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Tamil</span>
+</button>
+<!-- Language Card: Telugu -->
+<button class="flex flex-col items-start p-4 rounded-xl bg-surface-container-lowest border border-outline-variant hover:border-primary transition-all text-left shadow-sm group">
+<div class="flex justify-between w-full mb-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="translate">translate</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="volume_up">volume_up</span>
+</div>
+<span class="font-headline-md text-headline-md mb-1">తెలుగు</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Telugu</span>
+</button>
+<!-- More Option (Asymmetric Bento Element) -->
+<button class="col-span-2 flex items-center justify-center gap-3 p-4 rounded-xl border-2 border-dashed border-outline-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="add_circle">add_circle</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">See More Languages</span>
+</button>
+</section>
+<!-- AI Assistant Preview Card (Brand Anchor Support) -->
+<div class="mb-12 p-5 rounded-2xl glass-card flex items-start gap-4">
+<div class="h-12 w-12 rounded-full bg-ai-purple/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-ai-purple" data-icon="smart_toy">smart_toy</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-on-surface">Voice Support Ready</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Your assistant can talk to you in your native tongue for hands-free guidance.</p>
+</div>
+</div>
+</main>
+<!-- SOS Button (JSON Component Execution) -->
+<button class="fixed bottom-24 right-4 rounded-full h-16 w-16 bg-red-600 dark:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.5)] animate-pulse flex items-center justify-center z-[60] hover:scale-110 active:opacity-80 scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+</button>
+<!-- Sticky Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 w-full p-4 bg-white/80 backdrop-blur-xl border-t border-outline-variant z-40">
+<div class="max-w-md mx-auto">
+<button class="w-full h-[56px] bg-primary text-on-primary rounded-xl font-label-lg text-label-lg shadow-lg hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
+                Continue
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</footer>
+<!-- Imagery Decoration (Subtle background pattern) -->
+<div class="fixed inset-0 -z-10 pointer-events-none opacity-5">
+<img class="w-full h-full object-cover" data-alt="abstract architectural geometry of a modern temple with repetitive patterns and soft ethereal orange morning sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy9MSzFfDquL2aqK7hdcepVqDCyDQf0udGWpaXK_zNmuI5-84C4SQw_mZIDQzO7qp7VAW1DCDYxYjCcUj1Aqz4Nsko1ppfABANP5KjKY2A5HzOeZj-BW9n7F4j2caYPhNUw4u9qYyv8mU15snfkw13t4O7EG_Qxfj8CTSOq8PmaMxyiwwS7owOshnEvLj7zKlh2NLBdztWvVHdgCHoHH2lf_FfDcnOzzhv7-CCHiU2Ofq0cy5LBvG7LLo6r-Ff_MdcHdJhvoViLuY"/>
+</div>
+</body></html>
+
+<!-- AI Assistant (KumbhDoot) -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#fffbff",
+                    "inverse-primary": "#ffb59a",
+                    "tertiary-fixed-dim": "#aac7ff",
+                    "error-container": "#ffdad6",
+                    "surface-card": "#FFFFFF",
+                    "error": "#ba1a1a",
+                    "secondary": "#27609d",
+                    "background": "#fff8f6",
+                    "surface": "#fff8f6",
+                    "surface-container": "#ffe9e2",
+                    "primary-container": "#cd4800",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#00458d",
+                    "surface-tint": "#a83900",
+                    "surface-dim": "#efd4cb",
+                    "surface-background": "#F8F9FA",
+                    "on-tertiary-fixed": "#001b3e",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#380d00",
+                    "on-primary-fixed-variant": "#802a00",
+                    "primary-fixed": "#ffdbce",
+                    "on-surface": "#261813",
+                    "surface-container-low": "#fff1ec",
+                    "safety-red": "#D32F2F",
+                    "warning-orange": "#EF6C00",
+                    "text-secondary": "#44474E",
+                    "inverse-on-surface": "#ffede7",
+                    "on-error-container": "#93000a",
+                    "ai-purple": "#6200EE",
+                    "surface-variant": "#f8ddd4",
+                    "outline-variant": "#e2bfb3",
+                    "on-secondary-fixed-variant": "#004882",
+                    "secondary-fixed-dim": "#a3c9ff",
+                    "primary-fixed-dim": "#ffb59a",
+                    "on-surface-variant": "#5a4138",
+                    "surface-container-high": "#fee2d9",
+                    "surface-bright": "#fff8f6",
+                    "secondary-fixed": "#d3e4ff",
+                    "on-tertiary-container": "#fefcff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#a43800"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "touch-target-min": "48px",
+                    "gutter": "12px",
+                    "unit": "4px",
+                    "section-gap": "24px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Public Sans"],
+                    "sos-display": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "label-sm": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "headline-lg": ["Public Sans"],
+                    "body-lg": ["Public Sans"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "sos-display": ["14px", {"lineHeight": "16px", "fontWeight": "800"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #fff8f6;
+        }
+        .message-bubble-ai {
+            border-bottom-left-radius: 4px;
+        }
+        .message-bubble-user {
+            border-bottom-right-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 px-4 flex justify-between items-center h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+</div>
+<h1 class="text-lg font-bold tracking-tighter text-orange-600 dark:text-orange-500 font-public-sans antialiased tracking-tight">KumbhDoot AI</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400" data-icon="emergency_home">emergency_home</span>
+</button>
+</header>
+<!-- Main Chat Canvas -->
+<main class="pt-20 pb-44 px-margin-mobile max-w-2xl mx-auto min-h-screen space-y-6">
+<!-- AI Initial Greeting -->
+<div class="flex flex-col items-start max-w-[85%]">
+<div class="bg-surface-container-low p-4 rounded-2xl message-bubble-ai shadow-sm">
+<p class="font-body-md text-body-md text-on-surface">Namaste! I am your KumbhDoot AI assistant. How can I help you navigate the Mela today? You can ask about locations, crowd levels, or nearby amenities.</p>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 ml-1">09:41 AM</span>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end w-full">
+<div class="bg-primary text-on-primary p-4 rounded-2xl message-bubble-user shadow-md max-w-[85%]">
+<p class="font-body-md text-body-md">Where can I find some good food near Sector 4?</p>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 mr-1">09:42 AM</span>
+</div>
+<!-- AI Response with Dynamic Card -->
+<div class="flex flex-col items-start w-full space-y-3">
+<div class="bg-surface-container-low p-4 rounded-2xl message-bubble-ai shadow-sm max-w-[85%]">
+<p class="font-body-md text-body-md text-on-surface">I've found a highly-rated food stall right next to Sector 4. They are famous for their authentic snacks!</p>
+</div>
+<!-- Food Vendor Card -->
+<div class="w-full max-w-[90%] bg-surface-card rounded-xl overflow-hidden border-t-4 border-primary shadow-lg">
+<div class="relative h-32 w-full overflow-hidden">
+<img alt="Indian street food stall" class="w-full h-full object-cover" data-alt="Vibrant Indian street food stall with steaming snacks, colorful traditional decorations, and soft evening festival lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-V4Yhaz6ppd-NivxtCSHAgqO4fvofSh0IZo0x2uPTuGldJOLlee0XNBEkmXfkSSaEAp1Zf4aNZtEls62FAxuTgRD5H79oIEo1wwydtRoqmlv3hN0zg3UU9t_3_ACfNUsmiFvE5DdVQjEAER0YClCduHNNgNN5IrH_TRjiITPJkxtzCPnyD6PdIA4MbvA1XRdG6SnxJEz-zpYvVh5trYZhr8uX_gvCKPIV__dn02XyWNP2enyygwjRiNeKdnyb11J14Gw5HOxKshM"/>
+<div class="absolute top-2 right-2 bg-safe-green text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Open Now</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Annapurna Prasad Stall</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant">450m away • Sector 4 Main Entry</p>
+</div>
+<div class="flex items-center bg-orange-50 px-2 py-1 rounded-lg">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-sm font-label-sm text-primary ml-1">4.8</span>
+</div>
+</div>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 bg-primary text-on-primary py-touch-target-min rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]" data-icon="near_me">near_me</span>
+                            Navigate
+                        </button>
+<button class="flex-1 border border-outline text-primary py-touch-target-min rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]" data-icon="call">call</span>
+                            Call
+                        </button>
+</div>
+</div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant mt-1 ml-1">09:42 AM</span>
+</div>
+<!-- AI Crowd Alert Card (Priority Design) -->
+<div class="w-full bg-surface-container-highest rounded-xl p-4 border-t-4 border-safety-red flex gap-4 shadow-sm">
+<div class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-safety-red" data-icon="warning">warning</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Crowd Alert: Sector 4</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">The main entry at Sector 4 is currently experiencing high density. Estimated wait time: 25 minutes. I suggest using the North Gate instead.</p>
+<button class="mt-3 text-primary font-label-lg text-label-lg flex items-center gap-1">
+                    Show alternate route <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Interactive Footer Section -->
+<div class="fixed bottom-20 left-0 w-full px-4 space-y-4 pb-4 bg-gradient-to-t from-background via-background to-transparent z-40">
+<!-- Quick Action Suggestions -->
+<div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+<button class="shrink-0 bg-white border border-outline-variant px-4 py-2 rounded-full font-label-sm text-label-sm text-on-surface-variant shadow-sm flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="waves">waves</span>
+                Find nearest Ghat
+            </button>
+<button class="shrink-0 bg-white border border-outline-variant px-4 py-2 rounded-full font-label-sm text-label-sm text-on-surface-variant shadow-sm flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="group">group</span>
+                Crowd status?
+            </button>
+<button class="shrink-0 bg-white border border-outline-variant px-4 py-2 rounded-full font-label-sm text-label-sm text-on-surface-variant shadow-sm flex items-center gap-2 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="medical_services">medical_services</span>
+                Medical camp
+            </button>
+</div>
+<!-- Input Bar Area -->
+<div class="flex items-center gap-3">
+<div class="flex-1 bg-white rounded-full h-14 px-4 flex items-center shadow-lg border border-outline-variant group focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-3" data-icon="auto_awesome">auto_awesome</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md placeholder:text-outline" placeholder="Ask KumbhDoot..." type="text"/>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:bg-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+</div>
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="send" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+<!-- SOS Button (Floating Bottom Left) -->
+<button class="fixed bottom-24 left-4 z-50 w-16 h-16 bg-safety-red text-white rounded-full shadow-[0_4px_20px_rgba(211,47,47,0.4)] flex flex-col items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[28px]" data-icon="emergency">emergency</span>
+<span class="font-sos-display text-sos-display">SOS</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-2 bg-white dark:bg-slate-900 rounded-t-xl shadow-[0_-4px_12px_0_rgba(0,0,0,0.15)] border-t border-slate-200 dark:border-slate-800">
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-orange-500 dark:hover:text-orange-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-public-sans text-[11px] font-semibold">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-orange-500 dark:hover:text-orange-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-public-sans text-[11px] font-semibold">Map</span>
+</div>
+<div class="flex flex-col items-center justify-center text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 rounded-2xl px-4 py-1 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="smart_toy" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+<span class="font-public-sans text-[11px] font-semibold">Assistant</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 hover:text-orange-500 dark:hover:text-orange-300 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-public-sans text-[11px] font-semibold">Alerts</span>
+</div>
+</nav>
+<style>
+        /* Custom scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

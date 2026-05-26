@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Palette, Smartphone, UserRound, Globe, Shield, ChevronRight } from "lucide-react";
+import { Palette, Smartphone, UserRound, Globe, Shield, ChevronRight, UserCog } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
@@ -79,6 +79,27 @@ export default function ProfilePage() {
           </div>
         </div>
       </motion.section>
+
+      {/* ── Profile Setup ── */}
+      <motion.div variants={item}>
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Account setup</h2>
+        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+          <button
+            onClick={() => { trigger("light"); navigate("/profile-setup"); }}
+            className="flex w-full items-center gap-3 p-5 text-left transition-colors hover:bg-slate-50 active:bg-slate-100"
+            data-testid="button-profile-setup"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50">
+              <UserCog className="h-4 w-4 text-[#FF7F00]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-900">Personal details</p>
+              <p className="text-xs text-slate-500">Name, age, emergency contact & travel intent</p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+          </button>
+        </div>
+      </motion.div>
 
       {/* ── Language ── */}
       <motion.div variants={item}>
