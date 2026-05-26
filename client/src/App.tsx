@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { SOSDialog } from "@/components/emergency/SOSDialog";
-import { SplashScreen } from "@/components/pwa/SplashScreen";
+import { OnboardingFlow } from "@/components/pwa/OnboardingFlow";
 import { NetworkStatus } from "@/components/pwa/NetworkStatus";
 import { useEmergencyActions } from "@/hooks/useEmergencyActions";
 import NotFound from "@/pages/not-found";
@@ -34,12 +35,10 @@ function Router({ emergency }: RouterProps) {
   );
 }
 
-function App() {
+function MainApp() {
   const emergency = useEmergencyActions();
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <SplashScreen />
+    <>
       <NetworkStatus />
       <AppLayout
         onOpenSOS={emergency.openSOS}
@@ -49,6 +48,24 @@ function App() {
       </AppLayout>
       <SOSDialog emergency={emergency} />
       <Toaster />
+    </>
+  );
+}
+
+function App() {
+  const [onboarded, setOnboarded] = useState(() => {
+    if (new URLSearchParams(window.location.search).get("nosplash")) return true;
+    if (new URLSearchParams(window.location.search).get("onboarding")) return false;
+    return !!localStorage.getItem("kumbh360-onboarded");
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {onboarded ? (
+        <MainApp />
+      ) : (
+        <OnboardingFlow onComplete={() => setOnboarded(true)} />
+      )}
     </QueryClientProvider>
   );
 }
