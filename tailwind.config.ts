@@ -14,7 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Poppins", "Noto Sans", "sans-serif"],
+        sans: ["Public Sans", "sans-serif"],
+        headline: ["Public Sans", "sans-serif"],
+        body: ["Public Sans", "sans-serif"],
+        label: ["Public Sans", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
