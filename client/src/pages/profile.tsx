@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Palette, Smartphone, UserRound, Globe, Shield, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "wouter";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { ThemePresets } from "@/components/ThemePresets";
 import { ThemeSettings } from "@/components/ThemeSettings";
@@ -22,9 +23,16 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: "easeOut" } },
 };
 
+const ALL_LANGUAGE_NAMES: Record<string, string> = {
+  en: "English", hi: "हिन्दी", mr: "मराठी", bn: "বাংলা",
+  ta: "தமிழ்", te: "తెలుగు", gu: "ગુજરાતી", kn: "ಕನ್ನಡ",
+  pa: "ਪੰਜਾਬੀ", ur: "اردو",
+};
+
 export default function ProfilePage() {
   const { i18n } = useTranslation();
   const { trigger } = useHaptics();
+  const [, navigate] = useLocation();
   const currentLanguage = (i18n.resolvedLanguage || i18n.language || "en")
     .split("-")[0]
     .toLowerCase();
@@ -76,35 +84,22 @@ export default function ProfilePage() {
       <motion.div variants={item}>
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Language preference</h2>
         <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <div className="p-5">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50">
-                <Globe className="h-4 w-4 text-violet-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-900">App language</p>
-                <p className="text-xs text-slate-500">Affects all text throughout the app</p>
-              </div>
+          <button
+            onClick={() => { trigger("light"); navigate("/language-setup"); }}
+            className="flex w-full items-center gap-3 p-5 text-left transition-colors hover:bg-slate-50 active:bg-slate-100"
+            data-testid="button-change-language"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50">
+              <Globe className="h-4 w-4 text-[#FF7F00]" />
             </div>
-            <div className="flex flex-wrap gap-2">
-              {LANGUAGE_OPTIONS.map((language) => (
-                <button
-                  key={language.code}
-                  onClick={() => handleLanguageChange(language.code)}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-2xl border px-5 py-3 text-sm font-semibold transition-all",
-                    currentLanguage === language.code
-                      ? "border-[#FF7F00] bg-[#FFF3E2] text-[#FF7F00] shadow-sm"
-                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-                  )}
-                  data-testid={`button-lang-${language.code}`}
-                >
-                  <span className="text-base">{language.native}</span>
-                  <span className="text-[10px] font-medium opacity-60">{language.label}</span>
-                </button>
-              ))}
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-slate-900">App language</p>
+              <p className="text-xs text-slate-500">
+                {ALL_LANGUAGE_NAMES[currentLanguage] ?? "English"} · Tap to change
+              </p>
             </div>
-          </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+          </button>
         </div>
       </motion.div>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,6 +14,7 @@ import MapPage from "@/pages/map";
 import ProfilePage from "@/pages/profile";
 import SOSPage from "@/pages/sos";
 import ExplorePage from "@/pages/explore";
+import LanguageSetup from "@/pages/language-setup";
 import "./lib/i18n";
 
 interface RouterProps {
@@ -37,6 +38,17 @@ function Router({ emergency }: RouterProps) {
 
 function MainApp() {
   const emergency = useEmergencyActions();
+  const [location] = useLocation();
+
+  if (location === "/language-setup") {
+    return (
+      <>
+        <LanguageSetup />
+        <Toaster />
+      </>
+    );
+  }
+
   return (
     <>
       <NetworkStatus />
