@@ -1,0 +1,561 @@
+<!-- Home Screen (Control Hub) -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#0073e1",
+                    "tertiary": "#005ab4",
+                    "on-secondary-fixed-variant": "#004882",
+                    "on-tertiary-fixed-variant": "#00458d",
+                    "surface-tint": "#a83900",
+                    "secondary-container": "#89bcff",
+                    "inverse-primary": "#ffb59a",
+                    "secondary-fixed": "#d3e4ff",
+                    "primary": "#a43800",
+                    "surface-dim": "#efd4cb",
+                    "on-tertiary-container": "#fefcff",
+                    "tertiary-fixed-dim": "#aac7ff",
+                    "text-primary": "#1A1C1E",
+                    "on-tertiary-fixed": "#001b3e",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "safe-green": "#2E7D32",
+                    "on-tertiary": "#ffffff",
+                    "ai-purple": "#6200EE",
+                    "outline-variant": "#e2bfb3",
+                    "error-container": "#ffdad6",
+                    "outline": "#8e7066",
+                    "on-secondary-container": "#004a86",
+                    "surface-container-highest": "#f8ddd4",
+                    "error": "#ba1a1a",
+                    "warning-orange": "#EF6C00",
+                    "surface-container-low": "#fff1ec",
+                    "on-primary-fixed": "#380d00",
+                    "surface-bright": "#fff8f6",
+                    "surface": "#fff8f6",
+                    "background": "#fff8f6",
+                    "surface-background": "#F8F9FA",
+                    "primary-container": "#cd4800",
+                    "on-secondary-fixed": "#001c38",
+                    "inverse-surface": "#3d2d27",
+                    "primary-fixed": "#ffdbce",
+                    "on-surface-variant": "#5a4138",
+                    "safety-red": "#D32F2F",
+                    "on-surface": "#261813",
+                    "text-secondary": "#44474E",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#f8ddd4",
+                    "on-background": "#261813",
+                    "on-primary-container": "#fffbff",
+                    "tertiary-fixed": "#d6e3ff",
+                    "primary-fixed-dim": "#ffb59a",
+                    "surface-container": "#ffe9e2",
+                    "surface-card": "#FFFFFF",
+                    "inverse-on-surface": "#ffede7",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#a3c9ff",
+                    "secondary": "#27609d",
+                    "on-primary-fixed-variant": "#802a00",
+                    "surface-container-high": "#fee2d9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-gap": "24px",
+                    "margin-mobile": "16px",
+                    "touch-target-min": "48px",
+                    "gutter": "12px",
+                    "unit": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Public Sans"],
+                    "body-lg": ["Public Sans"],
+                    "label-sm": ["Public Sans"],
+                    "label-lg": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "headline-md": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "sos-display": ["Public Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "sos-display": ["14px", {"lineHeight": "16px", "fontWeight": "800"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .sos-pulse {
+        box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(211, 47, 47, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+<img class="w-full h-full object-cover" data-alt="Portrait of a friendly male user for profile avatar, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDADPn3PJxZxA6Gx6n7sm1EOWiedet3MnecizdaIM0po47O_5aNzNOiEn9bchsDXU5_LidOz0A_sm82bGezDV-h0mwKj_fxTq2G5gUlpwnl9KvGOmD5R96CmMv0FhsPGYu3RuML3t4lhpqI8x6QAT1mwlRGzu8sy3q5TZ-nA__TUcQMaL85YXBvvs9vowgcnN19vgK3D1Tfp4WPqG7TXPWrSknn1pAm3wGgsaUhuW0KPXeQGSLhivSAwcBDP7R5UeW3ej2siAP6W2E"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-text-secondary uppercase">Current Location</span>
+<span class="font-headline-md text-orange-700 leading-tight">Prayagraj, Sector 4</span>
+</div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+</button>
+</header>
+<main class="pt-20 px-4 space-y-6">
+<!-- AI Search Bar -->
+<div class="relative mt-4">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-ai-purple">auto_awesome</span>
+</div>
+<input class="w-full pl-12 pr-12 py-4 bg-white border border-outline-variant rounded-xl shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent font-body-md" placeholder="Ask AI: 'Where is the nearest medical camp?'" type="text"/>
+<div class="absolute inset-y-0 right-4 flex items-center">
+<span class="material-symbols-outlined text-slate-400">mic</span>
+</div>
+</div>
+<!-- Smart Cards (Dynamic Alerts) -->
+<section class="space-y-3">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<h2 class="font-headline-md">Live Insights</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<!-- High Crowd Card -->
+<div class="relative overflow-hidden p-4 rounded-xl border-l-4 border-safety-red bg-error-container/30 flex items-start gap-4">
+<div class="bg-safety-red text-white p-2 rounded-lg">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div>
+<h3 class="font-label-lg text-safety-red">High crowd nearby</h3>
+<p class="font-body-md text-on-surface-variant">Sangam area reaching peak capacity. Consider Sector 2 Ghats for ease.</p>
+</div>
+</div>
+<!-- Snan Timing Card -->
+<div class="relative overflow-hidden p-4 rounded-xl border-l-4 border-safe-green bg-emerald-50 flex items-start gap-4">
+<div class="bg-safe-green text-white p-2 rounded-lg">
+<span class="material-symbols-outlined">waves</span>
+</div>
+<div>
+<h3 class="font-label-lg text-safe-green">Best time for Snan: 4 AM</h3>
+<p class="font-body-md text-on-surface-variant">Early morning slots show 40% less queue time today at Sector 4.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions Bento Grid -->
+<section>
+<h2 class="font-headline-md mb-4">Quick Access</h2>
+<div class="grid grid-cols-4 gap-3">
+<div class="col-span-2 row-span-2 relative group cursor-pointer overflow-hidden rounded-2xl bg-primary-container p-4 flex flex-col justify-between text-white active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">map</span>
+<div>
+<p class="font-headline-lg">Interactive Map</p>
+<p class="font-label-sm opacity-80">Navigate the Mela</p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-9xl">explore</span>
+</div>
+</div>
+<div class="col-span-2 bg-secondary-container/20 border border-secondary-container/30 p-4 rounded-2xl flex items-center gap-3 active:scale-95 transition-transform">
+<div class="bg-secondary text-white p-2 rounded-xl">
+<span class="material-symbols-outlined">grid_view</span>
+</div>
+<span class="font-label-lg text-secondary">Services</span>
+</div>
+<div class="col-span-1 bg-surface-container-high p-4 rounded-2xl flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary">diversity_3</span>
+<span class="font-label-sm">Group</span>
+</div>
+<div class="col-span-1 bg-surface-container-high p-4 rounded-2xl flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-ai-purple">smart_toy</span>
+<span class="font-label-sm">Assistant</span>
+</div>
+</div>
+</section>
+<!-- Live Section (Ghat Snapshot) -->
+<section class="space-y-4">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-md">Live Ghat Status</h2>
+<span class="flex items-center gap-1 text-safety-red font-label-lg">
+<span class="w-2 h-2 bg-safety-red rounded-full"></span> LIVE
+                </span>
+</div>
+<div class="relative h-48 rounded-2xl overflow-hidden shadow-lg">
+<img class="w-full h-full object-cover" data-alt="Wide shot of a peaceful Indian river ghat at dawn with colorful reflections on water and distant temples" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC48RYTp7My10oV0peF_htH1jGgT58l5yDoWkkQAkhwBhjhKWpy3aQj2ZmF-jltAVrCeMjWCTYfinfg2lhvXkeAAyIMNo9OZOxAYZGo3jQBELzBLhjRpL1vta92KZaWpus-7mrQx6QGka0kmwtjjYJaEWK1sc5VWOnDfRspiuUZuJ9sf55NZJPytdfjy7EVYvBYKAfEh05N_lnt-_XWceI32a4gAeGYIzJOKe43PzhG8PUdO-GmjxnfyCLnbF1pbsQjF_az12cuwQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 text-white">
+<p class="font-label-lg">Main Sangam Ghat</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-safe-green/20 text-green-400 px-2 py-0.5 rounded-full text-[10px] border border-green-400/30">MODERATE CROWD</span>
+<span class="text-xs opacity-80">Updated 2m ago</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Nearby Services -->
+<section class="pb-8">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md">Nearby Services</h2>
+<button class="text-primary font-label-lg">View All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<!-- Food Card -->
+<div class="flex-shrink-0 w-64 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover" data-alt="Authentic Indian street food serving of hot samosas and chai in a clean outdoor setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbINNzywu6KO6skVZus6ai7ViQbJBj7yLYbVe6UmIoWc6cwS6HEzh5AofbsCvtXWaV-J6Iuzr9qmo4GYLWJZ7o7ci4r9dlnRJ3bLKg3WCrhbtxTM8fdcseTjSEBf8Fdlsx6RcUT5nCoUv-vvfA9v3A7_PFyXIOx8slFZTsnzeWoaw8vyEnLwEqmJtfWzKhSEzk2YPYBwpEYuy0NG_Fde4Rqox9SGNkq13sat3vj369Q1n3yi5sTNKUeOkdgMa0NoRIFvLTniefm-8"/>
+<span class="absolute top-2 right-2 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-xs font-bold text-orange-600">4.8 ★</span>
+</div>
+<div class="p-3">
+<p class="font-label-lg">Annapurna Kitchen</p>
+<p class="font-label-sm text-text-secondary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 200m away
+                        </p>
+<button class="mt-3 w-full py-2 bg-surface-container rounded-xl text-primary font-label-lg">Get Directions</button>
+</div>
+</div>
+<!-- Medical Card -->
+<div class="flex-shrink-0 w-64 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+<div class="h-32 relative">
+<img class="w-full h-full object-cover" data-alt="Clean and modern medical first aid station interior with professional equipment and soft bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWaYwjZ-kie5DOLHl8PWzGp-K847GwK-HfNWPJUhmO1tH7m7X868M-50ODOKfSVvkY14zipTDKKnrBlA45M3CwTh_oJKljrbSpQKXwEXqwzva0mwT79nWpfAjCOXbMyV200hyL4_0RkEYqHNERewI0kVqdTa5bL4vozUqkcu0eMD1VV2MXeKmJuTsLL55U7klDsmfXOMpLzLe-RcPpCRtub4IHr-REHNcnZ2TM0c9Q2JNs82oo0sDZphl1_dtBNEd53JY8eanfocM"/>
+<span class="absolute top-2 left-2 bg-safety-red text-white px-2 py-1 rounded-lg text-[10px] font-black">24/7 EMERGENCY</span>
+</div>
+<div class="p-3">
+<p class="font-label-lg">Mela Medical Camp B</p>
+<p class="font-label-sm text-text-secondary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">distance</span> 450m away
+                        </p>
+<button class="mt-3 w-full py-2 bg-error-container/50 rounded-xl text-safety-red font-label-lg">Call Clinic</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Pulsing SOS Button -->
+<div class="fixed bottom-24 left-6 z-[60]">
+<button class="sos-pulse w-16 h-16 bg-safety-red rounded-full flex flex-col items-center justify-center text-white shadow-xl active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">emergency</span>
+<span class="font-sos-display text-[10px] tracking-widest mt-[-2px]">SOS</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.15)] rounded-t-lg border-t border-slate-200">
+<a class="flex flex-col items-center justify-center text-orange-600 bg-orange-50 rounded-xl px-3 py-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Public_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-3 py-1 hover:text-orange-500 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-['Public_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-1">Maps</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-3 py-1 hover:text-orange-500 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">emergency</span>
+<span class="font-['Public_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-1">SOS</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-3 py-1 hover:text-orange-500 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Public_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-1">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-3 py-1 hover:text-orange-500 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Public_Sans'] text-[11px] font-semibold uppercase tracking-wider mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
+
+<!-- Profile Setup -->
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kumbh360 - Profile Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#001c38",
+                        "inverse-surface": "#3d2d27",
+                        "inverse-on-surface": "#ffede7",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#fee2d9",
+                        "on-primary-fixed-variant": "#802a00",
+                        "tertiary-fixed-dim": "#aac7ff",
+                        "inverse-primary": "#ffb59a",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-card": "#FFFFFF",
+                        "secondary-fixed-dim": "#a3c9ff",
+                        "outline": "#8e7066",
+                        "on-surface-variant": "#5a4138",
+                        "on-secondary-container": "#004a86",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#0073e1",
+                        "surface-dim": "#efd4cb",
+                        "surface-container": "#ffe9e2",
+                        "surface-container-low": "#fff1ec",
+                        "error-container": "#ffdad6",
+                        "primary": "#a43800",
+                        "safe-green": "#2E7D32",
+                        "surface-variant": "#f8ddd4",
+                        "primary-fixed-dim": "#ffb59a",
+                        "on-primary-container": "#fffbff",
+                        "on-tertiary-fixed": "#001b3e",
+                        "tertiary": "#005ab4",
+                        "surface-bright": "#fff8f6",
+                        "on-tertiary-container": "#fefcff",
+                        "secondary-container": "#89bcff",
+                        "on-tertiary-fixed-variant": "#00458d",
+                        "secondary-fixed": "#d3e4ff",
+                        "primary-container": "#cd4800",
+                        "ai-purple": "#6200EE",
+                        "text-primary": "#1A1C1E",
+                        "on-primary-fixed": "#380d00",
+                        "background": "#fff8f6",
+                        "primary-fixed": "#ffdbce",
+                        "on-background": "#261813",
+                        "text-secondary": "#44474E",
+                        "surface-tint": "#a83900",
+                        "on-secondary-fixed-variant": "#004882",
+                        "on-surface": "#261813",
+                        "surface-background": "#F8F9FA",
+                        "warning-orange": "#EF6C00",
+                        "outline-variant": "#e2bfb3",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#27609d",
+                        "tertiary-fixed": "#d6e3ff",
+                        "surface": "#fff8f6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#f8ddd4",
+                        "safety-red": "#D32F2F"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "touch-target-min": "48px",
+                        "gutter": "12px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Public Sans"],
+                        "label-lg": ["Public Sans"],
+                        "headline-xl": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "sos-display": ["Public Sans"],
+                        "body-md": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "sos-display": ["14px", {"lineHeight": "16px", "fontWeight": "800"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- Top Navigation Anchor (As per Shared Components JSON) -->
+<header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-orange-600 dark:text-orange-500 font-['Public_Sans'] font-bold tracking-tight fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between px-4 h-16 w-full max-w-md mx-auto">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-xl font-black text-orange-600 dark:text-orange-500 uppercase tracking-wider">Kumbh360</h1>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150 p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 w-full max-w-md mx-auto px-margin-mobile pt-24 pb-32">
+<!-- Progress Indicator -->
+<div class="mb-section-gap">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-lg text-label-lg text-primary">Setup Progress</span>
+<span class="font-label-lg text-label-lg text-text-secondary">Step 2 of 3</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[66%] transition-all duration-500"></div>
+</div>
+</div>
+<section class="space-y-section-gap">
+<!-- Header Text -->
+<div>
+<h2 class="font-headline-lg text-headline-lg text-text-primary">Complete Your Profile</h2>
+<p class="font-body-md text-body-md text-text-secondary mt-1">Help us ensure your safety and provide the best pilgrimage experience.</p>
+</div>
+<!-- Bento Layout Form Cards -->
+<div class="grid grid-cols-1 gap-gutter">
+<!-- Personal Info Card -->
+<div class="bg-surface-card p-5 rounded-xl border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="material-symbols-outlined" data-icon="person_filled" style="font-variation-settings: 'FILL' 1;">person</span>
+<h3 class="font-headline-md text-headline-md">Personal Information</h3>
+</div>
+<div class="space-y-4">
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="name">Full Name</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="name" placeholder="Enter your full name" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="age">Age</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="age" placeholder="Ex: 45" type="number"/>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Gender</label>
+<select class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all appearance-none">
+<option disabled="" selected="" value="">Select</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
+<div class="absolute right-3 bottom-3 pointer-events-none">
+<span class="material-symbols-outlined text-text-secondary">arrow_drop_down</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Emergency Contact Card -->
+<div class="bg-surface-card p-5 rounded-xl border-l-4 border-l-safety-red border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-safety-red mb-2">
+<span class="material-symbols-outlined" data-icon="contact_emergency" style="font-variation-settings: 'FILL' 1;">contact_emergency</span>
+<h3 class="font-headline-md text-headline-md">Emergency Contact</h3>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="emergency_phone">Guardian/Relative Phone Number</label>
+<div class="flex">
+<div class="h-touch-target-min flex items-center px-3 bg-surface-container-low border border-r-0 border-outline-variant rounded-l-lg font-body-md text-text-secondary">+91</div>
+<input class="flex-1 h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-r-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="emergency_phone" placeholder="9876543210" type="tel"/>
+</div>
+<p class="font-label-sm text-[10px] text-text-secondary mt-2 italic">This number will be contacted during SOS triggers.</p>
+</div>
+</div>
+<!-- Travel Intent Card -->
+<div class="bg-surface-card p-5 rounded-xl border border-outline-variant shadow-sm space-y-4">
+<div class="flex items-center gap-2 text-tertiary mb-2">
+<span class="material-symbols-outlined" data-icon="travel_explore" style="font-variation-settings: 'FILL' 1;">travel_explore</span>
+<h3 class="font-headline-md text-headline-md">Travel Intent</h3>
+</div>
+<div class="space-y-4">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-2 block">Planned Duration (Days)</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">1-3</button>
+<button class="px-4 py-2 rounded-full border-2 border-primary font-label-lg text-label-lg bg-primary-fixed text-primary shadow-sm">4-7</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">8-14</button>
+<button class="px-4 py-2 rounded-full border border-outline-variant font-label-lg text-label-lg bg-surface-container-lowest hover:bg-primary-fixed transition-colors">15+</button>
+</div>
+</div>
+<div class="relative">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block" for="group_size">Group Size (Including You)</label>
+<input class="w-full h-touch-target-min px-4 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="group_size" placeholder="Ex: 5" type="number"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Complete Action -->
+<div class="pt-4">
+<button class="w-full h-14 bg-primary text-on-primary rounded-xl font-headline-md flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span>Complete Setup</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<p class="text-center font-label-sm text-text-secondary mt-4">You can update these details later in Settings.</p>
+</div>
+</section>
+</main>
+<!-- Global SOS Component -->
+<div class="fixed bottom-6 left-6 z-[60]">
+<button class="w-16 h-16 bg-safety-red rounded-full flex flex-col items-center justify-center text-white shadow-2xl shadow-red-600/40 border-4 border-white active:scale-90 transition-all group overflow-hidden">
+<span class="material-symbols-outlined text-[28px] animate-pulse" data-icon="emergency_share" style="font-variation-settings: 'FILL' 1;">emergency_share</span>
+<span class="font-sos-display text-[10px] leading-tight">SOS</span>
+</button>
+</div>
+<!-- Voice Assistant (Floating Action as per Design System) -->
+<div class="fixed bottom-6 right-6 z-[60]">
+<button class="w-14 h-14 bg-ai-purple rounded-full flex items-center justify-center text-white shadow-xl active:scale-90 transition-all border-4 border-white">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+</div>
+<!-- Bottom Context Guard -->
+<div class="fixed bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
+</body></html>
