@@ -16,6 +16,7 @@ import SOSPage from "@/pages/sos";
 import ExplorePage from "@/pages/explore";
 import LanguageSetup from "@/pages/language-setup";
 import ProfileSetup from "@/pages/profile-setup";
+import ChatPage from "@/pages/chat";
 import "./lib/i18n";
 
 interface RouterProps {
@@ -54,6 +55,15 @@ function MainApp() {
     return (
       <>
         <ProfileSetup />
+        <Toaster />
+      </>
+    );
+  }
+
+  if (location === "/chat") {
+    return (
+      <>
+        <ChatPage />
         <Toaster />
       </>
     );

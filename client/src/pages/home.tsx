@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Map, MessageSquare, ShieldAlert, Bus, Sun, CloudRain, Cloud,
@@ -8,7 +8,6 @@ import {
   Navigation, UtensilsCrossed, HeartPulse, Clock,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { ChatInterface } from "@/components/ChatInterface";
 import { CrowdLevelIndicator } from "@/components/CrowdLevel";
 import { FoodWaterSafety } from "@/components/FoodWaterSafety";
 import { NewsWidget } from "@/components/NewsWidget";
@@ -61,7 +60,6 @@ export default function Home() {
   const [, navigate] = useLocation();
   const { trigger } = useHaptics();
   const { canInstall, promptToInstall } = useInstallPrompt();
-  const [chatOpen, setChatOpen] = useState(false);
   const [aiQuery, setAiQuery] = useState("");
 
   const { data: weather } = useQuery<WeatherData>({ queryKey: ["/api/weather"] });
@@ -81,7 +79,7 @@ export default function Home() {
     e.preventDefault();
     if (aiQuery.trim()) {
       trigger("light");
-      setChatOpen(true);
+      navigate("/chat");
     }
   };
 
@@ -136,7 +134,7 @@ export default function Home() {
           <button
             type="button"
             className="absolute inset-y-0 right-4 flex items-center"
-            onClick={() => { trigger("light"); setChatOpen(true); }}
+            onClick={() => { trigger("light"); navigate("/chat"); }}
             data-testid="button-ai-mic"
           >
             <Mic className="h-5 w-5 text-slate-400" />
@@ -231,7 +229,7 @@ export default function Home() {
 
             {/* Assistant */}
             <button
-              onClick={() => { trigger("light"); setChatOpen(true); }}
+              onClick={() => { trigger("light"); navigate("/chat"); }}
               className="col-span-1 flex flex-col items-center justify-center gap-2 rounded-2xl bg-violet-50 p-4 active:scale-95 transition-transform"
               data-testid="button-quick-assistant"
             >
@@ -347,7 +345,7 @@ export default function Home() {
         {/* ── KumbhDoot AI assistant ── */}
         <motion.div variants={item}>
           <button
-            onClick={() => { trigger("light"); setChatOpen(true); }}
+            onClick={() => { trigger("light"); navigate("/chat"); }}
             className="flex w-full items-center gap-3.5 overflow-hidden rounded-[1.75rem] bg-gradient-to-r from-[#1a1a2e] to-[#16213e] p-4 text-left shadow-lg"
             data-testid="button-open-kumbhdoot"
           >
@@ -369,38 +367,6 @@ export default function Home() {
             </div>
           </button>
         </motion.div>
-
-        {/* ── Chat panel ── */}
-        <AnimatePresence>
-          {chatOpen && (
-            <motion.div
-              key="chat-panel"
-              id="chat"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm"
-            >
-              <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF7F00]/10">
-                    <MessageSquare className="h-4 w-4 text-[#FF7F00]" />
-                  </div>
-                  <span className="text-[13px] font-semibold text-slate-900">KumbhDoot Assistant</span>
-                </div>
-                <button
-                  onClick={() => { trigger("light"); setChatOpen(false); }}
-                  className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200"
-                  data-testid="button-close-chat"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <ChatInterface />
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* ── News ── */}
         <motion.div variants={item}>
