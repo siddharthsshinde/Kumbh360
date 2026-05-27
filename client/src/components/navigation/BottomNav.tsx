@@ -10,7 +10,7 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 bg-white border-t border-slate-200">
       <div
-        className="grid grid-cols-5"
+        className="grid grid-cols-6"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         {appNavigation.map((item) => {

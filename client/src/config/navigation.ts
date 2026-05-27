@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Map, Asterisk, LayoutGrid, UserRound } from "lucide-react";
+import { Home, Map, Asterisk, LayoutGrid, UserRound, Bot } from "lucide-react";
 
 export interface AppNavItem {
   href: string;
@@ -23,6 +23,13 @@ export const appNavigation: AppNavItem[] = [
     title: "Map and Wayfinding",
     description: "Explore facilities, crowd zones, nearby landmarks, and transit support.",
     icon: Map,
+  },
+  {
+    href: "/chat",
+    label: "Assistant",
+    title: "KumbhDoot AI",
+    description: "Ask about ghats, timings, crowd levels, safety, and transport.",
+    icon: Bot,
   },
   {
     href: "/sos",
