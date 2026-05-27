@@ -1,0 +1,5003 @@
+[1G[0K⠙[1G[0K
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+
+[1G[0K⠙[1G[0KNewsAPI key not found
+8:50:37 PM [cache-manager] Redis caching is disabled
+8:50:37 PM [vector-search] Initializing FAISS vector index
+8:50:37 PM [vector-search] Gemini API key not provided, using alternative embedding method
+8:50:37 PM [vector-search] FAISS vector index initialized successfully
+8:50:37 PM [server] No Gemini API key found, RAG service will be initialized on first use
+8:50:38 PM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 19 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:50:42.805Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:50:47.799Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:50:52.798Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:50:57.797Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:02.799Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:07.798Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:12.799Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:17.800Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:22.801Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+8:51:26 PM [express] GET /api/weather 200 in 6ms :: {"temperature":23,"condition":"Clear Sky","humid…
+8:51:26 PM [express] GET /api/crowd-levels 200 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+8:51:26 PM [express] GET /api/news 200 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+8:51:26 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+8:51:26 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:27.802Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:32.802Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:37.803Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:42.804Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+8:51:43 PM [express] GET /api/weather 200 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+8:51:43 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+8:51:44 PM [express] GET /api/news 200 in 0ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+8:51:44 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+8:51:44 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:47.804Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:52.805Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:51:57.806Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:02.807Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:07.807Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:12.807Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:17.809Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:22.809Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:27.810Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:32.812Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:37.811Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:42.812Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:47.813Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:52.814Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:52:57.815Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:02.815Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:07.816Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:12.817Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:17.818Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:22.819Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:27.820Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+8:53:29 PM [express] GET /api/news 304 in 0ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:32.821Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+8:53:33 PM [express] GET /api/weather 304 in 2ms :: {"temperature":23,"condition":"Clear Sky","humid…
+8:53:33 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+8:53:33 PM [express] GET /api/news 304 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+8:53:33 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+8:53:33 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:37.822Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:42.823Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:47.825Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:52.825Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:53:57.826Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:02.827Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:07.828Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:12.829Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:17.833Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:22.831Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:27.832Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:32.833Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:37.833Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:42.834Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:47.835Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:52.835Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:54:57.836Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:02.836Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:07.837Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:12.837Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:17.838Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:22.839Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:27.839Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:32.840Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:37.842Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:42.843Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:47.844Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:52.844Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+8:55:57 PM [express] GET /api/news 304 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+8:55:57 PM [express] GET /api/crowd-levels 200 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:55:57.844Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:02.846Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:07.847Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:12.847Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:17.848Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:22.847Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:27.849Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:32.849Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:37.849Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:42.850Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:47.851Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:52.852Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:56:57.852Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:02.853Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:07.853Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:12.854Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:57:16 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/home.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:17.854Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:22.855Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:27.855Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:32.857Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:37.858Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:42.859Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:57:43 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/navigation/BottomNav.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:57:47 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/MobileLayout.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:47.859Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:52.860Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+8:57:54 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+8:57:54 PM [express] GET /api/news 304 in 0ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+8:57:54 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:57:57.862Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+8:58:01 PM [express] GET /api/facilities 200 in 1ms :: [{"id":1,"name":"Ramkund","type":"holy_site",…
+8:58:01 PM [express] GET /api/kumbh-locations 200 in 0ms :: [{"id":1,"name":"Ramkund","description":…
+8:58:01 PM [express] GET /api/ws-token 200 in 0ms :: {"token":"04a90516d81c9ffbc5325e3b7358cdb1e2041…
+New WebSocket connection established
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:02.862Z'[39m
+}
+Broadcasting density update to [33m1[39m clients
+8:58:04 PM [express] GET /api/user-emergency-contacts/user123 200 in 1ms :: []
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:07.862Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:58:11 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/map.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:12.863Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:17.865Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:22.866Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:27.866Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:32.866Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:37.867Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:42.868Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:47.867Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:58:49 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/sos.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:52.868Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:58:57.870Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:02.871Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:07.872Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:12.873Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:17.874Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:59:22 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/explore.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:22.874Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:27.876Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:32.877Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:37.879Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:42.880Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:47.881Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m8:59:48 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/profile.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:52.881Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T20:59:57.882Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:02.884Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:07.885Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:12.886Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:00:15 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/pwa/SplashScreen.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:17.887Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:22.889Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:27.890Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:00:31 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RealTimeSafetySuggestion.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:32.892Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:37.892Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:00:38 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/DesktopLayout.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:42.894Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:47.894Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:52.895Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:00:57 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/navigation/SidebarNav.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:00:57.895Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:02.896Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:07.902Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:01:09 PM [express] GET /api/weather 304 in 2ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:01:09 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:01:09 PM [express] GET /api/news 304 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+9:01:09 PM [express] GET /api/shuttle-locations 200 in 1ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:01:09 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:12.899Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:17.901Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:22.901Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:01:27 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:01:27 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:01:27 PM [express] GET /api/news 304 in 0ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+9:01:27 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:01:27 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:27.902Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:32.901Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:37.901Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:01:38 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/WeatherWidget.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:42.903Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:47.904Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:52.904Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:01:57.905Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:02.906Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:07.906Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:12.906Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:17.908Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:02:20 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/pwa/SplashScreen.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:22.908Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:27.909Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:02:29 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:02:29 PM [express] GET /api/crowd-levels 200 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:02:29 PM [express] GET /api/news 304 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+9:02:29 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:02:29 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:32.909Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+9:02:33 PM [express] GET /api/shuttle-locations 200 in 1ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:02:33 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:02:33 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:02:33 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:37.909Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:42.911Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:47.912Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:52.912Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:02:57.912Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:02.912Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:03:05 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RealTimeSafetySuggestion.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:03:07 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/pwa/SplashScreen.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:07.913Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:12.913Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:03:16 PM [express] GET /api/weather 304 in 2ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:03:16 PM [express] GET /api/crowd-levels 200 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:03:16 PM [express] GET /api/news 304 in 1ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+9:03:16 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:03:16 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:17.914Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:22.914Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:27.914Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:32.916Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:37.916Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:42.916Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:47.918Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+9:03:48 PM [express] GET /api/facilities 200 in 1ms :: [{"id":1,"name":"Ramkund","type":"holy_site",…
+9:03:48 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:03:48 PM [express] GET /api/restrooms 200 in 0ms :: [{"id":"R1","location":"Ramkund Complex","near…
+9:03:48 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:03:48 PM [express] GET /api/ws-token 200 in 1ms :: {"token":"04a90516d81c9ffbc5325e3b7358cdb1e2041…
+9:03:48 PM [express] GET /api/kumbh-locations 200 in 0ms :: [{"id":1,"name":"Ramkund","description":…
+New WebSocket connection established
+9:03:52 PM [express] GET /api/user-emergency-contacts/user123 200 in 1ms :: []
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:52.918Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:03:57.919Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:02.919Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:04:07 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RealTimeSafetySuggestion.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:07.920Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+9:04:09 PM [express] GET /api/shuttle-locations 200 in 1ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:04:09 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:04:09 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:04:09 PM [express] GET /api/crowd-levels 200 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:12.920Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:17.921Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:22.921Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:27.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:32.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:37.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:42.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:47.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:52.922Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:04:57.923Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:02.923Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:05:07 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/CrowdLevel.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:07.923Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:12.924Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:17.925Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:05:19 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:05:19 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:05:19 PM [express] GET /api/news 304 in 0ms :: [{"id":1,"title":"Special Ganga Aarti Tonight","con…
+9:05:19 PM [express] GET /api/shuttle-locations 200 in 1ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:05:19 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:22.925Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:27.925Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:32.926Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:05:36 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/CrowdLevel.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m [33m(x2)[39m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[1;1H[0J[2m9:05:37 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/CrowdLevel.tsx, /src/index.css?v=fMiHFtMtbRl9U6oCGhlLs[22m [33m(x3)[39m
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:37.926Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:42.926Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+9:05:46 PM [express] GET /api/shuttle-locations 200 in 0ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:05:46 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+Weather API error: Error: OpenWeather API key not found
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/routes.ts:415:15[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:149:13[90m)[39m
+    at Route.dispatch [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/route.js:119:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:284:15
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at <anonymous> [90m(/home/runner/workspace/[39mserver/index.ts:44:3[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at urlencodedParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/urlencoded.js:94:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at jsonParser [90m(/home/runner/workspace/[39mnode_modules/[4mbody-parser[24m/lib/types/json.js:113:7[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at expressInit [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/init.js:40:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at query [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/middleware/query.js:45:5[90m)[39m
+    at Layer.handle [as handle_request] [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/layer.js:95:5[90m)[39m
+    at trim_prefix [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:328:13[90m)[39m
+    at [90m/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:286:9
+    at Function.process_params [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:346:12[90m)[39m
+    at next [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:280:10[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/router/index.js:175:3[90m)[39m
+    at Function.handle [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/application.js:181:10[90m)[39m
+    at Server.app [90m(/home/runner/workspace/[39mnode_modules/[4mexpress[24m/lib/express.js:39:9[90m)[39m
+[90m    at Server.emit (node:events:524:28)[39m
+[90m    at parserOnIncoming (node:_http_server:1141:12)[39m
+[90m    at HTTPParser.parserOnHeadersComplete (node:_http_common:118:17)[39m
+9:05:46 PM [express] GET /api/weather 304 in 1ms :: {"temperature":23,"condition":"Clear Sky","humid…
+9:05:46 PM [express] GET /api/crowd-levels 200 in 0ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:47.927Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+9:05:50 PM [express] GET /api/facilities 304 in 1ms :: [{"id":1,"name":"Ramkund","type":"holy_site",…
+9:05:50 PM [express] GET /api/shuttle-locations 200 in 1ms :: [{"id":"S1","routeName":"Nashik Road →…
+9:05:50 PM [express] GET /api/restrooms 200 in 1ms :: [{"id":"R1","location":"Ramkund Complex","near…
+9:05:50 PM [express] GET /api/crowd-levels 304 in 1ms :: [{"id":1,"location":"Ramkund","level":5,"ca…
+9:05:50 PM [express] GET /api/ws-token 304 in 0ms :: {"token":"04a90516d81c9ffbc5325e3b7358cdb1e2041…
+9:05:50 PM [express] GET /api/kumbh-locations 200 in 0ms :: [{"id":1,"name":"Ramkund","description":…
+New WebSocket connection established
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:52.927Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:05:57.927Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:02.927Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:07.927Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:12.928Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:17.928Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:22.928Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:27.929Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:32.929Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:37.930Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:42.930Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:47.931Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:52.931Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:06:57.931Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:02.931Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:07.932Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:12.932Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:17.932Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:22.932Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:27.932Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:32.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:37.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:42.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:47.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:52.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:07:57.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:02.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:07.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:12.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:17.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:22.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:27.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:32.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:37.933Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:42.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:47.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:52.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:08:57.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:02.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:07.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:12.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:17.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:22.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:27.934Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:32.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:37.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:42.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:47.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:52.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:09:57.935Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:02.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:07.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:12.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:17.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:22.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:27.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:32.936Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:37.937Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:42.937Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:47.937Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:52.938Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:10:57.937Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:02.938Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:07.938Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:12.938Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:17.939Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:22.939Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:27.939Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:32.939Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:37.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:42.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:47.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:52.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:11:57.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:02.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:07.940Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:12.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:17.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:22.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:27.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:32.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:37.941Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:42.942Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:47.943Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:52.944Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:12:57.945Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:02.946Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:07.946Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:12.946Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:17.946Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:22.947Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:27.948Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:32.949Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:37.949Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:42.950Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:47.951Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:52.952Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:13:57.952Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:02.954Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:07.954Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:12.956Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:17.957Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:22.958Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:27.958Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:32.960Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:37.961Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:42.961Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:47.962Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:52.963Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:14:57.964Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:02.964Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:07.965Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:12.966Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:17.968Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:22.969Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:27.970Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:32.971Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:37.971Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:42.973Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:47.974Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:52.974Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:15:57.975Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:02.976Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:07.977Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:12.978Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:17.978Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:22.980Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:27.981Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:32.981Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:37.981Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:42.982Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:47.984Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:52.982Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:16:57.983Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:02.984Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:07.984Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:12.985Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:17.986Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:22.987Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:27.989Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:32.989Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:37.990Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:42.991Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:47.992Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:52.992Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:17:57.992Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:18:02.994Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
+Calculated new density grid: {
+  gridSize: [33m95[39m,
+  locations: [
+    [32m'Ramkund'[39m,
+    [32m'Tapovan'[39m,
+    [32m'Kalaram Temple'[39m,
+    [32m'Trimbakeshwar'[39m,
+    [32m'Panchavati'[39m
+  ],
+  timestamp: [32m'2026-05-03T21:18:07.995Z'[39m
+}
+Broadcasting density update to [33m0[39m clients
